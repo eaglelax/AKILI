@@ -146,7 +146,8 @@ function checkPageExists(path: string): boolean {
     '/tasks', 
     '/task-detail', 
     '/time-history', 
-    '/permissions'
+    '/permissions',
+    '/analytics'
   ];
   return existingPages.includes(path);
 }

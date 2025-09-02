@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/index.js"></script>
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+            --jofe-white: #FFFFFF;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-large: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .urial-font {
+            font-family: 'Urial', 'Open Sans', sans-serif;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--jofe-white);
+            box-shadow: var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--jofe-gray);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+
+        .logo-ring {
+            width: 12px;
+            height: 12px;
+            border: 2px solid;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .ring-1 {
+            border-color: var(--jofe-blue-deep);
+            top: 0;
+            left: 14px;
+        }
+
+        .ring-2 {
+            border-color: var(--jofe-blue-medium);
+            top: 12px;
+            left: 4px;
+        }
+
+        .ring-3 {
+            border-color: var(--jofe-blue-light);
+            top: 12px;
+            right: 4px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            color: var(--jofe-blue-deep);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--jofe-blue-medium);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--jofe-gray);
+            color: var(--jofe-blue-deep);
+            transform: translateY(-1px);
+        }
+
+        .nav-item.active {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--jofe-blue-medium);
+            font-size: 1.1rem;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background: var(--jofe-white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--jofe-gray);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-title {
+            font-size: 0.9rem;
+            color: var(--jofe-blue-medium);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--jofe-blue-light);
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .trend-positive {
+            color: var(--jofe-green);
+        }
+
+        .trend-negative {
+            color: var(--jofe-orange);
+        }
+
+        .trend-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-card {
+            background: var(--jofe-white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--jofe-gray);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            color: var(--jofe-blue-deep);
+            font-weight: 600;
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--jofe-gray);
+            background: var(--jofe-white);
+            border-radius: 6px;
+            color: var(--jofe-blue-medium);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border-color: var(--jofe-blue-light);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Performance Table */
+        .performance-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--jofe-blue-light);
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .performance-card {
+            background: var(--jofe-white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--jofe-gray);
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .performance-table th,
+        .performance-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--jofe-gray);
+        }
+
+        .performance-table th {
+            background: var(--jofe-gray);
+            color: var(--jofe-blue-deep);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .performance-table td {
+            color: var(--jofe-black);
+        }
+
+        .performance-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--jofe-gray);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            transition: width 0.6s ease;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-excellent {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+        }
+
+        .status-good {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+
+        .status-average {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+        }
+
+        /* ROI Analysis */
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .roi-card {
+            background: var(--jofe-white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--jofe-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .roi-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--jofe-green);
+        }
+
+        .roi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+        }
+
+        .roi-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--jofe-green);
+        }
+
+        .roi-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .roi-metric {
+            text-align: center;
+        }
+
+        .roi-metric-label {
+            font-size: 0.8rem;
+            color: var(--jofe-blue-medium);
+            margin-bottom: 0.25rem;
+        }
+
+        .roi-metric-value {
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                padding: 0.75rem 0;
+            }
+            
+            .logo-text {
+                font-size: 1.2rem;
+            }
+            
+            .header-nav {
+                gap: 1rem;
+            }
+            
+            .nav-item {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .page-title {
+                font-size: 1.6rem;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .kpi-value {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--jofe-gray);
+            border-radius: 50%;
+            border-top-color: var(--jofe-blue-light);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Pulse Animation for Real-time Data */
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo">
+                        <div class="logo-ring ring-1"></div>
+                        <div class="logo-ring ring-2"></div>
+                        <div class="logo-ring ring-3"></div>
+                    </div>
+                    <div class="logo-text urial-font">JoFé+</div>
+                </div>
+                
+                <nav class="header-nav">
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 7l5 5l5-5"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Tâches
+                    </a>
+                    <a href="#" class="nav-item active">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Équipe
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header fade-in">
+                <h1 class="page-title urial-font">Analytics Dashboard</h1>
+                <p class="page-subtitle">Vue d'ensemble des performances et métriques clés de JoFé+</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid fade-in">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Chiffre d'Affaires</span>
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-value pulse">15,280,000</div>
+                    <div class="kpi-trend trend-positive">
+                        <svg class="trend-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+23% vs mois dernier</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--jofe-blue-medium); margin-top: 0.5rem;">FCFA</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Productivité Équipe</span>
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-value pulse">87%</div>
+                    <div class="kpi-trend trend-positive">
+                        <svg class="trend-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+5% cette semaine</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Satisfaction Client</span>
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-value pulse">4.8<span style="font-size: 1.2rem;">/5</span></div>
+                    <div class="kpi-trend">
+                        <span style="color: var(--jofe-blue-medium);">Stable</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Projets Actifs</span>
+                        <svg class="kpi-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-value pulse">23</div>
+                    <div class="kpi-trend trend-positive">
+                        <svg class="trend-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+3 nouveaux</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid fade-in">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title urial-font">Évolution CA Mensuel</h3>
+                        <div class="chart-filters">
+                            <button class="filter-btn active">6 mois</button>
+                            <button class="filter-btn">12 mois</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title urial-font">Répartition Projets</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="projectsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Performance -->
+            <div class="performance-section fade-in">
+                <h2 class="section-title urial-font">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Performance Équipe
+                </h2>
+                
+                <div class="performance-grid">
+                    <div class="performance-card">
+                        <h4 class="urial-font" style="margin-bottom: 1rem; color: var(--jofe-blue-deep);">Top Performers</h4>
+                        <table class="performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Membre</th>
+                                    <th>Productivité</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Paul Junior OUEDRAOGO</td>
+                                    <td>
+                                        <div class="performance-bar">
+                                            <div class="performance-fill" style="width: 94%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-excellent">94%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Fortune YANOGO</td>
+                                    <td>
+                                        <div class="performance-bar">
+                                            <div class="performance-fill" style="width: 87%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-good">87%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Linda KABORÉ</td>
+                                    <td>
+                                        <div class="performance-bar">
+                                            <div class="performance-fill" style="width: 83%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-good">83%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Bientama PARÉ</td>
+                                    <td>
+                                        <div class="performance-bar">
+                                            <div class="performance-fill" style="width: 81%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-good">81%</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="performance-card">
+                        <h4 class="urial-font" style="margin-bottom: 1rem; color: var(--jofe-blue-deep);">Charge de Travail</h4>
+                        <div class="chart-container" style="height: 280px;">
+                            <canvas id="workloadChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Analysis -->
+            <div class="performance-section fade-in">
+                <h2 class="section-title urial-font">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    Analyse ROI Clients
+                </h2>
+                
+                <div class="roi-grid">
+                    <div class="roi-card">
+                        <div class="roi-header">
+                            <div class="client-name">MOOV AFRICA</div>
+                            <div class="roi-value">287%</div>
+                        </div>
+                        <div class="roi-details">
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Revenus</div>
+                                <div class="roi-metric-value">4,200,000 FCFA</div>
+                            </div>
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Coûts</div>
+                                <div class="roi-metric-value">1,460,000 FCFA</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="roi-card">
+                        <div class="roi-header">
+                            <div class="client-name">BANK OF AFRICA</div>
+                            <div class="roi-value">234%</div>
+                        </div>
+                        <div class="roi-details">
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Revenus</div>
+                                <div class="roi-metric-value">3,800,000 FCFA</div>
+                            </div>
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Coûts</div>
+                                <div class="roi-metric-value">1,620,000 FCFA</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="roi-card">
+                        <div class="roi-header">
+                            <div class="client-name">SUNU BURKINA</div>
+                            <div class="roi-value">189%</div>
+                        </div>
+                        <div class="roi-details">
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Revenus</div>
+                                <div class="roi-metric-value">2,500,000 FCFA</div>
+                            </div>
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Coûts</div>
+                                <div class="roi-metric-value">1,323,000 FCFA</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="roi-card">
+                        <div class="roi-header">
+                            <div class="client-name">ROXGOLD</div>
+                            <div class="roi-value">312%</div>
+                        </div>
+                        <div class="roi-details">
+                            <div class="roi-metric">
+                                <div class="roi-metric-label">Revenus</div>
+                                <div class="roi-metric-value">1,900,000 FCFA</div>
+                            </div>
+                            <div class="roi-metric">
+                                <div class="roi-metric-value">609,000 FCFA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // JoFé+ Color Palette
+        const jofeColors = {
+            blueDeep: '#162C54',
+            blueNight: '#1A4278',
+            blueMedium: '#3475BB',
+            blueLight: '#37B6E9',
+            green: '#93C954',
+            orange: '#F68C1F',
+            white: '#FFFFFF',
+            black: '#000000',
+            gray: '#EBECED'
+        };
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier'],
+                datasets: [{
+                    label: 'CA Mensuel (FCFA)',
+                    data: [12400000, 13800000, 11200000, 14600000, 16800000, 15280000],
+                    borderColor: jofeColors.blueLight,
+                    backgroundColor: jofeColors.blueLight + '20',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: jofeColors.blueLight,
+                    pointBorderColor: jofeColors.white,
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: jofeColors.gray
+                        },
+                        ticks: {
+                            color: jofeColors.blueMedium,
+                            callback: function(value) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: jofeColors.blueMedium
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverRadius: 8
+                    }
+                }
+            }
+        });
+
+        // Projects Chart
+        const projectsCtx = document.getElementById('projectsChart').getContext('2d');
+        const projectsChart = new Chart(projectsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Terminés', 'En cours', 'En attente'],
+                datasets: [{
+                    data: [45, 23, 8],
+                    backgroundColor: [
+                        jofeColors.green,
+                        jofeColors.blueLight,
+                        jofeColors.orange
+                    ],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: jofeColors.blueMedium,
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Workload Chart
+        const workloadCtx = document.getElementById('workloadChart').getContext('2d');
+        const workloadChart = new Chart(workloadCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Paul Jr.', 'Fortune', 'Linda', 'Bientama', 'Florita', 'Nebié'],
+                datasets: [{
+                    label: 'Charge (%)',
+                    data: [94, 87, 83, 81, 79, 77],
+                    backgroundColor: [
+                        jofeColors.green,
+                        jofeColors.blueLight,
+                        jofeColors.blueLight,
+                        jofeColors.blueMedium,
+                        jofeColors.blueMedium,
+                        jofeColors.orange
+                    ],
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: jofeColors.gray
+                        },
+                        ticks: {
+                            color: jofeColors.blueMedium,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: jofeColors.blueMedium
+                        }
+                    }
+                }
+            }
+        });
+
+        // Filter buttons functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from siblings
+                this.parentElement.querySelectorAll('.filter-btn').forEach(sibling => {
+                    sibling.classList.remove('active');
+                });
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update chart data based on filter
+                // This would typically involve fetching new data
+                console.log('Filter changed to:', this.textContent);
+            });
+        });
+
+        // Real-time data simulation
+        function updateRealTimeData() {
+            // Simulate real-time updates
+            const kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(value => {
+                if (value.textContent.includes('%')) {
+                    // Small random variation for percentages
+                    const current = parseFloat(value.textContent);
+                    const variation = (Math.random() - 0.5) * 2; // ±1%
+                    const newValue = Math.max(0, Math.min(100, current + variation));
+                    if (value.textContent.includes('/5')) {
+                        value.innerHTML = newValue.toFixed(1) + '<span style="font-size: 1.2rem;">/5</span>';
+                    } else {
+                        value.textContent = Math.round(newValue) + '%';
+                    }
+                }
+            });
+        }
+
+        // Update real-time data every 30 seconds
+        setInterval(updateRealTimeData, 30000);
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements that should fade in
+        document.querySelectorAll('.kpi-card, .chart-card, .performance-card, .roi-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        console.log('JoFé+ Analytics Dashboard initialized successfully');
+    </script>
+</body>
+</html>
