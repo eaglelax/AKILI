@@ -9,9 +9,6 @@ export default function Landing() {
       <div className="gradient-bg">
         <div className="container mx-auto px-6 py-20">
           <div className="text-center">
-            <div className="w-20 h-20 gradient-bg rounded-2xl mx-auto mb-8 flex items-center justify-center shadow-lg">
-              <span className="text-3xl font-bold text-white">J+</span>
-            </div>
             <h1 className="text-5xl font-bold text-white mb-6">jofé</h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Système de gestion d'équipe du département Marketing & Création</p>
             
