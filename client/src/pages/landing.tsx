@@ -16,9 +16,7 @@ export default function Landing() {
               Jo'Fé Digital
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Système de gestion d'équipe du département Marketing & Création</p>
-            <p className="text-lg text-white/80 mb-12">
-              Plateforme collaborative pour le suivi de projets, chronométrage temps réel et analytics avancées
-            </p>
+            
             <Button 
               onClick={() => window.location.href = '/login'}
               size="lg"
