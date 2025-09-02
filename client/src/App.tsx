@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Team from "@/pages/team";
+import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -46,6 +47,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <AdminFloatingMenu />
       </TooltipProvider>
     </QueryClientProvider>
   );

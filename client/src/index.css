@@ -487,3 +487,71 @@
   max-height: 80vh;
   overflow-y: auto;
 }
+
+/* Styles pour le menu flottant Super Admin */
+.admin-floating-menu {
+  position: fixed;
+  z-index: 60;
+}
+
+.admin-menu-toggle {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(22, 44, 84, 0.3);
+  animation: pulse-admin 2s infinite;
+}
+
+@keyframes pulse-admin {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(22, 44, 84, 0.3);
+  }
+  50% {
+    box-shadow: 0 12px 40px rgba(22, 44, 84, 0.5);
+  }
+}
+
+.admin-menu-panel {
+  backdrop-filter: blur(16px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.admin-menu-header {
+  background: linear-gradient(135deg, #162C54 0%, #1a2f5a 100%);
+}
+
+.admin-menu-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.admin-menu-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.admin-menu-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.admin-menu-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animation d'entrée pour le menu */
+.admin-menu-panel {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive design pour le menu admin */
+@media (max-width: 768px) {
+  .admin-menu-panel {
+    width: calc(100vw - 2rem);
+    right: 1rem;
+    max-height: 60vh;
+  }
+  
+  .admin-menu-toggle {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}
