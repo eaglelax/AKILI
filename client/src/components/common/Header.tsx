@@ -64,11 +64,7 @@ export function Header() {
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
-            <span className="text-lg font-bold text-white">J+</span>
-          </div>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Jo'Fé Digital</h1>
             <p className="text-sm text-muted-foreground">Gestion d'Équipe Marketing & Création</p>
           </div>
         </div>

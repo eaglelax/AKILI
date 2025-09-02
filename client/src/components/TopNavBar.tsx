@@ -143,20 +143,8 @@ export default function TopNavBar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-[#162C54] to-[#37B6E9] rounded-lg flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">J+</span>
-                </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-lg font-semibold text-[#162C54]">JoFé Digital</h1>
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-2">
+            {/* Desktop Navigation - Centré */}
+            <div className="hidden lg:flex items-center space-x-2 flex-1 justify-center">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location === item.href || 

@@ -371,7 +371,7 @@ export default function AdminFloatingMenu() {
             </div>
             <div>
               <h3 className="font-semibold text-sm">Super Admin</h3>
-              <p className="text-xs text-white/80">Menu Navigation JoFé+</p>
+              <p className="text-xs text-white/80">Menu Navigation</p>
             </div>
           </div>
           
@@ -466,7 +466,7 @@ export default function AdminFloatingMenu() {
         {/* Footer */}
         <div className="admin-menu-footer p-3 bg-gray-50 border-t text-center">
           <p className="text-xs text-gray-500">
-            🚀 JoFé+ Digital - Menu Super Admin
+            🚀 Menu Super Admin
           </p>
         </div>
       </div>
