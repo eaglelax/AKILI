@@ -114,9 +114,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-muted-foreground">
-            © 2025 Jo'Fé Digital - Agence Marketing & Communication Burkina Faso
-          </p>
+          <p className="text-muted-foreground">© 2025 jofé - Agence Conseil & Communication Burkina Faso</p>
         </div>
       </footer>
     </div>
