@@ -115,9 +115,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 data-testid="input-password"
               />
-              <p className="text-xs text-muted-foreground">
-                Membres: jofe2024 | Admins: mot de passe différent
-              </p>
             </div>
 
             <Button 
