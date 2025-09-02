@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Team from "@/pages/team";
+import Tasks from "@/pages/tasks";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/" component={!isAuthenticated ? Landing : Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/team" component={Team} />
+      <Route path="/tasks" component={Tasks} />
       
       {/* Route 404 */}
       <Route component={NotFound} />

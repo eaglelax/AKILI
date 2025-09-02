@@ -23,8 +23,8 @@ const navigationItems = [
     active: true 
   },
   { 
-    href: "/timer", 
-    label: "Chronométrage", 
+    href: "/tasks", 
+    label: "Gestion des Tâches", 
     icon: Clock 
   },
   { 

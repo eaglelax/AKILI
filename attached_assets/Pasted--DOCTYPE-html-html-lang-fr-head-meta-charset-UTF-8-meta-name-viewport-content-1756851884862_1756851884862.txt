@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Gestion des Tâches</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .font-urial {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        
+        .font-opensans {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        /* Palette JoFé+ */
+        .bg-jofe-deep { background-color: #162C54; }
+        .bg-jofe-night { background-color: #1A4278; }
+        .bg-jofe-medium { background-color: #3475BB; }
+        .bg-jofe-light { background-color: #37B6E9; }
+        .bg-jofe-green { background-color: #93C954; }
+        .bg-jofe-orange { background-color: #F68C1F; }
+        .bg-jofe-pearl { background-color: #EBECED; }
+        
+        .text-jofe-deep { color: #162C54; }
+        .text-jofe-night { color: #1A4278; }
+        .text-jofe-medium { color: #3475BB; }
+        .text-jofe-light { color: #37B6E9; }
+        .text-jofe-green { color: #93C954; }
+        .text-jofe-orange { color: #F68C1F; }
+        
+        .border-jofe-light { border-color: #37B6E9; }
+        .border-jofe-pearl { border-color: #EBECED; }
+
+        /* Logo JoFé+ avec trois anneaux */
+        .jofe-logo {
+            width: 32px;
+            height: 32px;
+            position: relative;
+        }
+        
+        .jofe-ring {
+            position: absolute;
+            border: 2px solid;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+        
+        .jofe-ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 6px;
+            border-color: #162C54;
+        }
+        
+        .jofe-ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 8px;
+            left: 0;
+            border-color: #3475BB;
+        }
+        
+        .jofe-ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 8px;
+            left: 12px;
+            border-color: #37B6E9;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-timer {
+            animation: pulseTimer 2s infinite;
+        }
+        
+        @keyframes pulseTimer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3475BB;
+            border-radius: 3px;
+        }
+
+        /* Timer styles */
+        .timer-running {
+            background: linear-gradient(45deg, #37B6E9, #3475BB);
+            color: white;
+            animation: pulseTimer 2s infinite;
+        }
+        
+        .timer-paused {
+            background: #F68C1F;
+            color: white;
+        }
+        
+        .timer-stopped {
+            background: #EBECED;
+            color: #162C54;
+        }
+
+        /* Priority badges */
+        .priority-low { background-color: #93C954; }
+        .priority-medium { background-color: #F68C1F; }
+        .priority-high { background-color: #ef4444; }
+
+        /* Hover effects */
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+
+        /* Form styles */
+        .form-input {
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #37B6E9;
+            box-shadow: 0 0 0 3px rgba(52, 117, 187, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white font-opensans">
+    <!-- Header -->
+    <header class="bg-white border-b border-jofe-pearl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="jofe-logo">
+                        <div class="jofe-ring jofe-ring-1"></div>
+                        <div class="jofe-ring jofe-ring-2"></div>
+                        <div class="jofe-ring jofe-ring-3"></div>
+                    </div>
+                    <div>
+                        <h1 class="font-urial text-xl text-jofe-deep">JoFé+</h1>
+                        <p class="text-sm text-gray-500">Gestion des Tâches</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="flex items-center space-x-2 text-jofe-medium hover:text-jofe-deep transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v4H8V5z"></path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-2 text-jofe-deep font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <span>Tâches</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-2 text-jofe-medium hover:text-jofe-deep transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span>Équipe</span>
+                    </a>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-jofe-medium hover:text-jofe-deep transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5A2.5 2.5 0 01.5 17H6A1.5 1.5 0 007.5 15.5v.086a1.5 1.5 0 00.44 1.06l.44.44a1.5 1.5 0 001.06.44H12a6 6 0 10-6-6v-1.5a4.5 4.5 0 109 0 .75.75 0 01-.75.75h-3a.75.75 0 01-.75-.75v-1.5a3 3 0 10-6 0"></path>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-jofe-light rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-jofe-deep">Serge ASSALÉ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="font-urial text-3xl text-jofe-deep">Gestion des Tâches</h2>
+                    <p class="text-gray-600 mt-1">Chronométrage automatique et suivi en temps réel</p>
+                </div>
+                <button id="newTaskBtn" class="bg-jofe-light hover:bg-jofe-medium text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors hover-lift">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span>Nouvelle Tâche</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl border border-jofe-pearl hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Tâches Actives</p>
+                        <p class="text-2xl font-urial text-jofe-deep">23</p>
+                    </div>
+                    <div class="w-12 h-12 bg-jofe-light bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-jofe-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-jofe-pearl hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">En Cours</p>
+                        <p class="text-2xl font-urial text-jofe-green">8</p>
+                    </div>
+                    <div class="w-12 h-12 bg-jofe-green bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-jofe-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-jofe-pearl hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Temps Total</p>
+                        <p class="text-2xl font-urial text-jofe-medium">127h</p>
+                    </div>
+                    <div class="w-12 h-12 bg-jofe-medium bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-jofe-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-jofe-pearl hover-lift">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Coûts Total</p>
+                        <p class="text-2xl font-urial text-jofe-orange">2.4M FCFA</p>
+                    </div>
+                    <div class="w-12 h-12 bg-jofe-orange bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-jofe-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="bg-white p-6 rounded-xl border border-jofe-pearl mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                    <div class="relative">
+                        <input type="text" placeholder="Nom de la tâche..." class="form-input w-full pl-10 pr-4 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                    <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                        <option>Tous les statuts</option>
+                        <option>En cours</option>
+                        <option>En pause</option>
+                        <option>Terminé</option>
+                        <option>En attente</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Assigné à</label>
+                    <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                        <option>Tous les membres</option>
+                        <option>Paul Junior OUEDRAOGO</option>
+                        <option>Fortune YANOGO</option>
+                        <option>Bientama PARÉ</option>
+                        <option>Linda KABORÉ</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Priorité</label>
+                    <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                        <option>Toutes priorités</option>
+                        <option>Critique</option>
+                        <option>Élevée</option>
+                        <option>Normale</option>
+                        <option>Basse</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="bg-white rounded-xl border border-jofe-pearl">
+            <div class="p-6 border-b border-jofe-pearl">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-urial text-lg text-jofe-deep">Liste des Tâches</h3>
+                    <div class="flex space-x-2">
+                        <button class="p-2 text-jofe-medium hover:bg-jofe-pearl rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <button class="p-2 text-jofe-medium hover:bg-jofe-pearl rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-jofe-pearl custom-scrollbar max-h-96 overflow-y-auto">
+                <!-- Task Item 1 -->
+                <div class="p-6 hover:bg-gray-50 transition-colors slide-in">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-jofe-deep">Création campagne MOOV AFRICA</h4>
+                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800 priority-high">Critique</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Développement de la campagne "Connectons l'Afrique" avec visuels print et digital</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Paul Junior OUEDRAOGO</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span>MOOV AFRICA</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-.5 9a2 2 0 002 2h3a2 2 0 002-2L16 7m-3 3v6m-2-3h4"></path>
+                                    </svg>
+                                    <span>15 Fév 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="timer-running px-3 py-2 rounded-lg text-sm font-medium pulse-timer">
+                                    02:34:12
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">204,800 FCFA</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-jofe-orange hover:bg-jofe-orange hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-jofe-green hover:bg-jofe-green hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Item 2 -->
+                <div class="p-6 hover:bg-gray-50 transition-colors slide-in">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-jofe-deep">Shooting produits BANK OF AFRICA</h4>
+                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 priority-medium">Élevée</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Photos produits pour nouvelle gamme de cartes bancaires</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Fortune YANOGO</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span>BANK OF AFRICA</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-.5 9a2 2 0 002 2h3a2 2 0 002-2L16 7m-3 3v6m-2-3h4"></path>
+                                    </svg>
+                                    <span>22 Fév 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="timer-running px-3 py-2 rounded-lg text-sm font-medium pulse-timer">
+                                    01:15:47
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">126,500 FCFA</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-jofe-orange hover:bg-jofe-orange hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-jofe-green hover:bg-jofe-green hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Item 3 -->
+                <div class="p-6 hover:bg-gray-50 transition-colors slide-in">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-jofe-deep">Animation motion design SUNU BURKINA</h4>
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 priority-low">Normale</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Vidéo explicative des services d'assurance (30 secondes)</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Bientama PARÉ</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span>SUNU BURKINA</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-.5 9a2 2 0 002 2h3a2 2 0 002-2L16 7m-3 3v6m-2-3h4"></path>
+                                    </svg>
+                                    <span>08 Mar 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="timer-stopped px-3 py-2 rounded-lg text-sm font-medium">
+                                    04:22:33
+                                </div>
+                                <p class="text-xs text-jofe-green mt-1">Terminé - 425,000 FCFA</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-gray-400 cursor-not-allowed rounded-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Item 4 -->
+                <div class="p-6 hover:bg-gray-50 transition-colors slide-in">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-jofe-deep">Refonte logo ROXGOLD</h4>
+                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 priority-medium">Élevée</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Modernisation du logo avec éléments premium gold</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Linda KABORÉ</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span>ROXGOLD</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-.5 9a2 2 0 002 2h3a2 2 0 002-2L16 7m-3 3v6m-2-3h4"></path>
+                                    </svg>
+                                    <span>28 Fév 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="timer-paused px-3 py-2 rounded-lg text-sm font-medium">
+                                    00:45:12
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">42,750 FCFA</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-jofe-green hover:bg-jofe-green hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-jofe-green hover:bg-jofe-green hover:text-white rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Task Modal -->
+    <div id="newTaskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-jofe-pearl">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-urial text-xl text-jofe-deep">Nouvelle Tâche</h3>
+                        <button id="closeModal" class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <form class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la tâche</label>
+                            <input type="text" class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none" placeholder="Ex: Création logo MOOV AFRICA">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Assigné à</label>
+                            <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                                <option>-- Sélectionner --</option>
+                                <option>Paul Junior OUEDRAOGO</option>
+                                <option>Fortune YANOGO</option>
+                                <option>Bientama PARÉ</option>
+                                <option>Linda KABORÉ</option>
+                                <option>Florita KABORÉ</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
+                            <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                                <option>-- Sélectionner --</option>
+                                <option>MOOV AFRICA</option>
+                                <option>BANK OF AFRICA</option>
+                                <option>SUNU BURKINA</option>
+                                <option>ROXGOLD</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Priorité</label>
+                            <select class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                                <option>Normale</option>
+                                <option>Élevée</option>
+                                <option>Critique</option>
+                                <option>Basse</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date limite</label>
+                            <input type="datetime-local" class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Budget estimé (FCFA)</label>
+                            <input type="number" class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none" placeholder="500000">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea rows="4" class="form-input w-full px-3 py-2 border border-jofe-pearl rounded-lg focus:outline-none" placeholder="Décrivez la tâche en détail..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="cancelBtn" class="px-6 py-2 border border-jofe-pearl text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-jofe-light hover:bg-jofe-medium text-white rounded-lg transition-colors">
+                            Créer et Démarrer Chrono
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const newTaskBtn = document.getElementById('newTaskBtn');
+        const newTaskModal = document.getElementById('newTaskModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        newTaskBtn.addEventListener('click', () => {
+            newTaskModal.classList.remove('hidden');
+        });
+
+        closeModal.addEventListener('click', () => {
+            newTaskModal.classList.add('hidden');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            newTaskModal.classList.add('hidden');
+        });
+
+        newTaskModal.addEventListener('click', (e) => {
+            if (e.target === newTaskModal) {
+                newTaskModal.classList.add('hidden');
+            }
+        });
+
+        // Timer functionality
+        function updateTimers() {
+            const timers = document.querySelectorAll('.timer-running');
+            timers.forEach(timer => {
+                // Simulate timer update
+                const time = timer.textContent;
+                // In real implementation, this would connect to backend
+            });
+        }
+
+        // Update timers every second
+        setInterval(updateTimers, 1000);
+
+        // Add fade-in animation to cards
+        const cards = document.querySelectorAll('.slide-in');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Form submission
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In real implementation, this would create the task and start timer
+            newTaskModal.classList.add('hidden');
+            
+            // Show success message
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-jofe-green text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+            notification.textContent = 'Tâche créée avec succès ! Chronomètre démarré automatiquement.';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
