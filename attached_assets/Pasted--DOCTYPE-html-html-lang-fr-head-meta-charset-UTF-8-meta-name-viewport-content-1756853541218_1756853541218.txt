@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Configuration des Permissions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+            --jofe-white: #FFFFFF;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+        }
+
+        .jofe-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+        }
+
+        .jofe-subtitle {
+            color: var(--jofe-blue-night);
+        }
+
+        .jofe-text {
+            color: var(--jofe-blue-medium);
+        }
+
+        .jofe-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .jofe-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .jofe-btn {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .jofe-btn-primary {
+            background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            color: var(--jofe-white);
+        }
+
+        .jofe-btn-primary:hover {
+            background: linear-gradient(135deg, var(--jofe-blue-medium), var(--jofe-blue-night));
+            transform: translateY(-1px);
+        }
+
+        .jofe-btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+        }
+
+        .jofe-btn-success:hover {
+            background: #7fb346;
+            transform: translateY(-1px);
+        }
+
+        .jofe-btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+        }
+
+        .jofe-btn-warning:hover {
+            background: #e07a1a;
+            transform: translateY(-1px);
+        }
+
+        .jofe-toggle {
+            background: var(--jofe-gray);
+            border-radius: 50px;
+            transition: background 0.3s ease;
+        }
+
+        .jofe-toggle.active {
+            background: var(--jofe-green);
+        }
+
+        .jofe-input {
+            border: 2px solid var(--jofe-gray);
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .jofe-input:focus {
+            border-color: var(--jofe-blue-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+        }
+
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .jofe-rings {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+
+        .jofe-ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .jofe-ring-1 {
+            width: 20px;
+            height: 20px;
+            border-color: var(--jofe-blue-deep);
+            top: 0;
+            left: 10px;
+            animation-delay: 0s;
+        }
+
+        .jofe-ring-2 {
+            width: 20px;
+            height: 20px;
+            border-color: var(--jofe-blue-medium);
+            bottom: 0;
+            left: 0;
+            animation-delay: 0.5s;
+        }
+
+        .jofe-ring-3 {
+            width: 20px;
+            height: 20px;
+            border-color: var(--jofe-blue-light);
+            bottom: 0;
+            right: 0;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .permission-item {
+            border-left: 4px solid var(--jofe-blue-light);
+            transition: border-color 0.3s ease;
+        }
+
+        .permission-item.admin {
+            border-left-color: var(--jofe-orange);
+        }
+
+        .permission-item.restricted {
+            border-left-color: var(--jofe-gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-admin {
+            background: rgba(246, 140, 31, 0.2);
+            color: var(--jofe-orange);
+        }
+
+        .status-member {
+            background: rgba(55, 182, 233, 0.2);
+            color: var(--jofe-blue-medium);
+        }
+
+        .status-restricted {
+            background: rgba(235, 236, 237, 0.5);
+            color: #666;
+        }
+
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: rgba(55, 182, 233, 0.1);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            color: var(--jofe-white);
+        }
+
+        @media (max-width: 768px) {
+            .jofe-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .jofe-sidebar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="jofe-logo">
+                <div class="jofe-rings">
+                    <div class="jofe-ring jofe-ring-1"></div>
+                    <div class="jofe-ring jofe-ring-2"></div>
+                    <div class="jofe-ring jofe-ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold" style="color: var(--jofe-blue-deep);">JoFé+</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Configuration des Permissions</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- Bell Icon -->
+                <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5V3h4v14z"/>
+                    </svg>
+                </button>
+                <!-- User Profile -->
+                <div class="flex items-center space-x-2">
+                    <svg class="w-8 h-8" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="font-medium" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</span>
+                    <span class="status-badge status-admin">ADMIN</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="jofe-sidebar bg-white border-r border-gray-200 w-64 p-6">
+            <nav class="space-y-2">
+                <a href="#" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Tâches & Timers</span>
+                </a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span>Gestion Équipe</span>
+                </a>
+                <a href="#" class="nav-item active flex items-center space-x-3 px-4 py-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>Permissions</span>
+                </a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="jofe-title text-3xl mb-2">Configuration des Permissions de Chronométrage</h1>
+                        <p class="jofe-text text-lg">Gérez les droits d'accès et les permissions pour le système de chronométrage JoFé+</p>
+                    </div>
+                    <button class="jofe-btn jofe-btn-primary px-6 py-3 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Nouveau Rôle</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="jofe-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="jofe-text text-sm font-medium">Administrateurs</p>
+                            <p class="text-3xl font-bold" style="color: var(--jofe-orange);">2</p>
+                        </div>
+                        <svg class="w-8 h-8" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="jofe-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="jofe-text text-sm font-medium">Membres Équipe</p>
+                            <p class="text-3xl font-bold" style="color: var(--jofe-blue-medium);">12</p>
+                        </div>
+                        <svg class="w-8 h-8" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="jofe-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="jofe-text text-sm font-medium">Timers Actifs</p>
+                            <p class="text-3xl font-bold" style="color: var(--jofe-green);">8</p>
+                        </div>
+                        <svg class="w-8 h-8" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="jofe-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="jofe-text text-sm font-medium">Restrictions Actives</p>
+                            <p class="text-3xl font-bold text-gray-500">3</p>
+                        </div>
+                        <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Configuration -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Permissions Globales -->
+                <div class="lg:col-span-2">
+                    <div class="jofe-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="jofe-subtitle text-xl font-semibold">Permissions par Membre</h2>
+                            <button class="jofe-btn jofe-btn-success px-4 py-2 text-sm flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>Sauvegarder</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Admin Users -->
+                            <div class="permission-item admin jofe-card p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <svg class="w-10 h-10" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h3 class="font-semibold" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</h3>
+                                            <p class="jofe-text text-sm">Directeur Création & Marketing</p>
+                                            <span class="status-badge status-admin">ADMINISTRATEUR</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Taux Horaire</p>
+                                            <p class="jofe-text">15,000 FCFA/h</p>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked disabled class="rounded">
+                                                <span class="text-sm">Gestion Complète</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked disabled class="rounded">
+                                                <span class="text-sm">Attribution Timers</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="permission-item admin jofe-card p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <svg class="w-10 h-10" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h3 class="font-semibold" style="color: var(--jofe-blue-deep);">Enos GOUBA</h3>
+                                            <p class="jofe-text text-sm">Coordinateur Production</p>
+                                            <span class="status-badge status-admin">ADMINISTRATEUR</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Taux Horaire</p>
+                                            <p class="jofe-text">12,000 FCFA/h</p>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked disabled class="rounded">
+                                                <span class="text-sm">Gestion Complète</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked disabled class="rounded">
+                                                <span class="text-sm">Attribution Timers</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Regular Members -->
+                            <div class="permission-item jofe-card p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <svg class="w-10 h-10" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h3 class="font-semibold" style="color: var(--jofe-blue-deep);">Paul Junior OUEDRAOGO</h3>
+                                            <p class="jofe-text text-sm">Graphiste Photomonteur</p>
+                                            <span class="status-badge status-member">MEMBRE</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Taux Horaire</p>
+                                            <input type="number" value="8000" class="jofe-input w-24 px-2 py-1 text-sm">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked class="rounded">
+                                                <span class="text-sm">Ses Tâches</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" class="rounded">
+                                                <span class="text-sm">Voir Autres</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="permission-item jofe-card p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <svg class="w-10 h-10" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h3 class="font-semibold" style="color: var(--jofe-blue-deep);">Fortune YANOGO</h3>
+                                            <p class="jofe-text text-sm">Photographe/Vidéaste</p>
+                                            <span class="status-badge status-member">MEMBRE</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Taux Horaire</p>
+                                            <input type="number" value="10000" class="jofe-input w-24 px-2 py-1 text-sm">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked class="rounded">
+                                                <span class="text-sm">Ses Tâches</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" checked class="rounded">
+                                                <span class="text-sm">Voir Autres</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="permission-item restricted jofe-card p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-600">Issa CISSE</h3>
+                                            <p class="text-gray-500 text-sm">Graphiste Junior</p>
+                                            <span class="status-badge status-restricted">RESTREINT</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-gray-600">Taux Horaire</p>
+                                            <input type="number" value="6000" class="jofe-input w-24 px-2 py-1 text-sm" disabled>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" class="rounded" disabled>
+                                                <span class="text-sm text-gray-500">Ses Tâches</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2">
+                                                <input type="checkbox" class="rounded" disabled>
+                                                <span class="text-sm text-gray-500">Voir Autres</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- More members... -->
+                            <div class="text-center py-4">
+                                <button class="jofe-btn px-6 py-2 text-sm border border-gray-300 hover:bg-gray-50 flex items-center space-x-2 mx-auto">
+                                    <span>Voir tous les membres (14)</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Sidebar -->
+                <div class="space-y-6">
+                    <!-- Règles Globales -->
+                    <div class="jofe-card p-6">
+                        <h3 class="jofe-subtitle text-lg font-semibold mb-4">Règles Globales</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium" style="color: var(--jofe-blue-deep);">Auto-démarrage Timer</p>
+                                    <p class="text-sm jofe-text">Démarrer automatiquement lors de la création</p>
+                                </div>
+                                <div class="jofe-toggle active w-12 h-6 flex items-center px-1">
+                                    <div class="bg-white w-4 h-4 rounded-full shadow transform translate-x-6 transition-transform"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium" style="color: var(--jofe-blue-deep);">Timer Arrière-plan</p>
+                                    <p class="text-sm jofe-text">Continuer même si navigateur fermé</p>
+                                </div>
+                                <div class="jofe-toggle active w-12 h-6 flex items-center px-1">
+                                    <div class="bg-white w-4 h-4 rounded-full shadow transform translate-x-6 transition-transform"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium" style="color: var(--jofe-blue-deep);">Alertes Deadline</p>
+                                    <p class="text-sm jofe-text">Notifications approche deadline</p>
+                                </div>
+                                <div class="jofe-toggle active w-12 h-6 flex items-center px-1">
+                                    <div class="bg-white w-4 h-4 rounded-full shadow transform translate-x-6 transition-transform"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Rapides -->
+                    <div class="jofe-card p-6">
+                        <h3 class="jofe-subtitle text-lg font-semibold mb-4">Actions Rapides</h3>
+                        <div class="space-y-3">
+                            <button class="jofe-btn jofe-btn-primary w-full px-4 py-3 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                <span>Nouveau Membre</span>
+                            </button>
+                            <button class="jofe-btn jofe-btn-warning w-full px-4 py-3 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                </svg>
+                                <span>Exporter Config</span>
+                            </button>
+                            <button class="jofe-btn w-full px-4 py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <span>Réinitialiser</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Historique -->
+                    <div class="jofe-card p-6">
+                        <h3 class="jofe-subtitle text-lg font-semibold mb-4">Dernières Modifications</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 rounded-full mt-2" style="background: var(--jofe-green);"></div>
+                                <div>
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Taux horaire modifié</p>
+                                    <p class="text-xs jofe-text">Paul OUEDRAOGO - 8,000 FCFA/h</p>
+                                    <p class="text-xs text-gray-500">Il y a 2h</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 rounded-full mt-2" style="background: var(--jofe-orange);"></div>
+                                <div>
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Permission accordée</p>
+                                    <p class="text-xs jofe-text">Fortune YANOGO - Voir autres tâches</p>
+                                    <p class="text-xs text-gray-500">Hier</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full mt-2"></div>
+                                <div>
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Membre restreint</p>
+                                    <p class="text-xs jofe-text">Issa CISSE - Accès limité temporaire</p>
+                                    <p class="text-xs text-gray-500">Il y a 3 jours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle switches functionality
+        document.querySelectorAll('.jofe-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const circle = this.querySelector('div');
+                if (this.classList.contains('active')) {
+                    circle.style.transform = 'translateX(24px)';
+                    this.style.background = 'var(--jofe-green)';
+                } else {
+                    circle.style.transform = 'translateX(0px)';
+                    this.style.background = 'var(--jofe-gray)';
+                }
+            });
+        });
+
+        // Simulation of real-time updates
+        setInterval(() => {
+            // Update active timers count
+            const activeTimersElement = document.querySelector('.grid .jofe-card:nth-child(3) .text-3xl');
+            if (activeTimersElement) {
+                const currentCount = parseInt(activeTimersElement.textContent);
+                const newCount = Math.max(1, currentCount + Math.floor(Math.random() * 3) - 1);
+                activeTimersElement.textContent = newCount;
+            }
+        }, 10000);
+
+        // Save configuration
+        document.querySelector('.jofe-btn-success').addEventListener('click', function() {
+            this.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Sauvegardé</span>
+            `;
+            setTimeout(() => {
+                this.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <span>Sauvegarder</span>
+                `;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

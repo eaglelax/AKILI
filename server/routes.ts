@@ -457,6 +457,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes Permissions
+  app.get('/api/permissions', requireTeamAuth, async (req, res) => {
+    try {
+      // Statistiques des permissions
+      const permissionStats = {
+        totalAdmins: 2,
+        totalMembers: 12,
+        activeTimers: 8,
+        activeRestrictions: 3
+      };
+
+      // Configuration globale
+      const globalSettings = {
+        autoStartTimers: true,
+        backgroundTimers: true,
+        deadlineAlerts: true,
+        strictMode: false,
+        dailyLimitHours: 8,
+        mandatoryBreakMinutes: 60,
+        overtimeMultiplier: 1.5
+      };
+
+      // Historique des modifications récentes
+      const recentChanges = [
+        {
+          id: "change_1",
+          type: "rate_change",
+          memberName: "Paul OUEDRAOGO",
+          description: "Taux horaire modifié - 8,000 FCFA/h",
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          status: "completed"
+        },
+        {
+          id: "change_2", 
+          type: "permission_granted",
+          memberName: "Fortune YANOGO",
+          description: "Permission accordée - Voir autres tâches",
+          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          status: "completed"
+        },
+        {
+          id: "change_3",
+          type: "restriction_applied",
+          memberName: "Issa CISSE",
+          description: "Membre restreint - Accès limité temporaire",
+          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          status: "restricted"
+        }
+      ];
+
+      res.json({
+        stats: permissionStats,
+        globalSettings,
+        recentChanges
+      });
+    } catch (error: any) {
+      console.error("Error fetching permissions:", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des permissions" });
+    }
+  });
+
+  app.post('/api/permissions/save', requireAdmin, async (req, res) => {
+    try {
+      const { memberPermissions, globalSettings } = req.body;
+      
+      // Sauvegarder les modifications
+      // En production, ceci sauvegarderait dans la base de données
+      console.log("Saving permissions:", { memberPermissions, globalSettings });
+      
+      res.json({ message: "Permissions sauvegardées avec succès" });
+    } catch (error: any) {
+      console.error("Error saving permissions:", error);
+      res.status(500).json({ message: "Erreur lors de la sauvegarde" });
+    }
+  });
+
+  app.post('/api/permissions/reset-timers', requireAdmin, async (req, res) => {
+    try {
+      // Réinitialiser tous les timers actifs
+      console.log("Resetting all active timers");
+      
+      res.json({ message: "Tous les timers ont été réinitialisés" });
+    } catch (error: any) {
+      console.error("Error resetting timers:", error);
+      res.status(500).json({ message: "Erreur lors de la réinitialisation" });
+    }
+  });
+
+  // Route Time History
+  app.get('/api/time-entries', requireTeamAuth, async (req, res) => {
+    try {
+      const { memberFilter, periodFilter, projectFilter } = req.query;
+      
+      // Pour l'instant on retourne des données simulées du template JoFé+
+      const timeEntries = [
+        {
+          id: "paul_ouedraogo",
+          memberName: "Paul Junior OUEDRAOGO",
+          memberInitials: "PO",
+          role: "Graphiste Photomonteur",
+          totalTime: "42h 15m",
+          totalHours: 42.25,
+          taskCount: 8,
+          totalCost: 338000,
+          hourlyRate: 8000,
+          status: "active"
+        },
+        {
+          id: "fortune_yanogo",
+          memberName: "Fortune YANOGO",
+          memberInitials: "FY",
+          role: "Photographe/Vidéaste",
+          totalTime: "38h 45m",
+          totalHours: 38.75,
+          taskCount: 6,
+          totalCost: 387500,
+          hourlyRate: 10000,
+          status: "paused"
+        },
+        {
+          id: "bientama_pare",
+          memberName: "Bientama PARÉ",
+          memberInitials: "BP",
+          role: "Motion Designer",
+          totalTime: "35h 20m",
+          totalHours: 35.33,
+          taskCount: 5,
+          totalCost: 318000,
+          hourlyRate: 9000,
+          status: "completed"
+        },
+        {
+          id: "linda_kabore",
+          memberName: "Linda KABORÉ",
+          memberInitials: "LK",
+          role: "Conceptrice Rédactrice Lead",
+          totalTime: "31h 10m",
+          totalHours: 31.17,
+          taskCount: 7,
+          totalCost: 295450,
+          hourlyRate: 9500,
+          status: "active"
+        }
+      ];
+
+      res.json(timeEntries);
+    } catch (error) {
+      console.error("Error fetching time entries:", error);
+      res.status(500).json({ message: "Failed to fetch time entries" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Setup WebSocket

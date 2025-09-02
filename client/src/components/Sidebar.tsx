@@ -10,6 +10,7 @@ import {
   BarChart3, 
   TrendingUp,
   MessageSquare,
+  Shield,
   Settings,
   User,
   Menu,
@@ -57,6 +58,11 @@ const navigationItems = [
     href: "/chat", 
     label: "Chat", 
     icon: MessageSquare 
+  },
+  { 
+    href: "/permissions", 
+    label: "Permissions", 
+    icon: Shield 
   }
 ];
 

@@ -623,3 +623,156 @@
     right: 1rem;
   }
 }
+
+/* Styles pour la page Permissions */
+.permission-item {
+  border-left: 4px solid var(--jofe-blue-light);
+  transition: border-color 0.3s ease;
+}
+
+.permission-item.admin {
+  border-left-color: var(--jofe-orange);
+}
+
+.permission-item.restricted {
+  border-left-color: var(--jofe-gray);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-admin {
+  background: rgba(246, 140, 31, 0.2);
+  color: var(--jofe-orange);
+}
+
+.status-member {
+  background: rgba(55, 182, 233, 0.2);
+  color: var(--jofe-blue-medium);
+}
+
+.status-restricted {
+  background: rgba(235, 236, 237, 0.5);
+  color: #666;
+}
+
+.jofe-toggle {
+  background: var(--jofe-gray);
+  border-radius: 50px;
+  transition: background 0.3s ease;
+}
+
+.jofe-toggle.active {
+  background: var(--jofe-green);
+}
+
+.jofe-card {
+  background: var(--jofe-white);
+  border: 1px solid var(--jofe-gray);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.jofe-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.jofe-btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.jofe-btn-primary {
+  background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+  color: var(--jofe-white);
+}
+
+.jofe-btn-primary:hover {
+  background: linear-gradient(135deg, var(--jofe-blue-medium), var(--jofe-blue-night));
+  transform: translateY(-1px);
+}
+
+.jofe-btn-success {
+  background: var(--jofe-green);
+  color: var(--jofe-white);
+}
+
+.jofe-btn-success:hover {
+  background: #7fb346;
+  transform: translateY(-1px);
+}
+
+.jofe-btn-warning {
+  background: var(--jofe-orange);
+  color: var(--jofe-white);
+}
+
+.jofe-btn-warning:hover {
+  background: #e07a1a;
+  transform: translateY(-1px);
+}
+
+.jofe-input {
+  border: 2px solid var(--jofe-gray);
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.jofe-input:focus {
+  border-color: var(--jofe-blue-light);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+}
+
+.jofe-rings {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.jofe-ring {
+  position: absolute;
+  border: 3px solid;
+  border-radius: 50%;
+  animation: float 3s ease-in-out infinite;
+}
+
+.jofe-ring-1 {
+  width: 20px;
+  height: 20px;
+  border-color: var(--jofe-blue-deep);
+  top: 0;
+  left: 10px;
+  animation-delay: 0s;
+}
+
+.jofe-ring-2 {
+  width: 20px;
+  height: 20px;
+  border-color: var(--jofe-blue-medium);
+  bottom: 0;
+  left: 0;
+  animation-delay: 0.5s;
+}
+
+.jofe-ring-3 {
+  width: 20px;
+  height: 20px;
+  border-color: var(--jofe-blue-light);
+  bottom: 0;
+  right: 0;
+  animation-delay: 1s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
