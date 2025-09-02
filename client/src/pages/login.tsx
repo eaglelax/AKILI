@@ -7,27 +7,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
+import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
 
-const teamMembers = [
-  { value: "serge.assale", label: "Serge ASSALÉ (Admin)" },
-  { value: "enos.gouba", label: "Enos GOUBA (Admin)" },
-  { value: "paul.ouedraogo", label: "Paul Junior OUEDRAOGO" },
-  { value: "fortune.yanogo", label: "Fortune YANOGO" },
-  { value: "bientama.pare", label: "Bientama PARÉ" },
-  { value: "issa.cisse", label: "Issa CISSE" },
-  { value: "florita.kabore", label: "Florita KABORÉ" },
-  { value: "nebie.webou", label: "Nebié WEBOU" },
-  { value: "djamilatou.guiguemde", label: "Djamilatou GUIGUEMDE" },
-  { value: "jean.sampabao", label: "Jean-Jacques SAMPABAO" },
-  { value: "latif.ouedraogo", label: "Abdoul Latif OUEDRAOGO" },
-  { value: "linda.kabore", label: "Linda KABORÉ" },
-  { value: "maryse.bombiri", label: "Maryse BOMBIRI" },
-  { value: "faridatou.barry", label: "Faridatou BARRY" },
+const adminMembers = [
+  { value: "serge.assale", label: "Serge ASSALÉ - Directeur Création & Marketing" },
+  { value: "enos.gouba", label: "Enos GOUBA - Coordinateur Production" },
+];
+
+const creativeTeam = [
+  { value: "paul.ouedraogo", label: "Paul Junior OUEDRAOGO - Graphiste Photomonteur" },
+  { value: "fortune.yanogo", label: "Fortune YANOGO - Photographe/Vidéaste" },
+  { value: "bientama.pare", label: "Bientama PARÉ - Motion Designer" },
+  { value: "issa.cisse", label: "Issa CISSE - Graphiste Junior" },
+  { value: "jean.sampabao", label: "Jean-Jacques SAMPABAO - Directeur Artistique Junior" },
+  { value: "latif.ouedraogo", label: "Abdoul Latif OUEDRAOGO - Designer UI/UX" },
+];
+
+const marketingTeam = [
+  { value: "florita.kabore", label: "Florita KABORÉ - Responsable Médias Sociaux" },
+  { value: "nebie.webou", label: "Nebié WEBOU - Chef de Pub/Concepteur Rédacteur" },
+  { value: "djamilatou.guiguemde", label: "Djamilatou GUIGUEMDE - Chef de Pub Stagiaire" },
+  { value: "linda.kabore", label: "Linda KABORÉ - Conceptrice Rédactrice Lead" },
+  { value: "maryse.bombiri", label: "Maryse BOMBIRI - Community Manager" },
+  { value: "faridatou.barry", label: "Faridatou BARRY - Chef de Pub/CM" },
 ];
 
 export default function Login() {
   const [selectedMember, setSelectedMember] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   const loginMutation = useMutation({
@@ -76,58 +84,193 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl">
-        <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-foreground mb-2">jofé</h1>
-            <p className="text-muted-foreground">Système de Gestion d'Équipe</p>
+    <div className="min-h-screen bg-white relative flex items-center justify-center p-4">
+      {/* Background Pattern */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-5"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 25% 25%, #37B6E9 1px, transparent 1px),
+            radial-gradient(circle at 75% 75%, #3475BB 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      
+      <div className="w-full max-w-md animate-in fade-in duration-800">
+        {/* Header with Logo */}
+        <div className="text-center mb-8 animate-in slide-in-from-bottom duration-600">
+          {/* JoFé+ Logo */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center space-x-2">
+              {/* Three Interlocked Rings */}
+              <div className="relative">
+                <div 
+                  className="w-6 h-6 rounded-full relative"
+                  style={{
+                    border: '3px solid #3475BB',
+                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
+                  }}
+                >
+                  <div 
+                    className="absolute -top-0.5 -left-0.5 w-7 h-7 rounded-full opacity-60"
+                    style={{ border: '1px solid #37B6E9' }}
+                  />
+                </div>
+                <div 
+                  className="w-6 h-6 rounded-full absolute -top-2 -right-2 opacity-80"
+                  style={{
+                    border: '3px solid #3475BB',
+                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
+                  }}
+                />
+                <div 
+                  className="w-6 h-6 rounded-full absolute -bottom-2 -left-2 opacity-60"
+                  style={{
+                    border: '3px solid #3475BB',
+                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
+                  }}
+                />
+              </div>
+              <div className="text-3xl font-bold text-[#1A4278]">
+                JoFé<span className="text-[#37B6E9]">+</span>
+              </div>
+            </div>
           </div>
-
+          
+          <h1 className="text-2xl font-bold mb-2 text-[#162C54]">
+            Connexion Sécurisée
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Système de gestion d'équipe JoFé+ Digital
+          </p>
+        </div>
+        
+        {/* Login Form */}
+        <Card 
+          className="rounded-2xl p-8 animate-in slide-in-from-bottom duration-600 delay-200"
+          style={{ 
+            boxShadow: '0 10px 25px -5px rgba(22, 44, 84, 0.08), 0 4px 6px -2px rgba(22, 44, 84, 0.04)',
+            border: '1px solid #E5E7EB'
+          }}
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="member-select" className="text-sm font-medium text-foreground">
-                Sélectionner votre nom
+            {/* User Selection */}
+            <div className="space-y-3">
+              <Label className="flex items-center text-sm font-medium text-[#1A4278]">
+                <User className="w-5 h-5 mr-2" />
+                Sélectionnez votre profil
               </Label>
               <Select value={selectedMember} onValueChange={setSelectedMember}>
-                <SelectTrigger data-testid="select-member">
-                  <SelectValue placeholder="Choisissez votre nom..." />
+                <SelectTrigger 
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-300"
+                  data-testid="select-member"
+                >
+                  <SelectValue placeholder="-- Choisir un membre de l'équipe --" />
                 </SelectTrigger>
                 <SelectContent>
-                  {teamMembers.map((member) => (
-                    <SelectItem key={member.value} value={member.value}>
-                      {member.label}
-                    </SelectItem>
-                  ))}
+                  <div className="py-1">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
+                      👑 Administrateurs
+                    </div>
+                    {adminMembers.map((member) => (
+                      <SelectItem 
+                        key={member.value} 
+                        value={member.value}
+                        className="hover:bg-[#EBECED]"
+                      >
+                        {member.label}
+                      </SelectItem>
+                    ))}
+                  </div>
+                  <div className="py-1">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
+                      🎨 Équipe Créative
+                    </div>
+                    {creativeTeam.map((member) => (
+                      <SelectItem 
+                        key={member.value} 
+                        value={member.value}
+                        className="hover:bg-[#EBECED]"
+                      >
+                        {member.label}
+                      </SelectItem>
+                    ))}
+                  </div>
+                  <div className="py-1">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
+                      📱 Communication & Marketing
+                    </div>
+                    {marketingTeam.map((member) => (
+                      <SelectItem 
+                        key={member.value} 
+                        value={member.value}
+                        className="hover:bg-[#EBECED]"
+                      >
+                        {member.label}
+                      </SelectItem>
+                    ))}
+                  </div>
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            
+            {/* Password */}
+            <div className="space-y-3">
+              <Label className="flex items-center text-sm font-medium text-[#1A4278]">
+                <Lock className="w-5 h-5 mr-2" />
                 Mot de passe
               </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Saisissez votre mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                data-testid="input-password"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-300 pr-12"
+                  placeholder="Saisissez votre mot de passe"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  data-testid="input-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center mb-1">
+                  <div className="w-4 h-4 mr-2 text-yellow-500">⚠️</div>
+                  <strong>Identifiants de connexion :</strong>
+                </div>
+                <div className="pl-6 space-y-1">
+                  <div>• <strong>Administrateurs :</strong> JOFE2025</div>
+                  <div>• <strong>Équipe :</strong> jofe2024</div>
+                </div>
+              </div>
             </div>
-
+            
+            {/* Submit Button */}
             <Button 
               type="submit" 
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full text-white py-3 px-6 rounded-xl font-medium focus:outline-none focus:ring-0 flex items-center justify-center transition-all duration-300 hover:transform hover:-translate-y-1"
+              style={{
+                background: 'linear-gradient(135deg, #3475BB, #37B6E9)',
+                boxShadow: loginMutation.isPending ? 'none' : '0 4px 12px rgba(52, 117, 187, 0.3)'
+              }}
               disabled={loginMutation.isPending}
               data-testid="button-login"
             >
+              {loginMutation.isPending && (
+                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+              <LogIn className="w-5 h-5 mr-2" />
               {loginMutation.isPending ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
