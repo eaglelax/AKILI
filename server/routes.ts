@@ -94,6 +94,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
+  // Type-safe middleware for TypeScript
+  interface AuthenticatedRequest extends Request {
+    session: {
+      teamMember: {
+        id: string;
+        isAdmin: boolean;
+        name: string;
+        role: string;
+      };
+    };
+  }
+
   const requireAdmin = (req: any, res: any, next: any) => {
     if (!req.session.teamMember || !req.session.teamMember.isAdmin) {
       return res.status(403).json({ message: "Accès administrateur requis" });
@@ -185,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const projectData = insertProjectSchema.parse({
         ...req.body,
-        createdBy: req.session.teamMember.id,
+        createdBy: req.session.teamMember!.id,
       });
       const project = await storage.createProject(projectData);
       res.json(project);
@@ -231,7 +243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const taskData = insertTaskSchema.parse({
         ...req.body,
-        createdBy: req.session.teamMember.id,
+        createdBy: req.session.teamMember!.id,
       });
       const task = await storage.createTask(taskData);
       res.json(task);
@@ -251,8 +263,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Tâche non trouvée" });
       }
       
-      const isOwner = task.assignedTo === req.session.teamMember.id;
-      const isAdmin = req.session.teamMember.isAdmin;
+      const isOwner = task.assignedTo === req.session.teamMember!.id;
+      const isAdmin = req.session.teamMember!.isAdmin;
       
       if (!isOwner && !isAdmin) {
         return res.status(403).json({ message: "Non autorisé à modifier cette tâche" });
@@ -276,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Only assignee or admin can start timer
-      if (task.assignedTo !== req.session.teamMember.id && !req.session.teamMember.isAdmin) {
+      if (task.assignedTo !== req.session.teamMember!.id && !req.session.teamMember!.isAdmin) {
         return res.status(403).json({ message: "Non autorisé" });
       }
       
@@ -297,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Only assignee or admin can stop timer
-      if (task.assignedTo !== req.session.teamMember.id && !req.session.teamMember.isAdmin) {
+      if (task.assignedTo !== req.session.teamMember!.id && !req.session.teamMember!.isAdmin) {
         return res.status(403).json({ message: "Non autorisé" });
       }
       
@@ -333,7 +345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const messageData = insertChatMessageSchema.parse({
         ...req.body,
-        senderId: req.session.teamMember.id,
+        senderId: req.session.teamMember!.id,
       });
       const message = await storage.createChatMessage(messageData);
       res.json(message);
@@ -381,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Notification routes
   app.get('/api/notifications', requireTeamAuth, async (req, res) => {
     try {
-      const notifications = await storage.getNotifications(req.session.teamMember.id);
+      const notifications = await storage.getNotifications(req.session.teamMember!.id);
       res.json(notifications);
     } catch (error: any) {
       res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
