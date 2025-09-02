@@ -237,7 +237,7 @@ export default function Tasks() {
       {/* Menu flottant admin */}
       <AdminFloatingMenu />
       
-      <div className="flex-1 overflow-auto md:ml-0 ml-0">
+      <div className="flex-1 overflow-auto md:ml-64 ml-0">
         {/* Mobile Header Spacer */}
         <div className="h-16 md:hidden"></div>
         

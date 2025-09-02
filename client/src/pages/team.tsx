@@ -263,7 +263,7 @@ export default function Team() {
     <div className="flex h-screen bg-[var(--jofe-white)]">
       <Sidebar />
       
-      <div className="flex-1 overflow-auto md:ml-0 ml-0">
+      <div className="flex-1 overflow-auto md:ml-64 ml-0">
         {/* Mobile Header Spacer */}
         <div className="h-16 md:hidden"></div>
         
