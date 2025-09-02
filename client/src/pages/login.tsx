@@ -97,9 +97,9 @@ export default function Login() {
         }}
       />
       
-      <div className="w-full max-w-md animate-in fade-in duration-800">
+      <div className="w-full max-w-md animate-in fade-in duration-300">
         {/* Header */}
-        <div className="text-center mb-8 animate-in slide-in-from-bottom duration-600">
+        <div className="text-center mb-8 animate-in slide-in-from-bottom duration-200">
           <h1 className="text-2xl font-bold mb-2 text-[#162C54]">
             Connexion Sécurisée
           </h1>
@@ -107,7 +107,7 @@ export default function Login() {
         
         {/* Login Form */}
         <Card 
-          className="rounded-2xl p-8 animate-in slide-in-from-bottom duration-600 delay-200"
+          className="rounded-2xl p-8 animate-in slide-in-from-bottom duration-300 delay-100"
           style={{ 
             boxShadow: '0 10px 25px -5px rgba(22, 44, 84, 0.08), 0 4px 6px -2px rgba(22, 44, 84, 0.04)',
             border: '1px solid #E5E7EB'
@@ -122,7 +122,7 @@ export default function Login() {
               </Label>
               <Select value={selectedMember} onValueChange={setSelectedMember}>
                 <SelectTrigger 
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-300"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-150"
                   data-testid="select-member"
                 >
                   <SelectValue placeholder="-- Choisir un membre de l'équipe --" />
@@ -184,7 +184,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-300 pr-12"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-150 pr-12"
                   placeholder="Saisissez votre mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -213,7 +213,7 @@ export default function Login() {
             {/* Submit Button */}
             <Button 
               type="submit" 
-              className="w-full text-white py-3 px-6 rounded-xl font-medium focus:outline-none focus:ring-0 flex items-center justify-center transition-all duration-300 hover:transform hover:-translate-y-1"
+              className="w-full text-white py-3 px-6 rounded-xl font-medium focus:outline-none focus:ring-0 flex items-center justify-center transition-all duration-150 hover:transform hover:-translate-y-1"
               style={{
                 background: 'linear-gradient(135deg, #3475BB, #37B6E9)',
                 boxShadow: loginMutation.isPending ? 'none' : '0 4px 12px rgba(52, 117, 187, 0.3)'
