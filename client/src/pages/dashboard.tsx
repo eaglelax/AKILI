@@ -55,107 +55,111 @@ export default function Dashboard() {
       <Sidebar />
       
       {/* Main Content */}
-      <div className="md:ml-64">
+      <div className="md:ml-64 ml-0">
+        {/* Mobile Header Spacer */}
+        <div className="h-16 md:hidden"></div>
+        
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="jofe-font text-2xl text-primary">Tableau de Bord</h1>
-              <p className="text-sm text-muted-foreground">Vue d'ensemble de vos projets et performances</p>
+        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="jofe-font text-xl md:text-2xl text-primary truncate">Tableau de Bord</h1>
+              <p className="text-sm text-muted-foreground hidden sm:block">Vue d'ensemble de vos projets et performances</p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
               {/* Notifications */}
               <button className="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <Bell className="w-6 h-6 text-muted-foreground" />
+                <Bell className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                 <div className="notification-dot absolute top-1 right-1"></div>
               </button>
               
               {/* Settings */}
               <button className="p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <Settings className="w-6 h-6 text-muted-foreground" />
+                <Settings className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
               </button>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="p-6 space-y-8">
+        <main className="p-4 md:p-6 space-y-6 md:space-y-8">
           {/* KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-in">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 fade-in">
             {/* Projets Actifs */}
             <div className="kpi-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-secondary/10">
-                  <FolderOpen className="w-6 h-6 text-secondary" />
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className="p-2 md:p-3 rounded-lg bg-secondary/10 flex-shrink-0">
+                  <FolderOpen className="w-4 h-4 md:w-6 md:h-6 text-secondary" />
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-green-500 text-white">
+                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">
                   {(dashboardStats as any)?.totalProjects ? '+12%' : 'New'}
                 </span>
               </div>
               <div>
-                <p className="text-2xl font-bold jofe-font text-primary">
+                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">
                   {formatNumber((dashboardStats as any)?.totalProjects || (projects as any)?.length || 0)}
                 </p>
-                <p className="text-sm text-muted-foreground">Projets Actifs</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">Projets Actifs</p>
               </div>
             </div>
             
             {/* CA Mensuel */}
             <div className="kpi-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-green-500/10">
-                  <DollarSign className="w-6 h-6 text-green-500" />
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className="p-2 md:p-3 rounded-lg bg-green-500/10 flex-shrink-0">
+                  <DollarSign className="w-4 h-4 md:w-6 md:h-6 text-green-500" />
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-green-500 text-white">+8%</span>
+                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+8%</span>
               </div>
               <div>
-                <p className="text-2xl font-bold jofe-font text-primary">
+                <p className="text-sm md:text-2xl font-bold jofe-font text-primary truncate">
                   {formatNumber((dashboardStats as any)?.totalRevenue || 12450000)}
                 </p>
-                <p className="text-sm text-muted-foreground">CA Mensuel (FCFA)</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">CA Mensuel</p>
               </div>
             </div>
             
             {/* Productivité Équipe */}
             <div className="kpi-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-orange-500/10">
-                  <Users className="w-6 h-6 text-orange-500" />
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className="p-2 md:p-3 rounded-lg bg-orange-500/10 flex-shrink-0">
+                  <Users className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-green-500 text-white">+5%</span>
+                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+5%</span>
               </div>
               <div>
-                <p className="text-2xl font-bold jofe-font text-primary">
+                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">
                   {(teamStats as any)?.productivity || '87'}%
                 </p>
-                <p className="text-sm text-muted-foreground">Productivité Équipe</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">Productivité</p>
               </div>
             </div>
             
             {/* Satisfaction Client */}
             <div className="kpi-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Heart className="w-6 h-6 text-primary" />
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className="p-2 md:p-3 rounded-lg bg-primary/10 flex-shrink-0">
+                  <Heart className="w-4 h-4 md:w-6 md:h-6 text-primary" />
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-green-500 text-white">+2%</span>
+                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+2%</span>
               </div>
               <div>
-                <p className="text-2xl font-bold jofe-font text-primary">4.8/5</p>
-                <p className="text-sm text-muted-foreground">Satisfaction Client</p>
+                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">4.8/5</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">Satisfaction</p>
               </div>
             </div>
           </div>
 
           {/* Tâches Actives et Performance */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 fade-in">
             {/* Tâches Actives */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="jofe-font text-lg text-primary">Tâches Actives</h3>
-                <Button className="bg-secondary hover:bg-secondary/90">
-                  Nouvelle Tâche
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4 md:mb-6 flex-wrap gap-2">
+                <h3 className="jofe-font text-base md:text-lg text-primary">Tâches Actives</h3>
+                <Button className="bg-secondary hover:bg-secondary/90 text-sm px-3 py-2">
+                  <span className="hidden sm:inline">Nouvelle Tâche</span>
+                  <span className="sm:hidden">Nouvelle</span>
                 </Button>
               </div>
               
@@ -176,20 +180,20 @@ export default function Dashboard() {
                       <p className="text-sm text-gray-600 mb-3">
                         {task.assignedToName || 'Non assigné'} - {task.category || 'Tâche générale'}
                       </p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="timer-active">
-                          <span className="text-sm font-mono text-secondary">
+                          <span className="text-xs md:text-sm font-mono text-secondary">
                             {task.timeSpent || '00:00:00'}
                           </span>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="bg-orange-500 text-white border-orange-500">
-                            <Pause className="w-3 h-3 mr-1" />
-                            Pause
+                        <div className="flex gap-1 md:gap-2">
+                          <Button size="sm" variant="outline" className="bg-orange-500 text-white border-orange-500 px-2">
+                            <Pause className="w-3 h-3 md:mr-1" />
+                            <span className="hidden md:inline">Pause</span>
                           </Button>
-                          <Button size="sm" className="bg-green-500 hover:bg-green-600">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Terminé
+                          <Button size="sm" className="bg-green-500 hover:bg-green-600 px-2">
+                            <CheckCircle className="w-3 h-3 md:mr-1" />
+                            <span className="hidden md:inline">Terminé</span>
                           </Button>
                         </div>
                       </div>
