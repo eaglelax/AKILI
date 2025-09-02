@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Gestion des Profils</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+        }
+
+        .jofe-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+        }
+
+        .jofe-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(22, 44, 84, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .jofe-card:hover {
+            box-shadow: 0 4px 16px rgba(22, 44, 84, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .jofe-btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .jofe-btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+
+        .jofe-btn-secondary {
+            background: var(--jofe-gray);
+            color: var(--jofe-blue-deep);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .jofe-btn-danger {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .jofe-input {
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--jofe-white);
+        }
+
+        .jofe-input:focus {
+            outline: none;
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+        }
+
+        .jofe-badge-admin {
+            background: var(--jofe-blue-deep);
+            color: var(--jofe-white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .jofe-badge-member {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .jofe-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .jofe-rings {
+            width: 24px;
+            height: 24px;
+            position: relative;
+        }
+
+        .jofe-ring {
+            position: absolute;
+            border: 2px solid var(--jofe-white);
+            border-radius: 50%;
+        }
+
+        .jofe-ring:nth-child(1) {
+            width: 8px;
+            height: 8px;
+            top: 0;
+            left: 8px;
+        }
+
+        .jofe-ring:nth-child(2) {
+            width: 8px;
+            height: 8px;
+            top: 6px;
+            left: 2px;
+        }
+
+        .jofe-ring:nth-child(3) {
+            width: 8px;
+            height: 8px;
+            top: 6px;
+            right: 2px;
+        }
+
+        .sidebar {
+            background: var(--jofe-white);
+            border-right: 1px solid var(--jofe-gray);
+            min-height: 100vh;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--jofe-blue-deep);
+        }
+
+        .nav-item:hover {
+            background: rgba(55, 182, 233, 0.1);
+        }
+
+        .nav-item.active {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .skill-tag {
+            background: rgba(55, 182, 233, 0.1);
+            color: var(--jofe-blue-medium);
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 12px;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--jofe-white);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--jofe-blue-medium);
+            font-size: 14px;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--jofe-blue-medium);
+        }
+
+        .search-input {
+            padding-left: 40px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                position: fixed;
+                z-index: 100;
+                width: 250px;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 flex-shrink-0">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="jofe-logo">
+                        <div class="jofe-rings">
+                            <div class="jofe-ring"></div>
+                            <div class="jofe-ring"></div>
+                            <div class="jofe-ring"></div>
+                        </div>
+                    </div>
+                    <span class="jofe-title text-xl font-bold">JoFé+</span>
+                </div>
+            </div>
+
+            <nav class="mt-6">
+                <a href="#" class="nav-item">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4"></path>
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a href="#" class="nav-item active">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Gestion Équipe
+                </a>
+
+                <a href="#" class="nav-item">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Projets
+                </a>
+
+                <a href="#" class="nav-item">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+
+                <a href="#" class="nav-item">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    Clients
+                </a>
+
+                <a href="#" class="nav-item">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6">
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="avatar w-8 h-8 text-sm">SA</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">Serge ASSALÉ</p>
+                        <p class="text-xs text-gray-500">Administrateur</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="jofe-title text-2xl font-bold">Gestion des Profils Utilisateurs</h1>
+                        <p class="text-gray-600 mt-1">Gérez les membres de votre équipe JoFé+ et leurs permissions</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button class="jofe-btn-primary flex items-center space-x-2" onclick="openAddUserModal()">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            <span>Ajouter Membre</span>
+                        </button>
+                        
+                        <button class="p-2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19.5A2.5 2.5 0 016.5 22H10"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6">
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">14</div>
+                        <div class="stat-label">Membres Actifs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">Administrateurs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Membres Équipe</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">92%</div>
+                        <div class="stat-label">Taux Présence</div>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="search-container flex-1">
+                        <svg class="search-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" class="jofe-input search-input" placeholder="Rechercher un membre..." id="searchInput" oninput="filterUsers()">
+                    </div>
+                    
+                    <select class="jofe-input w-48" id="roleFilter" onchange="filterUsers()">
+                        <option value="">Tous les rôles</option>
+                        <option value="admin">Administrateurs</option>
+                        <option value="creative">Créatifs</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="production">Production</option>
+                    </select>
+                    
+                    <select class="jofe-input w-48" id="statusFilter" onchange="filterUsers()">
+                        <option value="">Tous les statuts</option>
+                        <option value="active">Actif</option>
+                        <option value="inactive">Inactif</option>
+                        <option value="vacation">En congé</option>
+                    </select>
+                </div>
+
+                <!-- Users Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="usersGrid">
+                    <!-- Admin Users -->
+                    <div class="jofe-card p-6 user-card" data-role="admin" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">SA</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Serge ASSALÉ</h3>
+                                    <p class="text-sm text-gray-600">Directeur Création & Marketing</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-admin">ADMIN</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                15,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                En ligne
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Stratégie</span>
+                                <span class="skill-tag">Direction artistique</span>
+                                <span class="skill-tag">Management</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('serge_assale')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jofe-card p-6 user-card" data-role="admin" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">EG</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Enos GOUBA</h3>
+                                    <p class="text-sm text-gray-600">Coordinateur Production</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-admin">ADMIN</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                12,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                En ligne
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Coordination</span>
+                                <span class="skill-tag">Planning</span>
+                                <span class="skill-tag">Production</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('enos_gouba')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Creative Team Members -->
+                    <div class="jofe-card p-6 user-card" data-role="creative" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">PO</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Paul Junior OUEDRAOGO</h3>
+                                    <p class="text-sm text-gray-600">Graphiste Photomonteur</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                8,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-orange-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Tâche en cours
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Photoshop</span>
+                                <span class="skill-tag">Photomontage</span>
+                                <span class="skill-tag">Retouche</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('paul_ouedraogo')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jofe-card p-6 user-card" data-role="creative" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">FY</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Fortune YANOGO</h3>
+                                    <p class="text-sm text-gray-600">Photographe/Vidéaste</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                10,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-orange-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"></path>
+                                </svg>
+                                En shooting externe
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Photographie</span>
+                                <span class="skill-tag">Vidéo</span>
+                                <span class="skill-tag">Éclairage</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('fortune_yanogo')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jofe-card p-6 user-card" data-role="creative" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">BP</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Bientama PARÉ</h3>
+                                    <p class="text-sm text-gray-600">Motion Designer</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                9,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-green-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Disponible
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">After Effects</span>
+                                <span class="skill-tag">Animation</span>
+                                <span class="skill-tag">Motion</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('bientama_pare')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jofe-card p-6 user-card" data-role="creative" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">IC</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Issa CISSE</h3>
+                                    <p class="text-sm text-gray-600">Graphiste Junior</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                6,000 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-blue-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                En formation
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Design graphique</span>
+                                <span class="skill-tag">Illustration</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('issa_cisse')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Marketing Team Members -->
+                    <div class="jofe-card p-6 user-card" data-role="marketing" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">FK</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Florita KABORÉ</h3>
+                                    <p class="text-sm text-gray-600">Responsable Médias Sociaux</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                7,500 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-orange-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Gestion campagnes
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Social Media</span>
+                                <span class="skill-tag">Ads</span>
+                                <span class="skill-tag">Analytics</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('florita_kabore')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- More team members would continue here with the same pattern -->
+                    <!-- I'll add a few more for completeness -->
+
+                    <div class="jofe-card p-6 user-card" data-role="marketing" data-status="active">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">NW</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Nebié WEBOU</h3>
+                                    <p class="text-sm text-gray-600">Chef de Pub/Concepteur Rédacteur</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                8,500 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-green-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Disponible
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Rédaction</span>
+                                <span class="skill-tag">Concept</span>
+                                <span class="skill-tag">Stratégie</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('nebie_webou')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="jofe-card p-6 user-card" data-role="marketing" data-status="vacation">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">LK</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Linda KABORÉ</h3>
+                                    <p class="text-sm text-gray-600">Conceptrice Rédactrice Lead</p>
+                                </div>
+                            </div>
+                            <span class="jofe-badge-member">MEMBRE</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                9,500 FCFA/h
+                            </div>
+                            <div class="flex items-center text-sm text-purple-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h12l1 9a2 2 0 01-2 2H7a2 2 0 01-2-2l1-9z"></path>
+                                </svg>
+                                En congé
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-tag">Rédaction</span>
+                                <span class="skill-tag">Concept</span>
+                                <span class="skill-tag">Stratégie</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button class="jofe-btn-primary flex-1 text-sm" onclick="editUser('linda_kabore')">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="jofe-title text-xl font-bold">Modifier le Profil</h2>
+                <button class="text-gray-400 hover:text-gray-600" onclick="closeEditUserModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editUserForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                        <input type="text" id="editUserName" class="jofe-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
+                        <input type="text" id="editUserRole" class="jofe-input w-full" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="editUserEmail" class="jofe-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Taux horaire (FCFA)</label>
+                        <input type="number" id="editUserRate" class="jofe-input w-full" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                        <select id="editUserStatus" class="jofe-input w-full">
+                            <option value="active">Actif</option>
+                            <option value="inactive">Inactif</option>
+                            <option value="vacation">En congé</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Type de compte</label>
+                        <select id="editUserType" class="jofe-input w-full">
+                            <option value="member">Membre</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Compétences</label>
+                    <textarea id="editUserSkills" class="jofe-input w-full" rows="3" placeholder="Séparez les compétences par des virgules"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" class="jofe-btn-secondary" onclick="closeEditUserModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="jofe-btn-primary">
+                        Sauvegarder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="jofe-title text-xl font-bold">Ajouter un Nouveau Membre</h2>
+                <button class="text-gray-400 hover:text-gray-600" onclick="closeAddUserModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="addUserForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                        <input type="text" id="addUserName" class="jofe-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Poste</label>
+                        <input type="text" id="addUserRole" class="jofe-input w-full" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="addUserEmail" class="jofe-input w-full" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Taux horaire (FCFA)</label>
+                        <input type="number" id="addUserRate" class="jofe-input w-full" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Type de compte</label>
+                        <select id="addUserType" class="jofe-input w-full">
+                            <option value="member">Membre</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Statut initial</label>
+                        <select id="addUserStatus" class="jofe-input w-full">
+                            <option value="active">Actif</option>
+                            <option value="inactive">Inactif</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Compétences</label>
+                    <textarea id="addUserSkills" class="jofe-input w-full" rows="3" placeholder="Séparez les compétences par des virgules"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" class="jofe-btn-secondary" onclick="closeAddUserModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="jofe-btn-primary">
+                        Ajouter le Membre
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // User data
+        const users = {
+            'serge_assale': {
+                name: 'Serge ASSALÉ',
+                role: 'Directeur Création & Marketing',
+                email: 'serge.assale@jofeplus.bf',
+                rate: 15000,
+                status: 'active',
+                type: 'admin',
+                skills: ['Stratégie', 'Direction artistique', 'Management']
+            },
+            'enos_gouba': {
+                name: 'Enos GOUBA',
+                role: 'Coordinateur Production',
+                email: 'enos.gouba@jofeplus.bf',
+                rate: 12000,
+                status: 'active',
+                type: 'admin',
+                skills: ['Coordination', 'Planning', 'Production']
+            },
+            'paul_ouedraogo': {
+                name: 'Paul Junior OUEDRAOGO',
+                role: 'Graphiste Photomonteur',
+                email: 'paul.ouedraogo@jofeplus.bf',
+                rate: 8000,
+                status: 'active',
+                type: 'member',
+                skills: ['Photoshop', 'Photomontage', 'Retouche']
+            },
+            'fortune_yanogo': {
+                name: 'Fortune YANOGO',
+                role: 'Photographe/Vidéaste',
+                email: 'fortune.yanogo@jofeplus.bf',
+                rate: 10000,
+                status: 'active',
+                type: 'member',
+                skills: ['Photographie', 'Vidéo', 'Éclairage']
+            },
+            'bientama_pare': {
+                name: 'Bientama PARÉ',
+                role: 'Motion Designer',
+                email: 'bientama.pare@jofeplus.bf',
+                rate: 9000,
+                status: 'active',
+                type: 'member',
+                skills: ['After Effects', 'Animation', 'Motion']
+            },
+            'issa_cisse': {
+                name: 'Issa CISSE',
+                role: 'Graphiste Junior',
+                email: 'issa.cisse@jofeplus.bf',
+                rate: 6000,
+                status: 'active',
+                type: 'member',
+                skills: ['Design graphique', 'Illustration']
+            },
+            'florita_kabore': {
+                name: 'Florita KABORÉ',
+                role: 'Responsable Médias Sociaux',
+                email: 'florita.kabore@jofeplus.bf',
+                rate: 7500,
+                status: 'active',
+                type: 'member',
+                skills: ['Social Media', 'Ads', 'Analytics']
+            },
+            'nebie_webou': {
+                name: 'Nebié WEBOU',
+                role: 'Chef de Pub/Concepteur Rédacteur',
+                email: 'nebie.webou@jofeplus.bf',
+                rate: 8500,
+                status: 'active',
+                type: 'member',
+                skills: ['Rédaction', 'Concept', 'Stratégie']
+            },
+            'linda_kabore': {
+                name: 'Linda KABORÉ',
+                role: 'Conceptrice Rédactrice Lead',
+                email: 'linda.kabore@jofeplus.bf',
+                rate: 9500,
+                status: 'vacation',
+                type: 'member',
+                skills: ['Rédaction', 'Concept', 'Stratégie']
+            }
+        };
+
+        // Modal functions
+        function openAddUserModal() {
+            document.getElementById('addUserModal').classList.add('show');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('show');
+        }
+
+        function openEditUserModal() {
+            document.getElementById('editUserModal').classList.add('show');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.remove('show');
+        }
+
+        // Edit user function
+        function editUser(userId) {
+            const user = users[userId];
+            if (user) {
+                document.getElementById('editUserName').value = user.name;
+                document.getElementById('editUserRole').value = user.role;
+                document.getElementById('editUserEmail').value = user.email;
+                document.getElementById('editUserRate').value = user.rate;
+                document.getElementById('editUserStatus').value = user.status;
+                document.getElementById('editUserType').value = user.type;
+                document.getElementById('editUserSkills').value = user.skills.join(', ');
+                
+                openEditUserModal();
+            }
+        }
+
+        // Filter users function
+        function filterUsers() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const userCards = document.querySelectorAll('.user-card');
+            
+            userCards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const role = card.getAttribute('data-role');
+                const status = card.getAttribute('data-status');
+                
+                const matchesSearch = name.includes(searchInput);
+                const matchesRole = !roleFilter || role === roleFilter;
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                if (matchesSearch && matchesRole && matchesStatus) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Form submissions
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('addUserName').value,
+                role: document.getElementById('addUserRole').value,
+                email: document.getElementById('addUserEmail').value,
+                rate: document.getElementById('addUserRate').value,
+                type: document.getElementById('addUserType').value,
+                status: document.getElementById('addUserStatus').value,
+                skills: document.getElementById('addUserSkills').value
+            };
+            
+            // Here you would normally send this data to your backend
+            console.log('Adding new user:', formData);
+            
+            // Show success message
+            alert('Nouveau membre ajouté avec succès !');
+            
+            // Close modal and reset form
+            closeAddUserModal();
+            this.reset();
+        });
+
+        document.getElementById('editUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('editUserName').value,
+                role: document.getElementById('editUserRole').value,
+                email: document.getElementById('editUserEmail').value,
+                rate: document.getElementById('editUserRate').value,
+                type: document.getElementById('editUserType').value,
+                status: document.getElementById('editUserStatus').value,
+                skills: document.getElementById('editUserSkills').value
+            };
+            
+            // Here you would normally send this data to your backend
+            console.log('Updating user:', formData);
+            
+            // Show success message
+            alert('Profil mis à jour avec succès !');
+            
+            // Close modal
+            closeEditUserModal();
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('JoFé+ - Page de Gestion des Profils initialisée');
+        });
+    </script>
+</body>
+</html>
+
+OK

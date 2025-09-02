@@ -321,3 +321,169 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Team Management Styles */
+.jofe-btn-primary {
+  background: hsl(196, 78%, 56%);
+  color: hsl(0, 0%, 100%);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.jofe-btn-primary:hover {
+  background: hsl(204, 61%, 51%);
+  transform: translateY(-1px);
+}
+
+.jofe-btn-secondary {
+  background: hsl(214.3, 31.8%, 91.4%);
+  color: hsl(219, 58%, 21%);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.jofe-btn-danger {
+  background: hsl(25, 95%, 53%);
+  color: hsl(0, 0%, 100%);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.jofe-input {
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: hsl(0, 0%, 100%);
+}
+
+.jofe-input:focus {
+  outline: none;
+  border-color: hsl(196, 78%, 56%);
+  box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+}
+
+.jofe-badge-admin {
+  background: hsl(219, 58%, 21%);
+  color: hsl(0, 0%, 100%);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.jofe-badge-member {
+  background: hsl(84, 49%, 57%);
+  color: hsl(0, 0%, 100%);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.skill-tag {
+  background: rgba(55, 182, 233, 0.1);
+  color: hsl(204, 61%, 51%);
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  margin: 2px;
+  display: inline-block;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(196, 78%, 56%), hsl(204, 61%, 51%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(0, 0%, 100%);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: hsl(0, 0%, 100%);
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(22, 44, 84, 0.1);
+  transform: translateY(-1px);
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: hsl(219, 58%, 21%);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: hsl(204, 61%, 51%);
+  font-size: 14px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(204, 61%, 51%);
+  z-index: 10;
+}
+
+.search-input {
+  padding-left: 40px;
+  width: 100%;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: hsl(0, 0%, 100%);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
