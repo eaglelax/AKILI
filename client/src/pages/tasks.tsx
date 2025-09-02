@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Clock, User, Building2, Calendar, AlertCircle, Play, Pause, CheckCircle, MoreHorizontal, Edit } from "lucide-react";
+import { Plus, Search, Clock, User, Building2, Calendar, AlertCircle, Play, Pause, CheckCircle, MoreHorizontal, Edit, Eye } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
+import { Link } from "wouter";
 
 // Types pour les tâches avec chronométrage
 interface Task {
@@ -462,6 +463,15 @@ export default function Tasks() {
                       </div>
                       
                       <div className="flex gap-2">
+                        <Link href={`/tasks/${task.id}`}>
+                          <button 
+                            className="p-2 text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-medium)] hover:text-[var(--jofe-white)] rounded-lg transition-colors"
+                            data-testid={`button-detail-${task.id}`}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </Link>
+                        
                         {task.status !== "completed" && (
                           <button 
                             onClick={() => toggleTimer(task.id)}

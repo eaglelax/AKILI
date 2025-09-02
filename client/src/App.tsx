@@ -10,6 +10,7 @@ import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Team from "@/pages/team";
 import Tasks from "@/pages/tasks";
+import TaskDetail from "@/pages/task-detail";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/team" component={Team} />
       <Route path="/tasks" component={Tasks} />
+      <Route path="/tasks/:id" component={TaskDetail} />
       
       {/* Route 404 */}
       <Route component={NotFound} />
