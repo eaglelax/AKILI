@@ -32,6 +32,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route for team authentication
+  app.get('/api/auth/team-user', (req: any, res) => {
+    if (!req.session.teamMember) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+    res.json(req.session.teamMember);
+  });
+
   // Authentication for Jo'Fé Digital team
   app.post('/api/auth/team-login', async (req, res) => {
     try {
