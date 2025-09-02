@@ -80,7 +80,7 @@ export default function Permissions() {
   };
 
   const teamMembers: TeamMemberPermission[] = [
-    // Administrateurs
+    // Administrateurs (2)
     {
       id: "serge_assale",
       name: "Serge ASSALÉ",
@@ -111,7 +111,8 @@ export default function Permissions() {
       avatar: "var(--jofe-orange)",
       initials: "EG"
     },
-    // Membres équipe
+    
+    // Équipe Créative (6)
     {
       id: "paul_ouedraogo",
       name: "Paul Junior OUEDRAOGO",
@@ -158,6 +159,98 @@ export default function Permissions() {
       initials: "BP"
     },
     {
+      id: "issa_cisse",
+      name: "Issa CISSE",
+      role: "Graphiste Junior",
+      isAdmin: false,
+      hourlyRate: 6000,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "IC"
+    },
+    {
+      id: "jean_sampabao",
+      name: "Jean-Jacques SAMPABAO",
+      role: "Directeur Artistique Junior",
+      isAdmin: false,
+      hourlyRate: 8500,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "JS"
+    },
+    {
+      id: "latif_ouedraogo",
+      name: "Abdoul Latif OUEDRAOGO",
+      role: "Designer UI/UX",
+      isAdmin: false,
+      hourlyRate: 9500,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "AO"
+    },
+    
+    // Communication & Marketing (6)
+    {
+      id: "florita_kabore",
+      name: "Florita KABORÉ",
+      role: "Responsable Médias Sociaux",
+      isAdmin: false,
+      hourlyRate: 7500,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "FK"
+    },
+    {
+      id: "nebie_webou",
+      name: "Nebié WEBOU",
+      role: "Chef de Pub/Concepteur Rédacteur",
+      isAdmin: false,
+      hourlyRate: 8500,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "NW"
+    },
+    {
+      id: "djamilatou_guiguemde",
+      name: "Djamilatou GUIGUEMDE",
+      role: "Chef de Pub Stagiaire",
+      isAdmin: false,
+      hourlyRate: 5000,
+      permissions: {
+        manageAll: false,
+        assignTimers: false,
+        viewOwnTasks: true,
+        viewOtherTasks: false
+      },
+      avatar: "var(--jofe-blue-medium)",
+      initials: "DG"
+    },
+    {
       id: "linda_kabore",
       name: "Linda KABORÉ",
       role: "Conceptrice Rédactrice Lead",
@@ -173,11 +266,11 @@ export default function Permissions() {
       initials: "LK"
     },
     {
-      id: "alidou_hema",
-      name: "Alidou HÉMA",
-      role: "Consultant Social Media",
+      id: "maryse_bombiri",
+      name: "Maryse BOMBIRI",
+      role: "Community Manager",
       isAdmin: false,
-      hourlyRate: 7500,
+      hourlyRate: 6500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -185,14 +278,14 @@ export default function Permissions() {
         viewOtherTasks: false
       },
       avatar: "var(--jofe-blue-medium)",
-      initials: "AH"
+      initials: "MB"
     },
     {
-      id: "souleymane_ouedraogo",
-      name: "Souleymane OUEDRAOGO",
-      role: "Développeur Web",
+      id: "faridatou_barry",
+      name: "Faridatou BARRY",
+      role: "Chef de Pub/CM",
       isAdmin: false,
-      hourlyRate: 8500,
+      hourlyRate: 7000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -200,7 +293,7 @@ export default function Permissions() {
         viewOtherTasks: false
       },
       avatar: "var(--jofe-blue-medium)",
-      initials: "SO"
+      initials: "FB"
     }
   ];
 
