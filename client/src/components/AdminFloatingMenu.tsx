@@ -41,7 +41,7 @@ const PAGE_FILES: Record<string, string> = {
   '/tasks': 'tasks.tsx',
   '/task-detail': 'task-detail.tsx',
   '/time-history': 'time-history.tsx',
-  '/time-permissions': 'time-permissions.tsx',
+  '/permissions': 'permissions.tsx',
   '/analytics': 'analytics.tsx',
   '/reports': 'reports.tsx',
   '/presentations': 'presentations.tsx',
@@ -139,7 +139,15 @@ const PAGE_FILES: Record<string, string> = {
 // Fonction pour vérifier si une page existe (basée sur les pages actuellement créées)
 function checkPageExists(path: string): boolean {
   // Pages existantes détectées automatiquement
-  const existingPages = ['/login', '/dashboard', '/team'];
+  const existingPages = [
+    '/login', 
+    '/dashboard', 
+    '/team', 
+    '/tasks', 
+    '/task-detail', 
+    '/time-history', 
+    '/permissions'
+  ];
   return existingPages.includes(path);
 }
 
@@ -150,11 +158,11 @@ const basePages = [
   { name: "Tableau de bord d'accueil", path: "/dashboard", icon: LayoutDashboard, category: "🔐 Authentification" },
   { name: "Gestion des profils utilisateurs", path: "/team", icon: Users, category: "🔐 Authentification" },
   
-  // ⏱️ CHRONOMÉTRAGE & TÂCHES (Pages 4-7)
+  // ⏱️ CHRONOMÉTRAGE & TÂCHES (Pages 4-8)
   { name: "Gestion des tâches avec chronométrage", path: "/tasks", icon: Clock, category: "⏱️ Chronométrage" },
   { name: "Vue détaillée d'une tâche avec timer", path: "/task-detail", icon: Clock, category: "⏱️ Chronométrage" },
   { name: "Historique des temps de travail", path: "/time-history", icon: FileText, category: "⏱️ Chronométrage" },
-  { name: "Configuration permissions chronométrage", path: "/time-permissions", icon: Settings, category: "⏱️ Chronométrage" },
+  { name: "Configuration des permissions", path: "/permissions", icon: Settings, category: "⏱️ Chronométrage" },
   
   // 📊 ANALYTICS & REPORTING (Pages 8-12)
   { name: "Dashboard analytics principal", path: "/analytics", icon: BarChart3, category: "📊 Analytics" },
