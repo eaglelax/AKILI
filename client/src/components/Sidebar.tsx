@@ -8,6 +8,7 @@ import {
   Users, 
   Building, 
   BarChart3, 
+  TrendingUp,
   MessageSquare,
   Settings,
   User,
@@ -28,6 +29,11 @@ const navigationItems = [
     icon: Clock 
   },
   { 
+    href: "/time-history", 
+    label: "Historique Temps", 
+    icon: BarChart3 
+  },
+  { 
     href: "/projects", 
     label: "Projets", 
     icon: FolderOpen 
@@ -45,7 +51,7 @@ const navigationItems = [
   { 
     href: "/analytics", 
     label: "Analytics", 
-    icon: BarChart3 
+    icon: TrendingUp 
   },
   { 
     href: "/chat", 

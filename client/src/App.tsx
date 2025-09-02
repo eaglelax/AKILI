@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard";
 import Team from "@/pages/team";
 import Tasks from "@/pages/tasks";
 import TaskDetail from "@/pages/task-detail";
+import TimeHistory from "@/pages/time-history";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/team" component={Team} />
       <Route path="/tasks" component={Tasks} />
       <Route path="/tasks/:id" component={TaskDetail} />
+      <Route path="/time-history" component={TimeHistory} />
       
       {/* Route 404 */}
       <Route component={NotFound} />

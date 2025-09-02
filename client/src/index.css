@@ -128,6 +128,63 @@
   background: hsl(219, 58%, 15%);
 }
 
+/* Animation fade-in */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(22, 44, 84, 0.15);
+}
+
+/* Logo JoFé */
+.jofe-logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #37B6E9 0%, #3475BB 50%, #162C54 100%);
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+
+.jofe-logo::before,
+.jofe-logo::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #37B6E9;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.jofe-logo::before {
+  top: 2px;
+  left: 2px;
+}
+
+.jofe-logo::after {
+  bottom: 2px;
+  right: 2px;
+}
+
+/* Fonts JoFé */
+.jofe-font {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+}
+
 /* Tab styling */
 .tab-btn {
   color: hsl(215.4, 16.3%, 46.9%);
