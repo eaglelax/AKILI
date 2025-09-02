@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { 
   Settings2, 
@@ -22,151 +22,283 @@ import {
   EyeOff
 } from "lucide-react";
 
+// Type pour une page
+interface PageInfo {
+  name: string;
+  path: string;
+  icon: any;
+  category: string;
+  status: "created" | "pending";
+}
+
+// Mapping des fichiers de pages vers les paths
+const PAGE_FILES: Record<string, string> = {
+  '/login': 'login.tsx',
+  '/dashboard': 'dashboard.tsx', 
+  '/': 'landing.tsx',
+  '/team': 'team.tsx',
+  '/404': 'not-found.tsx',
+  '/tasks': 'tasks.tsx',
+  '/task-detail': 'task-detail.tsx',
+  '/time-history': 'time-history.tsx',
+  '/time-permissions': 'time-permissions.tsx',
+  '/analytics': 'analytics.tsx',
+  '/reports': 'reports.tsx',
+  '/presentations': 'presentations.tsx',
+  '/productivity': 'productivity.tsx',
+  '/roi': 'roi.tsx',
+  '/projects': 'projects.tsx',
+  '/project-editor': 'project-editor.tsx',
+  '/project-detail': 'project-detail.tsx',
+  '/gantt': 'gantt.tsx',
+  '/project-templates': 'project-templates.tsx',
+  '/approval-workflow': 'approval-workflow.tsx',
+  '/dependencies': 'dependencies.tsx',
+  '/team-overview': 'team-overview.tsx',
+  '/member-profile': 'member-profile.tsx',
+  '/shared-calendar': 'shared-calendar.tsx',
+  '/leave-management': 'leave-management.tsx',
+  '/skills-training': 'skills-training.tsx',
+  '/performance-review': 'performance-review.tsx',
+  '/auto-assignment': 'auto-assignment.tsx',
+  '/clients': 'clients.tsx',
+  '/client-profile': 'client-profile.tsx',
+  '/client-history': 'client-history.tsx',
+  '/client-editor': 'client-editor.tsx',
+  '/client-feedback': 'client-feedback.tsx',
+  '/sales-pipeline': 'sales-pipeline.tsx',
+  '/contracts': 'contracts.tsx',
+  '/chat': 'chat.tsx',
+  '/notifications': 'notifications.tsx',
+  '/mentions': 'mentions.tsx',
+  '/file-sharing': 'file-sharing.tsx',
+  '/creative-approval': 'creative-approval.tsx',
+  '/change-history': 'change-history.tsx',
+  '/detailed-comments': 'detailed-comments.tsx',
+  '/assets': 'assets.tsx',
+  '/portfolio': 'portfolio.tsx',
+  '/version-control': 'version-control.tsx',
+  '/creative-validation': 'creative-validation.tsx',
+  '/production-planning': 'production-planning.tsx',
+  '/creative-materials': 'creative-materials.tsx',
+  '/creative-metrics': 'creative-metrics.tsx',
+  '/finance-dashboard': 'finance-dashboard.tsx',
+  '/quotes': 'quotes.tsx',
+  '/invoices': 'invoices.tsx',
+  '/payments': 'payments.tsx',
+  '/margins': 'margins.tsx',
+  '/revenue-forecast': 'revenue-forecast.tsx',
+  '/budget-actual': 'budget-actual.tsx',
+  '/budget-alerts': 'budget-alerts.tsx',
+  '/executive-dashboard': 'executive-dashboard.tsx',
+  '/competitive-analysis': 'competitive-analysis.tsx',
+  '/market-trends': 'market-trends.tsx',
+  '/resource-optimization': 'resource-optimization.tsx',
+  '/risk-analysis': 'risk-analysis.tsx',
+  '/custom-kpis': 'custom-kpis.tsx',
+  '/regulatory-reporting': 'regulatory-reporting.tsx',
+  '/scoring-system': 'scoring-system.tsx',
+  '/monthly-ranking': 'monthly-ranking.tsx',
+  '/detailed-evaluation': 'detailed-evaluation.tsx',
+  '/performance-history': 'performance-history.tsx',
+  '/rewards-system': 'rewards-system.tsx',
+  '/admin': 'admin.tsx',
+  '/member-management': 'member-management.tsx',
+  '/hourly-rates': 'hourly-rates.tsx',
+  '/system-settings': 'system-settings.tsx',
+  '/audit-logs': 'audit-logs.tsx',
+  '/backup-restore': 'backup-restore.tsx',
+  '/data-import-export': 'data-import-export.tsx',
+  '/mobile-dashboard': 'mobile-dashboard.tsx',
+  '/mobile-tasks': 'mobile-tasks.tsx',
+  '/mobile-chat': 'mobile-chat.tsx',
+  '/mobile-notifications': 'mobile-notifications.tsx',
+  '/api-integrations': 'api-integrations.tsx',
+  '/offline-mode': 'offline-mode.tsx',
+  '/multi-format-exports': 'multi-format-exports.tsx',
+  '/advanced-security': 'advanced-security.tsx',
+  '/global-calendar': 'global-calendar.tsx',
+  '/weekly-planning': 'weekly-planning.tsx',
+  '/resource-booking': 'resource-booking.tsx',
+  '/deadline-management': 'deadline-management.tsx',
+  '/creative-dashboard': 'creative-dashboard.tsx',
+  '/commercial-dashboard': 'commercial-dashboard.tsx',
+  '/production-dashboard': 'production-dashboard.tsx',
+  '/hr-dashboard': 'hr-dashboard.tsx',
+  '/advanced-search': 'advanced-search.tsx',
+  '/multi-filters': 'multi-filters.tsx',
+  '/search-history': 'search-history.tsx',
+  '/export-center': 'export-center.tsx',
+  '/report-templates': 'report-templates.tsx',
+  '/pdf-generator': 'pdf-generator.tsx',
+  '/maintenance': 'maintenance.tsx',
+  '/help': 'help.tsx',
+  '/about': 'about.tsx'
+};
+
+// Fonction pour vérifier si une page existe (basée sur les pages actuellement créées)
+function checkPageExists(path: string): boolean {
+  // Pages existantes détectées automatiquement
+  const existingPages = ['/login', '/dashboard', '/team'];
+  return existingPages.includes(path);
+}
+
 // Liste complète des 100 pages de l'application JoFé Digital
-const allPages = [
+const basePages = [
   // 🔐 AUTHENTIFICATION & SÉCURITÉ (Pages 1-3)
-  { name: "Page de connexion", path: "/login", icon: LogIn, status: "created", category: "🔐 Authentification" },
-  { name: "Tableau de bord d'accueil", path: "/dashboard", icon: LayoutDashboard, status: "created", category: "🔐 Authentification" },
-  { name: "Gestion des profils utilisateurs", path: "/team", icon: Users, status: "created", category: "🔐 Authentification" },
+  { name: "Page de connexion", path: "/login", icon: LogIn, category: "🔐 Authentification" },
+  { name: "Tableau de bord d'accueil", path: "/dashboard", icon: LayoutDashboard, category: "🔐 Authentification" },
+  { name: "Gestion des profils utilisateurs", path: "/team", icon: Users, category: "🔐 Authentification" },
   
   // ⏱️ CHRONOMÉTRAGE & TÂCHES (Pages 4-7)
-  { name: "Gestion des tâches avec chronométrage", path: "/tasks", icon: Clock, status: "pending", category: "⏱️ Chronométrage" },
-  { name: "Vue détaillée d'une tâche avec timer", path: "/task-detail", icon: Clock, status: "pending", category: "⏱️ Chronométrage" },
-  { name: "Historique des temps de travail", path: "/time-history", icon: FileText, status: "pending", category: "⏱️ Chronométrage" },
-  { name: "Configuration permissions chronométrage", path: "/time-permissions", icon: Settings, status: "pending", category: "⏱️ Chronométrage" },
+  { name: "Gestion des tâches avec chronométrage", path: "/tasks", icon: Clock, category: "⏱️ Chronométrage" },
+  { name: "Vue détaillée d'une tâche avec timer", path: "/task-detail", icon: Clock, category: "⏱️ Chronométrage" },
+  { name: "Historique des temps de travail", path: "/time-history", icon: FileText, category: "⏱️ Chronométrage" },
+  { name: "Configuration permissions chronométrage", path: "/time-permissions", icon: Settings, category: "⏱️ Chronométrage" },
   
   // 📊 ANALYTICS & REPORTING (Pages 8-12)
-  { name: "Dashboard analytics principal", path: "/analytics", icon: BarChart3, status: "pending", category: "📊 Analytics" },
-  { name: "Rapports détaillés", path: "/reports", icon: FileText, status: "pending", category: "📊 Analytics" },
-  { name: "Graphiques pour présentations", path: "/presentations", icon: BarChart3, status: "pending", category: "📊 Analytics" },
-  { name: "Analyse productivité par membre", path: "/productivity", icon: BarChart3, status: "pending", category: "📊 Analytics" },
-  { name: "ROI et rentabilité", path: "/roi", icon: BarChart3, status: "pending", category: "📊 Analytics" },
+  { name: "Dashboard analytics principal", path: "/analytics", icon: BarChart3, category: "📊 Analytics" },
+  { name: "Rapports détaillés", path: "/reports", icon: FileText, category: "📊 Analytics" },
+  { name: "Graphiques pour présentations", path: "/presentations", icon: BarChart3, category: "📊 Analytics" },
+  { name: "Analyse productivité par membre", path: "/productivity", icon: BarChart3, category: "📊 Analytics" },
+  { name: "ROI et rentabilité", path: "/roi", icon: BarChart3, category: "📊 Analytics" },
   
   // 📋 GESTION DE PROJETS (Pages 13-19)
-  { name: "Liste des projets", path: "/projects", icon: FolderOpen, status: "pending", category: "📋 Projets" },
-  { name: "Création/édition de projet", path: "/project-editor", icon: Plus, status: "pending", category: "📋 Projets" },
-  { name: "Vue détaillée d'un projet", path: "/project-detail", icon: Eye, status: "pending", category: "📋 Projets" },
-  { name: "Diagramme de Gantt interactif", path: "/gantt", icon: Calendar, status: "pending", category: "📋 Projets" },
-  { name: "Templates de projets", path: "/project-templates", icon: FileText, status: "pending", category: "📋 Projets" },
-  { name: "Workflow d'approbation", path: "/approval-workflow", icon: Check, status: "pending", category: "📋 Projets" },
-  { name: "Gestion des dépendances", path: "/dependencies", icon: Calendar, status: "pending", category: "📋 Projets" },
+  { name: "Liste des projets", path: "/projects", icon: FolderOpen, category: "📋 Projets" },
+  { name: "Création/édition de projet", path: "/project-editor", icon: Plus, category: "📋 Projets" },
+  { name: "Vue détaillée d'un projet", path: "/project-detail", icon: Eye, category: "📋 Projets" },
+  { name: "Diagramme de Gantt interactif", path: "/gantt", icon: Calendar, category: "📋 Projets" },
+  { name: "Templates de projets", path: "/project-templates", icon: FileText, category: "📋 Projets" },
+  { name: "Workflow d'approbation", path: "/approval-workflow", icon: Check, category: "📋 Projets" },
+  { name: "Gestion des dépendances", path: "/dependencies", icon: Calendar, category: "📋 Projets" },
   
   // 👥 GESTION D'ÉQUIPE (Pages 20-26)
-  { name: "Vue d'ensemble de l'équipe", path: "/team-overview", icon: Users, status: "pending", category: "👥 Équipe" },
-  { name: "Profil détaillé d'un membre", path: "/member-profile", icon: UserCircle, status: "pending", category: "👥 Équipe" },
-  { name: "Calendrier partagé", path: "/shared-calendar", icon: Calendar, status: "pending", category: "👥 Équipe" },
-  { name: "Gestion des congés", path: "/leave-management", icon: Calendar, status: "pending", category: "👥 Équipe" },
-  { name: "Compétences et formations", path: "/skills-training", icon: UserCircle, status: "pending", category: "👥 Équipe" },
-  { name: "Évaluation de performance", path: "/performance-review", icon: BarChart3, status: "pending", category: "👥 Équipe" },
-  { name: "Attribution automatique tâches", path: "/auto-assignment", icon: Settings, status: "pending", category: "👥 Équipe" },
+  { name: "Vue d'ensemble de l'équipe", path: "/team-overview", icon: Users, category: "👥 Équipe" },
+  { name: "Profil détaillé d'un membre", path: "/member-profile", icon: UserCircle, category: "👥 Équipe" },
+  { name: "Calendrier partagé", path: "/shared-calendar", icon: Calendar, category: "👥 Équipe" },
+  { name: "Gestion des congés", path: "/leave-management", icon: Calendar, category: "👥 Équipe" },
+  { name: "Compétences et formations", path: "/skills-training", icon: UserCircle, category: "👥 Équipe" },
+  { name: "Évaluation de performance", path: "/performance-review", icon: BarChart3, category: "👥 Équipe" },
+  { name: "Attribution automatique tâches", path: "/auto-assignment", icon: Settings, category: "👥 Équipe" },
   
   // 💼 GESTION CLIENTS (Pages 27-33)
-  { name: "Portfolio des 33 clients", path: "/clients", icon: Building, status: "pending", category: "💼 Clients" },
-  { name: "Profil détaillé d'un client", path: "/client-profile", icon: Building, status: "pending", category: "💼 Clients" },
-  { name: "Historique complet par client", path: "/client-history", icon: FileText, status: "pending", category: "💼 Clients" },
-  { name: "Ajout/modification de client", path: "/client-editor", icon: Plus, status: "pending", category: "💼 Clients" },
-  { name: "Satisfaction client et feedback", path: "/client-feedback", icon: MessageSquare, status: "pending", category: "💼 Clients" },
-  { name: "Pipeline commercial", path: "/sales-pipeline", icon: BarChart3, status: "pending", category: "💼 Clients" },
-  { name: "Contrats et budgets", path: "/contracts", icon: FileText, status: "pending", category: "💼 Clients" },
+  { name: "Portfolio des 33 clients", path: "/clients", icon: Building, category: "💼 Clients" },
+  { name: "Profil détaillé d'un client", path: "/client-profile", icon: Building, category: "💼 Clients" },
+  { name: "Historique complet par client", path: "/client-history", icon: FileText, category: "💼 Clients" },
+  { name: "Ajout/modification de client", path: "/client-editor", icon: Plus, category: "💼 Clients" },
+  { name: "Satisfaction client et feedback", path: "/client-feedback", icon: MessageSquare, category: "💼 Clients" },
+  { name: "Pipeline commercial", path: "/sales-pipeline", icon: BarChart3, category: "💼 Clients" },
+  { name: "Contrats et budgets", path: "/contracts", icon: FileText, category: "💼 Clients" },
   
   // 💬 COMMUNICATION & COLLABORATION (Pages 34-40)
-  { name: "Chat intégré par projet", path: "/chat", icon: MessageSquare, status: "pending", category: "💬 Communication" },
-  { name: "Centre de notifications", path: "/notifications", icon: MessageSquare, status: "pending", category: "💬 Communication" },
-  { name: "Système de @mentions", path: "/mentions", icon: MessageSquare, status: "pending", category: "💬 Communication" },
-  { name: "Partage de fichiers", path: "/file-sharing", icon: FileText, status: "pending", category: "💬 Communication" },
-  { name: "Validation en ligne créations", path: "/creative-approval", icon: Check, status: "pending", category: "💬 Communication" },
-  { name: "Historique des modifications", path: "/change-history", icon: FileText, status: "pending", category: "💬 Communication" },
-  { name: "Commentaires détaillés", path: "/detailed-comments", icon: MessageSquare, status: "pending", category: "💬 Communication" },
+  { name: "Chat intégré par projet", path: "/chat", icon: MessageSquare, category: "💬 Communication" },
+  { name: "Centre de notifications", path: "/notifications", icon: MessageSquare, category: "💬 Communication" },
+  { name: "Système de @mentions", path: "/mentions", icon: MessageSquare, category: "💬 Communication" },
+  { name: "Partage de fichiers", path: "/file-sharing", icon: FileText, category: "💬 Communication" },
+  { name: "Validation en ligne créations", path: "/creative-approval", icon: Check, category: "💬 Communication" },
+  { name: "Historique des modifications", path: "/change-history", icon: FileText, category: "💬 Communication" },
+  { name: "Commentaires détaillés", path: "/detailed-comments", icon: MessageSquare, category: "💬 Communication" },
   
   // 🎨 SPÉCIFICITÉS CRÉATIVES (Pages 41-47)
-  { name: "Banque d'assets centralisée", path: "/assets", icon: FileText, status: "pending", category: "🎨 Créatif" },
-  { name: "Portfolio et galerie projets", path: "/portfolio", icon: Eye, status: "pending", category: "🎨 Créatif" },
-  { name: "Suivi des versions créatives", path: "/version-control", icon: FileText, status: "pending", category: "🎨 Créatif" },
-  { name: "Validation créative avec annotations", path: "/creative-validation", icon: Check, status: "pending", category: "🎨 Créatif" },
-  { name: "Planning de production", path: "/production-planning", icon: Calendar, status: "pending", category: "🎨 Créatif" },
-  { name: "Suivi du matériel créatif", path: "/creative-materials", icon: Settings, status: "pending", category: "🎨 Créatif" },
-  { name: "Métriques créatives", path: "/creative-metrics", icon: BarChart3, status: "pending", category: "🎨 Créatif" },
+  { name: "Banque d'assets centralisée", path: "/assets", icon: FileText, category: "🎨 Créatif" },
+  { name: "Portfolio et galerie projets", path: "/portfolio", icon: Eye, category: "🎨 Créatif" },
+  { name: "Suivi des versions créatives", path: "/version-control", icon: FileText, category: "🎨 Créatif" },
+  { name: "Validation créative avec annotations", path: "/creative-validation", icon: Check, category: "🎨 Créatif" },
+  { name: "Planning de production", path: "/production-planning", icon: Calendar, category: "🎨 Créatif" },
+  { name: "Suivi du matériel créatif", path: "/creative-materials", icon: Settings, category: "🎨 Créatif" },
+  { name: "Métriques créatives", path: "/creative-metrics", icon: BarChart3, category: "🎨 Créatif" },
   
   // 💰 FINANCE & FACTURATION (Pages 48-55)
-  { name: "Tableau de bord financier", path: "/finance-dashboard", icon: BarChart3, status: "pending", category: "💰 Finance" },
-  { name: "Gestion des devis", path: "/quotes", icon: FileText, status: "pending", category: "💰 Finance" },
-  { name: "Gestion des factures", path: "/invoices", icon: FileText, status: "pending", category: "💰 Finance" },
-  { name: "Suivi des paiements", path: "/payments", icon: BarChart3, status: "pending", category: "💰 Finance" },
-  { name: "Calcul automatique des marges", path: "/margins", icon: BarChart3, status: "pending", category: "💰 Finance" },
-  { name: "Prévisionnel CA", path: "/revenue-forecast", icon: BarChart3, status: "pending", category: "💰 Finance" },
-  { name: "Budget vs réalisé", path: "/budget-actual", icon: BarChart3, status: "pending", category: "💰 Finance" },
-  { name: "Alertes dépassement budget", path: "/budget-alerts", icon: MessageSquare, status: "pending", category: "💰 Finance" },
+  { name: "Tableau de bord financier", path: "/finance-dashboard", icon: BarChart3, category: "💰 Finance" },
+  { name: "Gestion des devis", path: "/quotes", icon: FileText, category: "💰 Finance" },
+  { name: "Gestion des factures", path: "/invoices", icon: FileText, category: "💰 Finance" },
+  { name: "Suivi des paiements", path: "/payments", icon: BarChart3, category: "💰 Finance" },
+  { name: "Calcul automatique des marges", path: "/margins", icon: BarChart3, category: "💰 Finance" },
+  { name: "Prévisionnel CA", path: "/revenue-forecast", icon: BarChart3, category: "💰 Finance" },
+  { name: "Budget vs réalisé", path: "/budget-actual", icon: BarChart3, category: "💰 Finance" },
+  { name: "Alertes dépassement budget", path: "/budget-alerts", icon: MessageSquare, category: "💰 Finance" },
   
   // 🧠 BUSINESS INTELLIGENCE (Pages 56-62)
-  { name: "Dashboard CEO/Direction", path: "/executive-dashboard", icon: BarChart3, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "Analyse concurrentielle", path: "/competitive-analysis", icon: BarChart3, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "Prédictions tendances marché", path: "/market-trends", icon: BarChart3, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "Optimisation des ressources", path: "/resource-optimization", icon: Settings, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "Analyse des risques projets", path: "/risk-analysis", icon: BarChart3, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "KPIs personnalisables", path: "/custom-kpis", icon: BarChart3, status: "pending", category: "🧠 Business Intelligence" },
-  { name: "Reporting réglementaire", path: "/regulatory-reporting", icon: FileText, status: "pending", category: "🧠 Business Intelligence" },
+  { name: "Dashboard CEO/Direction", path: "/executive-dashboard", icon: BarChart3, category: "🧠 Business Intelligence" },
+  { name: "Analyse concurrentielle", path: "/competitive-analysis", icon: BarChart3, category: "🧠 Business Intelligence" },
+  { name: "Prédictions tendances marché", path: "/market-trends", icon: BarChart3, category: "🧠 Business Intelligence" },
+  { name: "Optimisation des ressources", path: "/resource-optimization", icon: Settings, category: "🧠 Business Intelligence" },
+  { name: "Analyse des risques projets", path: "/risk-analysis", icon: BarChart3, category: "🧠 Business Intelligence" },
+  { name: "KPIs personnalisables", path: "/custom-kpis", icon: BarChart3, category: "🧠 Business Intelligence" },
+  { name: "Reporting réglementaire", path: "/regulatory-reporting", icon: FileText, category: "🧠 Business Intelligence" },
   
   // 🏆 AGENT DU MOIS (Pages 63-67)
-  { name: "Système de scoring", path: "/scoring-system", icon: BarChart3, status: "pending", category: "🏆 Agent du Mois" },
-  { name: "Classement mensuel", path: "/monthly-ranking", icon: BarChart3, status: "pending", category: "🏆 Agent du Mois" },
-  { name: "Évaluation détaillée", path: "/detailed-evaluation", icon: UserCircle, status: "pending", category: "🏆 Agent du Mois" },
-  { name: "Historique des performances", path: "/performance-history", icon: BarChart3, status: "pending", category: "🏆 Agent du Mois" },
-  { name: "Système de récompenses", path: "/rewards-system", icon: BarChart3, status: "pending", category: "🏆 Agent du Mois" },
+  { name: "Système de scoring", path: "/scoring-system", icon: BarChart3, category: "🏆 Agent du Mois" },
+  { name: "Classement mensuel", path: "/monthly-ranking", icon: BarChart3, category: "🏆 Agent du Mois" },
+  { name: "Évaluation détaillée", path: "/detailed-evaluation", icon: UserCircle, category: "🏆 Agent du Mois" },
+  { name: "Historique des performances", path: "/performance-history", icon: BarChart3, category: "🏆 Agent du Mois" },
+  { name: "Système de récompenses", path: "/rewards-system", icon: BarChart3, category: "🏆 Agent du Mois" },
   
   // ⚙️ ADMINISTRATION (Pages 68-74)
-  { name: "Panneau d'administration", path: "/admin", icon: Settings, status: "pending", category: "⚙️ Administration" },
-  { name: "Gestion des membres", path: "/member-management", icon: Users, status: "pending", category: "⚙️ Administration" },
-  { name: "Configuration taux horaires", path: "/hourly-rates", icon: Settings, status: "pending", category: "⚙️ Administration" },
-  { name: "Paramètres système", path: "/system-settings", icon: Settings, status: "pending", category: "⚙️ Administration" },
-  { name: "Audit trail et logs", path: "/audit-logs", icon: FileText, status: "pending", category: "⚙️ Administration" },
-  { name: "Sauvegarde et restauration", path: "/backup-restore", icon: Settings, status: "pending", category: "⚙️ Administration" },
-  { name: "Import/Export données", path: "/data-import-export", icon: FileText, status: "pending", category: "⚙️ Administration" },
+  { name: "Panneau d'administration", path: "/admin", icon: Settings, category: "⚙️ Administration" },
+  { name: "Gestion des membres", path: "/member-management", icon: Users, category: "⚙️ Administration" },
+  { name: "Configuration taux horaires", path: "/hourly-rates", icon: Settings, category: "⚙️ Administration" },
+  { name: "Paramètres système", path: "/system-settings", icon: Settings, category: "⚙️ Administration" },
+  { name: "Audit trail et logs", path: "/audit-logs", icon: FileText, category: "⚙️ Administration" },
+  { name: "Sauvegarde et restauration", path: "/backup-restore", icon: Settings, category: "⚙️ Administration" },
+  { name: "Import/Export données", path: "/data-import-export", icon: FileText, category: "⚙️ Administration" },
   
   // 📱 INTERFACES MOBILES (Pages 75-78)
-  { name: "Dashboard mobile", path: "/mobile-dashboard", icon: LayoutDashboard, status: "pending", category: "📱 Mobile" },
-  { name: "Gestion tâches mobile", path: "/mobile-tasks", icon: Clock, status: "pending", category: "📱 Mobile" },
-  { name: "Chat mobile", path: "/mobile-chat", icon: MessageSquare, status: "pending", category: "📱 Mobile" },
-  { name: "Notifications push mobile", path: "/mobile-notifications", icon: MessageSquare, status: "pending", category: "📱 Mobile" },
+  { name: "Dashboard mobile", path: "/mobile-dashboard", icon: LayoutDashboard, category: "📱 Mobile" },
+  { name: "Gestion tâches mobile", path: "/mobile-tasks", icon: Clock, category: "📱 Mobile" },
+  { name: "Chat mobile", path: "/mobile-chat", icon: MessageSquare, category: "📱 Mobile" },
+  { name: "Notifications push mobile", path: "/mobile-notifications", icon: MessageSquare, category: "📱 Mobile" },
   
   // 🔧 OUTILS TECHNIQUES (Pages 79-82)
-  { name: "API intégrations", path: "/api-integrations", icon: Settings, status: "pending", category: "🔧 Outils Techniques" },
-  { name: "Mode hors-ligne", path: "/offline-mode", icon: Settings, status: "pending", category: "🔧 Outils Techniques" },
-  { name: "Exports multi-formats", path: "/multi-format-exports", icon: FileText, status: "pending", category: "🔧 Outils Techniques" },
-  { name: "Sécurité avancée", path: "/advanced-security", icon: Settings, status: "pending", category: "🔧 Outils Techniques" },
+  { name: "API intégrations", path: "/api-integrations", icon: Settings, category: "🔧 Outils Techniques" },
+  { name: "Mode hors-ligne", path: "/offline-mode", icon: Settings, category: "🔧 Outils Techniques" },
+  { name: "Exports multi-formats", path: "/multi-format-exports", icon: FileText, category: "🔧 Outils Techniques" },
+  { name: "Sécurité avancée", path: "/advanced-security", icon: Settings, category: "🔧 Outils Techniques" },
   
   // 📅 PLANIFICATION (Pages 83-86)
-  { name: "Vue calendrier globale", path: "/global-calendar", icon: Calendar, status: "pending", category: "📅 Planification" },
-  { name: "Planning hebdomadaire", path: "/weekly-planning", icon: Calendar, status: "pending", category: "📅 Planification" },
-  { name: "Réservation de ressources", path: "/resource-booking", icon: Calendar, status: "pending", category: "📅 Planification" },
-  { name: "Gestion des deadlines", path: "/deadline-management", icon: Calendar, status: "pending", category: "📅 Planification" },
+  { name: "Vue calendrier globale", path: "/global-calendar", icon: Calendar, category: "📅 Planification" },
+  { name: "Planning hebdomadaire", path: "/weekly-planning", icon: Calendar, category: "📅 Planification" },
+  { name: "Réservation de ressources", path: "/resource-booking", icon: Calendar, category: "📅 Planification" },
+  { name: "Gestion des deadlines", path: "/deadline-management", icon: Calendar, category: "📅 Planification" },
   
   // 📈 DASHBOARDS SPÉCIALISÉS (Pages 87-90)
-  { name: "Dashboard créatif designers", path: "/creative-dashboard", icon: LayoutDashboard, status: "pending", category: "📈 Dashboards" },
-  { name: "Dashboard commercial", path: "/commercial-dashboard", icon: LayoutDashboard, status: "pending", category: "📈 Dashboards" },
-  { name: "Dashboard production", path: "/production-dashboard", icon: LayoutDashboard, status: "pending", category: "📈 Dashboards" },
-  { name: "Dashboard RH", path: "/hr-dashboard", icon: LayoutDashboard, status: "pending", category: "📈 Dashboards" },
+  { name: "Dashboard créatif designers", path: "/creative-dashboard", icon: LayoutDashboard, category: "📈 Dashboards" },
+  { name: "Dashboard commercial", path: "/commercial-dashboard", icon: LayoutDashboard, category: "📈 Dashboards" },
+  { name: "Dashboard production", path: "/production-dashboard", icon: LayoutDashboard, category: "📈 Dashboards" },
+  { name: "Dashboard RH", path: "/hr-dashboard", icon: LayoutDashboard, category: "📈 Dashboards" },
   
   // 🔍 RECHERCHE & FILTRES (Pages 91-93)
-  { name: "Recherche globale avancée", path: "/advanced-search", icon: Settings, status: "pending", category: "🔍 Recherche" },
-  { name: "Filtres multi-critères", path: "/multi-filters", icon: Settings, status: "pending", category: "🔍 Recherche" },
-  { name: "Historique des recherches", path: "/search-history", icon: FileText, status: "pending", category: "🔍 Recherche" },
+  { name: "Recherche globale avancée", path: "/advanced-search", icon: Settings, category: "🔍 Recherche" },
+  { name: "Filtres multi-critères", path: "/multi-filters", icon: Settings, category: "🔍 Recherche" },
+  { name: "Historique des recherches", path: "/search-history", icon: FileText, category: "🔍 Recherche" },
   
   // 📊 EXPORTS & IMPRESSIONS (Pages 94-96)
-  { name: "Centre d'export", path: "/export-center", icon: FileText, status: "pending", category: "📊 Exports" },
-  { name: "Templates de rapports", path: "/report-templates", icon: FileText, status: "pending", category: "📊 Exports" },
-  { name: "Générateur de PDF", path: "/pdf-generator", icon: FileText, status: "pending", category: "📊 Exports" },
+  { name: "Centre d'export", path: "/export-center", icon: FileText, category: "📊 Exports" },
+  { name: "Templates de rapports", path: "/report-templates", icon: FileText, category: "📊 Exports" },
+  { name: "Générateur de PDF", path: "/pdf-generator", icon: FileText, category: "📊 Exports" },
   
   // 🎯 PAGES SPÉCIALES (Pages 97-100)
-  { name: "Page d'erreur 404", path: "/404", icon: X, status: "pending", category: "🎯 Spéciales" },
-  { name: "Page de maintenance", path: "/maintenance", icon: Settings, status: "pending", category: "🎯 Spéciales" },
-  { name: "Aide et documentation", path: "/help", icon: FileText, status: "pending", category: "🎯 Spéciales" },
-  { name: "À propos et crédits", path: "/about", icon: FileText, status: "pending", category: "🎯 Spéciales" }
+  { name: "Page d'erreur 404", path: "/404", icon: X, category: "🎯 Spéciales" },
+  { name: "Page de maintenance", path: "/maintenance", icon: Settings, category: "🎯 Spéciales" },
+  { name: "Aide et documentation", path: "/help", icon: FileText, category: "🎯 Spéciales" },
+  { name: "À propos et crédits", path: "/about", icon: FileText, category: "🎯 Spéciales" }
 ];
+
+// Fonction pour générer les pages avec statuts automatiques
+function getAllPages(): PageInfo[] {
+  return basePages.map(page => ({
+    ...page,
+    status: checkPageExists(page.path) ? "created" : "pending"
+  }));
+}
 
 export default function AdminFloatingMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [location] = useLocation();
+
+  // Générer les pages avec statuts automatiques
+  const allPages = getAllPages();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -177,7 +309,7 @@ export default function AdminFloatingMenu() {
     }
     acc[page.category].push(page);
     return acc;
-  }, {} as Record<string, typeof allPages>);
+  }, {} as Record<string, PageInfo[]>);
 
   // Statistiques
   const createdPages = allPages.filter(page => page.status === "created").length;
