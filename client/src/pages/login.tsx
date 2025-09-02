@@ -103,9 +103,6 @@ export default function Login() {
           <h1 className="text-2xl font-bold mb-2 text-[#162C54]">
             Connexion Sécurisée
           </h1>
-          <p className="text-gray-600 text-sm">
-            Système de gestion d'équipe JoFé+ Digital
-          </p>
         </div>
         
         {/* Login Form */}
