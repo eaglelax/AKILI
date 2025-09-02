@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search, Clock, User, Building2, Calendar, AlertCircle, Play, Pause, CheckCircle, MoreHorizontal, Edit, Eye } from "lucide-react";
-import Sidebar from "@/components/Sidebar";
+import TopNavBar from "@/components/TopNavBar";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { Link } from "wouter";
 
@@ -231,16 +231,14 @@ export default function Tasks() {
   };
 
   return (
-    <div className="flex h-screen bg-[var(--jofe-gray)]">
+    <div className="min-h-screen bg-[var(--jofe-gray)]">
       {/* Sidebar */}
-      <Sidebar />
+      <TopNavBar />
       
       {/* Menu flottant admin */}
       <AdminFloatingMenu />
       
-      <div className="flex-1 overflow-auto md:ml-64 ml-0">
-        {/* Mobile Header Spacer */}
-        <div className="h-16 md:hidden"></div>
+      <div className="w-full overflow-auto">
         
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">

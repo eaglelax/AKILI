@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
-import Sidebar from "@/components/Sidebar";
+import TopNavBar from "@/components/TopNavBar";
 import { 
   FolderOpen, 
   DollarSign, 
@@ -52,13 +52,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar />
+      <TopNavBar />
       
       {/* Main Content */}
-      <div className="md:ml-64 ml-0">
-        {/* Mobile Header Spacer */}
-        <div className="h-16 md:hidden"></div>
-        
+      <div className="w-full">        
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">

@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
-import Sidebar from "@/components/Sidebar";
+import TopNavBar from "@/components/TopNavBar";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { 
   Calendar,
@@ -180,15 +180,13 @@ export default function TaskDetail() {
   };
 
   return (
-    <div className="flex h-screen bg-[var(--jofe-white)]">
-      <Sidebar />
+    <div className="min-h-screen bg-[var(--jofe-white)]">
+      <TopNavBar />
       
       {/* Menu flottant admin */}
       <AdminFloatingMenu />
       
-      <div className="flex-1 overflow-auto md:ml-64 ml-0">
-        {/* Mobile Header Spacer */}
-        <div className="h-16 md:hidden"></div>
+      <div className="w-full overflow-auto">
         
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
