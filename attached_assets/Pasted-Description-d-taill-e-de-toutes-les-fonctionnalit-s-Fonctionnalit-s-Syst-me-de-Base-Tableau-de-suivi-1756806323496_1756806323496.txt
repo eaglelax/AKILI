@@ -1,0 +1,297 @@
+Description détaillée de toutes les fonctionnalités
+Fonctionnalités Système de Base
+Tableau de suivi en ligne partageable par lien
+Un système web centralisé où toutes les tâches, projets et activités de l'équipe sont visibles en temps réel. Le système génère un lien unique que le directeur peut partager avec tous les membres de l'équipe, permettant un accès instantané sans installation de logiciel. Chaque membre peut voir l'état d'avancement global des projets, les tâches assignées, les deadlines et les priorités.
+
+Accès multi-utilisateurs avec mise à jour automatique
+Jusqu'à 14 membres peuvent se connecter simultanément sur la plateforme. Toute modification effectuée par un utilisateur (ajout de tâche, changement de statut, commentaire) est immédiatement visible pour tous les autres utilisateurs connectés sans nécessiter de rafraîchissement manuel de la page. Le système utilise des technologies de synchronisation en temps réel.
+
+Site web accessible à tous ceux qui ont le lien
+La plateforme fonctionne comme un site web standard, accessible depuis n'importe quel navigateur (Chrome, Firefox, Safari, Edge) sur ordinateur, tablette ou smartphone. Aucune installation d'application n'est requise. Il suffit de cliquer sur le lien partagé pour accéder à l'interface.
+
+Authentification par mot de passe
+Système de sécurité à deux niveaux : un mot de passe standard pour les membres de l'équipe ("jofe2024") et un mot de passe administrateur différent pour Serge ASSALÉ et ENOS GOUBA. Chaque utilisateur doit s'authentifier avant d'accéder aux données de l'entreprise.
+
+Interface en français
+Toute l'interface utilisateur est entièrement traduite en français : menus, boutons, messages, notifications, rapports. Les formats de date, heure et monnaie respectent les standards français/burkinabé (DD/MM/AAAA, Francs CFA).
+
+Chronométrage et Timing
+Décompte timing automatique pour chaque tâche
+Chaque tâche créée dans le système est automatiquement équipée d'un chronomètre qui enregistre le temps de travail effectif. Le système calcule précisément combien de temps chaque membre passe sur chaque tâche, permettant une facturation précise et une analyse de productivité.
+
+Chronomètre lancé automatiquement à la création de tâche
+Dès qu'un membre crée une nouvelle tâche et se l'assigne, le chronométrage démarre automatiquement sans intervention manuelle. Cela garantit qu'aucun temps de travail n'est oublié ou non comptabilisé.
+
+Chronométrage en arrière-plan continu
+Les chronomètres continuent de fonctionner même si l'utilisateur ferme son navigateur, change d'onglet ou travaille sur d'autres applications. Le temps est comptabilisé tant que la tâche n'est pas marquée comme "pause" ou "terminée".
+
+Permissions chrono par membre (ses tâches uniquement)
+Chaque membre de l'équipe ne peut démarrer, arrêter ou modifier le chronomètre que sur ses propres tâches. Il ne peut pas voir ni modifier les temps de travail des autres membres, garantissant la confidentialité et évitant les erreurs de manipulation.
+
+Attribution chrono réservée aux admins uniquement
+Seuls Serge ASSALÉ et ENOS GOUBA peuvent attribuer des tâches avec chronométrage à d'autres membres, modifier les temps enregistrés, ou réinitialiser les compteurs. Cette fonctionnalité évite les manipulations non autorisées des données de temps.
+
+Gestion des Droits et Accès
+Deux niveaux d'accès : ADMIN et membres
+Le système distingue clairement les administrateurs (accès total) des membres standards (accès limité). Les admins peuvent tout voir et tout modifier, tandis que les membres ont des permissions restreintes à leurs propres tâches et données.
+
+ADMIN : SERGE ASSALÉ et ENOS GOUBA uniquement
+Seuls ces deux dirigeants ont les droits administrateur complets : modification des données clients, gestion des membres d'équipe, accès aux rapports financiers confidentiels, configuration du système, attribution des tâches à tous les membres.
+
+Mot de passe différent pour admins vs membres
+Les administrateurs utilisent un mot de passe sécurisé différent du mot de passe standard de l'équipe, ajoutant une couche de sécurité supplémentaire pour protéger les données sensibles de l'entreprise.
+
+Liste de choix des membres sur page de connexion
+La page de connexion affiche une liste déroulante avec tous les noms des 14 membres de l'équipe. Chacun sélectionne son nom puis saisit son mot de passe, facilitant l'identification et évitant les erreurs de frappe dans les noms d'utilisateur.
+
+Admins : modification complète de tout
+Les administrateurs peuvent modifier toutes les données : informations clients, détails des projets, données des membres, budgets, planning, rapports. Ils ont un accès total sans restriction.
+
+Membres : modification de leurs propres tâches uniquement
+Les membres standards peuvent seulement créer, modifier et supprimer leurs propres tâches. Ils peuvent mettre à jour le statut d'avancement, ajouter des commentaires, télécharger des fichiers, mais ne peuvent pas modifier les tâches assignées à d'autres membres.
+
+Analytics et Métriques
+Temps de travail réel par tâche
+Le système enregistre précisément combien de temps chaque membre passe sur chaque tâche spécifique. Ces données permettent d'analyser l'efficacité, d'identifier les tâches qui prennent plus de temps que prévu, et d'améliorer les estimations futures.
+
+Coût par projet (temps × taux horaire)
+Calcul automatique du coût de chaque projet en multipliant le temps passé par chaque membre par son taux horaire individuel en Francs CFA. Permet de connaître le coût réel de production de chaque projet pour optimiser la rentabilité.
+
+ROI par client
+Analyse du retour sur investissement pour chaque client en comparant les revenus générés aux coûts de production (temps de travail, ressources utilisées). Identifie les clients les plus rentables et ceux qui nécessitent une révision des tarifs.
+
+Taux de rentabilité par type de projet
+Comparaison de la rentabilité entre différents types de projets (campagnes publicitaires, création de logos, sites web, etc.). Aide à orienter la stratégie commerciale vers les services les plus profitables.
+
+Analyse de productivité par membre/équipe
+Mesure et comparaison de la productivité individuelle et collective : nombre de tâches terminées par jour/semaine, respect des délais, qualité du travail. Génère des indicateurs de performance pour chaque membre.
+
+Prédiction de charge
+Algorithme qui analyse les tendances historiques pour prédire la charge de travail future. Aide à anticiper les périodes de surcharge, planifier les recrutements ou redistribuer les tâches pour optimiser l'utilisation des ressources.
+
+Burndown charts
+Graphiques qui montrent l'évolution de l'avancement des projets longs dans le temps. Visualisation claire de la progression par rapport au planning initial, permettant d'identifier rapidement les retards potentiels.
+
+Gestion de Projets
+Diagramme de Gantt interactif
+Interface graphique qui affiche tous les projets sous forme de barres temporelles. Permet de visualiser les chevauchements, les dépendances, les jalons importants. Les utilisateurs peuvent déplacer les tâches, modifier les durées et voir immédiatement l'impact sur le planning global.
+
+Dépendances entre tâches
+Système qui définit qu'une tâche B ne peut commencer qu'après la fin de la tâche A. Exemple : la production ne peut débuter qu'après validation du brief client. Le système alerte automatiquement en cas de risque de retard en cascade.
+
+Templates de projets pré-configurés
+Modèles standardisés pour les types de projets récurrents (campagne MOOV AFRICA, création logo, site web). Chaque template inclut les tâches types, les durées estimées, les responsables habituels, facilitant la création rapide de nouveaux projets.
+
+Jalons et étapes clés avec validation
+Définition de points de contrôle importants dans chaque projet (validation brief, première présentation, livraison finale). Chaque jalon nécessite une validation formelle avant de passer à l'étape suivante.
+
+Gestion des révisions clients
+Suivi des différentes versions d'un projet (v1, v2, v3) avec historique des modifications demandées par le client. Le système enregistre qui a demandé quelle modification, quand, et l'impact sur le budget/planning.
+
+Workflow d'approbation
+Circuit de validation standardisé : Brief → Création → Validation interne → Présentation client → Révisions → Validation finale → Livraison. Chaque étape doit être validée avant de passer à la suivante.
+
+Suivi budgétaire temps réel
+Comparaison continue entre le budget initial alloué au projet et les coûts réels engagés. Alertes automatiques en cas de dépassement, permettant des ajustements rapides ou des négociations avec le client.
+
+Gestion d'Équipe
+Calendrier partagé avec disponibilités
+Calendrier commun où chaque membre peut indiquer ses disponibilités, ses congés prévus, ses rendez-vous clients. Facilite la planification des réunions et l'attribution des tâches en fonction des disponibilités réelles.
+
+Gestion congés et absences
+Module de demande et validation des congés. Les membres soumettent leurs demandes, les administrateurs approuvent ou refusent. Le système met automatiquement à jour les plannings et redistribue les tâches si nécessaire.
+
+Compétences par membre
+Base de données des compétences de chaque membre avec niveau d'expertise (débutant, intermédiaire, expert) dans différents domaines : Photoshop, vidéo, rédaction, stratégie, etc. Utilisée pour l'attribution optimale des tâches.
+
+Attribution automatique selon compétences
+Algorithme qui propose automatiquement le membre le plus qualifié pour chaque nouvelle tâche en fonction de ses compétences, sa charge de travail actuelle et sa disponibilité.
+
+Charge de travail optimisée
+Système d'équilibrage qui répartit les tâches pour éviter la surcharge de certains membres pendant que d'autres sont sous-utilisés. Calcule la charge idéale par membre et propose des redistributions.
+
+Évaluation de performance mensuelle
+Système d'évaluation automatique basé sur des critères objectifs : respect des délais, qualité du travail, nombre de tâches terminées, satisfaction client. Génère un score mensuel pour chaque membre.
+
+Formation et montée en compétences
+Suivi des formations suivies par chaque membre, des nouvelles compétences acquises, des certifications obtenues. Permet de planifier les formations nécessaires et de mettre à jour les profils de compétences.
+
+Gestion Clients
+Historique client complet
+Dossier numérique complet pour chaque client contenant tous les projets réalisés, les contacts, les contrats signés, l'historique des paiements, les préférences créatives, les retours et commentaires.
+
+Satisfaction client
+Système de notation et de collecte de feedback après chaque projet. Les clients peuvent noter leur satisfaction (sur 5 étoiles) et laisser des commentaires. Ces données sont utilisées pour améliorer les services.
+
+Récurrence projets et fidélisation
+Analyse de la fréquence des commandes de chaque client, identification des clients fidèles, calcul de la valeur vie client (CLV). Aide à adapter la stratégie commerciale et les offres de fidélisation.
+
+Profitabilité par client
+Calcul de la rentabilité de chaque client en comparant les revenus générés aux coûts de production et de gestion. Identifie les clients les plus rentables et ceux qui nécessitent une révision des tarifs.
+
+Pipeline commercial
+Suivi des prospects depuis le premier contact jusqu'à la signature du contrat. Différentes étapes : contact initial, présentation, devis, négociation, signature. Prédiction du chiffre d'affaires futur.
+
+Contrats et budgets annuels
+Gestion des contrats cadres avec les gros clients (MOOV AFRICA, BANK OF AFRICA). Suivi des budgets annuels alloués, consommation mensuelle, soldes restants.
+
+Alertes renouvellement contrats
+Notifications automatiques 3 mois, 1 mois et 15 jours avant l'expiration des contrats importants. Permet d'anticiper les négociations de renouvellement et d'éviter les pertes de clients.
+
+Ajout/suppression de clients
+Interface permettant aux administrateurs d'ajouter de nouveaux clients avec toutes leurs informations (coordonnées, contacts, budgets, préférences) ou de supprimer des clients inactifs tout en conservant l'historique.
+
+Communication et Collaboration
+Chat intégré par projet
+Système de messagerie instantanée dédié à chaque projet. Tous les membres assignés au projet peuvent échanger des messages, partager des idées, poser des questions. L'historique est conservé pour référence future.
+
+Système de notifications
+Alertes automatiques par email et/ou notifications push pour : nouvelles tâches assignées, deadlines approchantes, messages reçus, validations requises, dépassements de budget. Paramétrable par utilisateur.
+
+Commentaires sur chaque tâche
+Possibilité d'ajouter des commentaires détaillés sur chaque tâche : instructions spécifiques, retours clients, difficultés rencontrées, solutions trouvées. Historique complet des échanges conservé.
+
+Partage de fichiers
+Upload et partage de fichiers directement dans chaque tâche ou projet : brief clients, maquettes, photos, vidéos, documents de référence. Organisation automatique par projet et par type de fichier.
+
+Validation en ligne des créations
+Interface permettant aux clients et aux responsables de valider les créations directement en ligne. Possibilité d'annoter les fichiers, de demander des modifications spécifiques, de valider ou refuser avec commentaires.
+
+Historique des modifications
+Journal détaillé de toutes les modifications apportées à chaque projet : qui a fait quoi, quand, pourquoi. Traçabilité complète des décisions et des changements pour résoudre les conflits et améliorer les processus.
+
+@mentions
+Système de mention permettant d'alerter spécifiquement un membre en utilisant @nom dans les commentaires. La personne mentionnée reçoit une notification immédiate et peut répondre rapidement.
+
+Reporting et Dashboards
+Tableaux de bord personnalisables
+Interface graphique adaptée au rôle de chaque utilisateur. Les directeurs voient les KPIs globaux, les chefs de projet voient l'avancement détaillé, les créatifs voient leurs tâches et délais. Chacun peut personnaliser son affichage.
+
+Rapports automatisés
+Génération automatique de rapports périodiques (quotidiens, hebdomadaires, mensuels) envoyés par email aux destinataires choisis. Contenu personnalisable selon les besoins : financier, opérationnel, RH.
+
+Suivi sur 2 semaines, mensuel, trimestriel
+Système de reporting multi-niveaux permettant d'analyser les performances sur différentes périodes. Comparaison des résultats période par période pour identifier les tendances.
+
+Graphiques pour présentations CODIR
+Génération automatique de graphiques professionnels prêts pour les présentations en comité de direction : évolution du CA, productivité par équipe, satisfaction client, rentabilité par projet.
+
+Charge de travail par membre
+Visualisation graphique de la répartition des tâches entre les membres, identification des surcharges ou sous-charges, proposition de rééquilibrage pour optimiser l'efficacité globale.
+
+Retards, avances, urgences
+Dashboard spécialisé montrant en temps réel tous les projets en retard (rouge), en avance (vert), ou urgents (orange). Permet une prise de décision rapide pour la réallocation des ressources.
+
+Comparaisons temporelles
+Graphiques comparatifs sur plusieurs périodes : évolution mensuelle du CA, progression de la productivité, amélioration de la satisfaction client. Identification des tendances positives ou négatives.
+
+Exports multi-formats
+Possibilité d'exporter tous les rapports et données dans différents formats : Excel pour l'analyse détaillée, PDF pour les présentations, PowerPoint pour les CODIR, CSV pour l'intégration dans d'autres outils.
+
+Outils Techniques
+API intégration
+Interfaces de programmation permettant de connecter le système avec d'autres outils utilisés par l'équipe : Adobe Creative Suite, Slack, Google Drive, comptabilité. Synchronisation automatique des données.
+
+Sauvegarde automatique cloud
+Toutes les données sont automatiquement sauvegardées dans le cloud toutes les heures. En cas de panne ou de problème technique, aucune donnée n'est perdue. Historique de 30 jours de sauvegardes.
+
+Versions mobiles optimisées
+Interface adaptée aux smartphones et tablettes permettant de consulter les tâches, mettre à jour les statuts, ajouter des commentaires, même en déplacement chez les clients.
+
+Mode hors-ligne avec synchronisation
+Possibilité de travailler même sans connexion internet. Les modifications sont stockées localement puis synchronisées automatiquement dès que la connexion est rétablie.
+
+Sécurité avancée
+Chiffrement des données, connexions sécurisées HTTPS, sauvegardes cryptées, contrôle d'accès granulaire, audit des connexions. Respect des standards de sécurité pour protéger les données clients.
+
+Audit trail complet
+Enregistrement de toutes les actions effectuées dans le système : qui a fait quoi, quand, depuis quelle adresse IP. Permet de tracer toute modification et d'identifier les problèmes ou les utilisations non autorisées.
+
+Import/Export données massives
+Fonctionnalités permettant d'importer des données depuis Excel ou CSV (clients, projets, tâches) et d'exporter toutes les données pour analyse externe ou migration vers d'autres systèmes.
+
+Spécificités Créatives
+Banque d'assets
+Bibliothèque centralisée de tous les éléments créatifs : logos clients, chartes graphiques, photos libres de droits, templates, polices, couleurs de marque. Facilite la réutilisation et garantit la cohérence.
+
+Suivi des versions créatives
+Gestion des différentes versions de chaque création avec historique complet. Possibilité de revenir à une version antérieure, de comparer les versions, de voir l'évolution des modifications.
+
+Validation créative avec annotations visuelles
+Outil permettant aux clients et responsables d'annoter directement sur les créations (images, vidéos, maquettes) pour indiquer précisément les modifications souhaitées. Évite les malentendus.
+
+Planning de production détaillé
+Planning spécialisé pour les projets créatifs avec les étapes spécifiques : brief, recherche, concept, création, révisions, finalisation. Temps estimés pour chaque étape selon le type de projet.
+
+Suivi matériel
+Inventaire et planning d'utilisation du matériel créatif : appareils photo, caméras, licences logiciels Adobe, ordinateurs spécialisés. Réservation du matériel pour éviter les conflits.
+
+Portfolio projets avec galerie
+Présentation visuelle de tous les projets réalisés organisés par client, par type, par période. Interface galerie permettant de montrer facilement les réalisations aux prospects.
+
+Métriques créatives
+Mesure de l'impact des créations : likes sur les réseaux sociaux, engagement, partages, retombées presse. Analyse de l'efficacité créative pour améliorer les futurs projets.
+
+Finance et Facturation
+Montants en Francs CFA (FR CFA)
+Toutes les valeurs monétaires (devis, factures, budgets, coûts, marges) sont affichées et calculées en Francs CFA, la monnaie locale du Burkina Faso. Formatage selon les standards locaux.
+
+Suivi facturation par projet
+Enregistrement de toutes les factures émises par projet avec statut de paiement (en attente, payée, en retard), relances automatiques, calcul des en-cours et des impayés.
+
+Gestion des devis et commandes
+Création, envoi et suivi des devis clients. Conversion automatique des devis acceptés en commandes puis en projets. Historique complet des négociations tarifaires.
+
+Calcul marges automatique
+Calcul automatique de la marge bénéficiaire sur chaque projet en soustrayant les coûts de production (temps × taux horaire + charges) du prix de vente. Analyse de rentabilité en temps réel.
+
+Prévisionnel CA par période
+Projection du chiffre d'affaires basée sur les projets en cours, les devis en négociation, et l'historique des commandes récurrentes. Aide à la planification financière.
+
+Budget vs réalisé temps réel
+Comparaison continue entre les budgets prévisionnels et les coûts réels engagés. Visualisation graphique des écarts pour chaque projet et consolidation au niveau global.
+
+Alertes dépassement budget
+Notifications automatiques lorsqu'un projet approche ou dépasse son budget initial. Permet des actions correctives rapides : renégociation client, optimisation des ressources, révision du scope.
+
+Business Intelligence
+Dashboard CEO/Direction synthétique
+Interface exécutive présentant les KPIs essentiels sur une seule page : CA mensuel, rentabilité globale, satisfaction client moyenne, charge d'équipe, projets en retard. Vue d'ensemble pour la prise de décision stratégique.
+
+Analyse concurrentielle
+Comparaison des performances de Jo'Fé Digital avec les benchmarks du secteur publicitaire burkinabé : tarifs pratiqués, délais de livraison, types de services. Identification des avantages concurrentiels.
+
+Prédictions tendances marché
+Analyse des données historiques pour identifier les tendances saisonnières, les types de projets en croissance, les secteurs clients porteurs. Aide à l'orientation stratégique.
+
+Optimisation ressources
+Algorithmes d'optimisation proposant la meilleure allocation des ressources humaines et matérielles pour maximiser la rentabilité et minimiser les délais.
+
+Analyse risques projets
+Évaluation automatique du niveau de risque de chaque projet basée sur des critères : complexité, client nouveau/récurrent, budget, délais. Proposition de mesures préventives.
+
+KPIs personnalisables
+Possibilité de définir et suivre des indicateurs de performance spécifiques aux besoins de Jo'Fé Digital : taux de fidélisation client, délai moyen de livraison, nombre de révisions par projet.
+
+Reporting réglementaire automatisé
+Génération automatique des rapports requis par les organismes burkinabés : déclarations fiscales, rapports sociaux, statistiques sectorielles. Gain de temps administratif significatif.
+
+Fonctionnalités Agent du Mois
+Système de scoring sur critères pondérés
+Évaluation mensuelle de chaque membre sur 8 critères avec pondération différente selon l'importance : qualité du travail (25%), respect des délais (20%), créativité (15%), collaboration (15%), proactivité (10%), formation (10%), satisfaction client (5%). Score total sur 100 points.
+
+Classement mensuel des membres
+Génération automatique du classement des 14 membres basé sur leur score mensuel. L'agent du mois est celui qui obtient le score le plus élevé. Affichage du podium avec les 3 premiers et remise d'un prix symbolique.
+
+Gestion des Données
+Base de données SQL intégrée
+Architecture de base de données relationnelle intégrée au système avec 12 tables interconnectées : utilisateurs, projets, tâches, clients, temps, finances, etc. Garantit la cohérence et l'intégrité des données.
+
+12 tables avec relations complètes
+Structure de données optimisée avec relations entre les tables : un projet peut avoir plusieurs tâches, un client peut avoir plusieurs projets, un utilisateur peut avoir plusieurs tâches. Évite la redondance et facilite les requêtes complexes.
+
+Possibilité de modification complète pour admins
+Les administrateurs (Serge ASSALÉ et ENOS GOUBA) peuvent modifier toutes les données dans toutes les tables : informations clients, détails projets, données membres, paramètres système. Contrôle total sur la configuration.
+
+Ajout/suppression membres d'équipe
+Interface administrative permettant d'ajouter de nouveaux membres à l'équipe (avec leurs compétences, taux horaire, droits d'accès) ou de supprimer des membres partants tout en conservant l'historique de leurs contributions passées.

@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jo'Fé Digital - Système de Gestion d'Équipe Ultra-Complet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 50px auto;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .nav-tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tabs ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-tabs li {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .nav-tabs button {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs button.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .tab-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .task-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .task-form h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .task-list {
+            margin-top: 20px;
+        }
+
+        .task-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #3498db;
+        }
+
+        .task-item h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .timer {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .timer.running {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .status-en-cours {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-termine {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-en-attente {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .chart {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .member-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .member-card p {
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .client-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #2ecc71;
+        }
+
+        .client-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 999;
+        }
+
+        .user-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            z-index: 999;
+        }
+
+        .gantt-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .gantt-chart {
+            min-width: 800px;
+            height: 400px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .gantt-bar {
+            height: 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .chat-container {
+            height: 400px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #ecf0f1;
+            background: white;
+        }
+
+        .chat-input input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ecf0f1;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .message {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 70%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.own {
+            background: #3498db;
+            color: white;
+            margin-left: auto;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .asset-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .asset-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .portfolio-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .portfolio-content {
+            padding: 20px;
+        }
+
+        .finance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .finance-table th,
+        .finance-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .finance-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .amount {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .amount.negative {
+            color: #e74c3c;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .agent-podium {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            margin: 30px 0;
+            gap: 20px;
+        }
+
+        .podium-place {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            min-width: 150px;
+        }
+
+        .podium-place.first {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            height: 120px;
+        }
+
+        .podium-place.second {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            height: 100px;
+        }
+
+        .podium-place.third {
+            background: linear-gradient(135deg, #cd7f32, #b8651b);
+            height: 80px;
+        }
+
+        .mobile-responsive {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs ul {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .task-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .agent-podium {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .podium-place {
+                height: auto !important;
+                min-height: 80px;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .export-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .export-btn:hover {
+            background: #27ae60;
+        }
+
+        .calendar-view {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            background: white;
+            padding: 15px 10px;
+            min-height: 100px;
+            text-align: center;
+            position: relative;
+        }
+
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #bdc3c7;
+        }
+
+        .calendar-event {
+            background: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .alert {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .alert.warning {
+            background: #f39c12;
+        }
+
+        .alert.success {
+            background: #27ae60;
+        }
+
+        .alert.info {
+            background: #3498db;
+        }
+
+        .close-alert {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 Jo'Fé Digital</h1>
+            <p>Système de Gestion d'Équipe Ultra-Complet</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-container" id="loginForm">
+            <h2>🔐 Connexion Sécurisée</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="userSelect">👤 Sélectionnez votre nom :</label>
+                    <select id="userSelect" required>
+                        <option value="">-- Choisir un membre --</option>
+                        <option value="serge_assale">Serge ASSALÉ (Directeur Création & Marketing)</option>
+                        <option value="enos_gouba">Enos GOUBA (Coordinateur Production)</option>
+                        <option value="paul_ouedraogo">Paul Junior OUEDRAOGO (Graphiste Photomonteur)</option>
+                        <option value="fortune_yanogo">Fortune YANOGO (Photographe/Vidéaste)</option>
+                        <option value="bientama_pare">Bientama PARÉ (Motion Designer)</option>
+                        <option value="issa_cisse">Issa CISSE (Graphiste Junior)</option>
+                        <option value="florita_kabore">Florita KABORÉ (Responsable Médias Sociaux)</option>
+                        <option value="nebie_webou">Nebié WEBOU (Chef de Pub/Concepteur Rédacteur)</option>
+                        <option value="djamilatou_guiguemde">Djamilatou GUIGUEMDE (Chef de Pub Stagiaire)</option>
+                        <option value="jean_jacques_sampabao">Jean-Jacques SAMPABAO (Directeur Artistique Junior)</option>
+                        <option value="abdoul_ouedraogo">Abdoul Latif OUEDRAOGO (Designer UI/UX)</option>
+                        <option value="linda_kabore">Linda KABORÉ (Conceptrice Rédactrice Lead)</option>
+                        <option value="maryse_bombiri">Maryse BOMBIRI (Community Manager)</option>
+                        <option value="faridatou_barry">Faridatou BARRY (Chef de Pub/CM)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">🔑 Mot de passe :</label>
+                    <input type="password" id="password" required placeholder="Saisissez votre mot de passe">
+                    <small>Admin: admin2024 | Équipe: jofe2024</small>
+                </div>
+                <button type="submit" class="btn">🚀 Se connecter</button>
+            </form>
+        </div>
+
+        <!-- User Info (Hidden initially) -->
+        <div class="user-info" id="userInfo" style="display: none;">
+            <span id="currentUser"></span>
+        </div>
+
+        <!-- Logout Button (Hidden initially) -->
+        <button class="logout-btn" id="logoutBtn" style="display: none;" onclick="logout()">
+            🚪 Déconnexion
+        </button>
+
+        <!-- Dashboard (Hidden initially) -->
+        <div class="dashboard" id="dashboard">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <ul>
+                    <li><button class="tab-btn active" onclick="showTab('dashboard')">📊 Tableau de Bord</button></li>
+                    <li><button class="tab-btn" onclick="showTab('tasks')">✅ Gestion Tâches</button></li>
+                    <li><button class="tab-btn" onclick="showTab('projects')">📋 Projets</button></li>
+                    <li><button class="tab-btn" onclick="showTab('team')">👥 Équipe</button></li>
+                    <li><button class="tab-btn" onclick="showTab('clients')">💼 Clients</button></li>
+                    <li><button class="tab-btn" onclick="showTab('analytics')">📈 Analytics</button></li>
+                    <li><button class="tab-btn" onclick="showTab('communication')">💬 Communication</button></li>
+                    <li><button class="tab-btn" onclick="showTab('creative')">🎨 Créatif</button></li>
+                    <li><button class="tab-btn" onclick="showTab('finance')">💰 Finance</button></li>
+                    <li><button class="tab-btn" onclick="showTab('agent-month')">🏆 Agent du Mois</button></li>
+                </ul>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- Dashboard Tab -->
+                <div class="tab-pane active" id="dashboard-tab">
+                    <h2>📊 Tableau de Bord Principal</h2>
+                    
+                    <!-- Alerts -->
+                    <div class="alert warning" id="urgentAlert">
+                        <button class="close-alert" onclick="this.parentElement.style.display='none'">&times;</button>
+                        <strong>⚠️ Alertes Urgentes:</strong> 3 projets approchent de leur deadline - Action requise!
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3 id="totalProjects">23</h3>
+                            <p>Projets Actifs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="totalRevenue">12,450,000</h3>
+                            <p>CA Mensuel (FCFA)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="teamProductivity">87%</h3>
+                            <p>Productivité Équipe</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="clientSatisfaction">4.8/5</h3>
+                            <p>Satisfaction Client</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="chart-container">
+                        <h3>🚀 Actions Rapides</h3>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button class="btn" onclick="showTab('tasks')">➕ Nouvelle Tâche</button>
+                            <button class="btn" onclick="showTab('projects')">📋 Nouveau Projet</button>
+                            <button class="btn" onclick="generateReport()">📊 Rapport Mensuel</button>
+                            <button class="btn" onclick="showTab('team')">👥 Gérer Équipe</button>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Charts -->
+                    <div class="chart-container">
+                        <h3>📈 Charge de Travail par Membre (Temps Réel)</h3>
+                        <div class="chart">
+                            <canvas id="workloadChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>💰 Évolution CA vs Budget (FCFA)</h3>
+                        <div class="chart">
+                            <canvas id="revenueChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Tab -->
+                <div class="tab-pane" id="tasks-tab">
+                    <h2>✅ Gestion des Tâches avec Chronométrage Automatique</h2>
+                    
+                    <!-- Task Form -->
+                    <div class="task-form">
+                        <h3>➕ Créer une Nouvelle Tâche</h3>
+                        <form onsubmit="createTask(event)">
+                            <div class="form-row">
+                                <div>
+                                    <label>Titre de la tâche :</label>
+                                    <input type="text" id="taskTitle" required placeholder="Ex: Création logo MOOV AFRICA">
+                                </div>
+                                <div>
+                                    <label>Assigné à :</label>
+                                    <select id="taskAssignee" required>
+                                        <option value="">-- Sélectionner --</option>
+                                        <option value="paul_ouedraogo">Paul Junior OUEDRAOGO</option>
+                                        <option value="fortune_yanogo">Fortune YANOGO</option>
+                                        <option value="bientama_pare">Bientama PARÉ</option>
+                                        <option value="issa_cisse">Issa CISSE</option>
+                                        <option value="florita_kabore">Florita KABORÉ</option>
+                                        <option value="nebie_webou">Nebié WEBOU</option>
+                                        <option value="djamilatou_guiguemde">Djamilatou GUIGUEMDE</option>
+                                        <option value="jean_jacques_sampabao">Jean-Jacques SAMPABAO</option>
+                                        <option value="abdoul_ouedraogo">Abdoul Latif OUEDRAOGO</option>
+                                        <option value="linda_kabore">Linda KABORÉ</option>
+                                        <option value="maryse_bombiri">Maryse BOMBIRI</option>
+                                        <option value="faridatou_barry">Faridatou BARRY</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Client :</label>
+                                    <select id="taskClient" required>
+                                        <option value="">-- Sélectionner --</option>
+                                        <option value="moov_africa">MOOV AFRICA</option>
+                                        <option value="bank_of_africa">BANK OF AFRICA</option>
+                                        <option value="sunu_burkina">SUNU BURKINA</option>
+                                        <option value="roxgold">ROXGOLD</option>
+                                        <option value="vincent_associes">VINCENT & ASSOCIES</option>
+                                        <option value="pnud_bf">PNUD BF</option>
+                                        <option value="other">Autre client...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Priorité :</label>
+                                    <select id="taskPriority" required>
+                                        <option value="normale">Normale</option>
+                                        <option value="urgente">Urgente</option>
+                                        <option value="critique">Critique</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Date limite :</label>
+                                    <input type="datetime-local" id="taskDeadline" required>
+                                </div>
+                                <div>
+                                    <label>Budget estimé (FCFA) :</label>
+                                    <input type="number" id="taskBudget" placeholder="Ex: 500000">
+                                </div>
+                            </div>
+                            <div>
+                                <label>Description détaillée :</label>
+                                <textarea id="taskDescription" rows="3" placeholder="Décrivez la tâche en détail..."></textarea>
+                            </div>
+                            <button type="submit" class="btn" style="margin-top: 15px;">
+                                ⏱️ Créer et Démarrer Chrono Automatique
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Task List -->
+                    <div class="task-list">
+                        <h3>📋 Liste des Tâches Actives</h3>
+                        <div id="tasksList">
+                            <!-- Sample Tasks -->
+                            <div class="task-item">
+                                <h4>Création campagne publicitaire MOOV AFRICA</h4>
+                                <p><strong>Assigné à :</strong> Paul Junior OUEDRAOGO</p>
+                                <p><strong>Client :</strong> MOOV AFRICA</p>
+                                <p><strong>Description :</strong> Développement de la campagne "Connectons l'Afrique" avec visuels print et digital</p>
+                                <div class="task-meta">
+                                    <span class="status-badge status-en-cours">En cours</span>
+                                    <div class="timer running" id="timer-1">⏱️ 02:34:12</div>
+                                    <button class="btn" onclick="pauseTimer(1)" style="padding: 5px 10px;">⏸️ Pause</button>
+                                    <button class="btn" onclick="completeTask(1)" style="padding: 5px 10px; background: #27ae60;">✅ Terminé</button>
+                                </div>
+                            </div>
+
+                            <div class="task-item">
+                                <h4>Shooting produits BANK OF AFRICA</h4>
+                                <p><strong>Assigné à :</strong> Fortune YANOGO</p>
+                                <p><strong>Client :</strong> BANK OF AFRICA</p>
+                                <p><strong>Description :</strong> Photos produits pour nouvelle gamme de cartes bancaires</p>
+                                <div class="task-meta">
+                                    <span class="status-badge status-en-cours">En cours</span>
+                                    <div class="timer running" id="timer-2">⏱️ 01:15:47</div>
+                                    <button class="btn" onclick="pauseTimer(2)" style="padding: 5px 10px;">⏸️ Pause</button>
+                                    <button class="btn" onclick="completeTask(2)" style="padding: 5px 10px; background: #27ae60;">✅ Terminé</button>
+                                </div>
+                            </div>
+
+                            <div class="task-item">
+                                <h4>Animation motion design SUNU BURKINA</h4>
+                                <p><strong>Assigné à :</strong> Bientama PARÉ</p>
+                                <p><strong>Client :</strong> SUNU BURKINA</p>
+                                <p><strong>Description :</strong> Vidéo explicative des services d'assurance (30 secondes)</p>
+                                <div class="task-meta">
+                                    <span class="status-badge status-termine">Terminé</span>
+                                    <div class="timer">⏱️ 04:22:33 (Total)</div>
+                                    <span style="color: #27ae60; font-weight: bold;">Coût: 425,000 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Tab -->
+                <div class="tab-pane" id="projects-tab">
+                    <h2>📋 Gestion de Projets Avancée</h2>
+                    
+                    <!-- Project Form -->
+                    <div class="task-form">
+                        <h3>🚀 Nouveau Projet</h3>
+                        <form onsubmit="createProject(event)">
+                            <div class="form-row">
+                                <div>
+                                    <label>Nom du projet :</label>
+                                    <input type="text" id="projectName" required placeholder="Ex: Campagne 360° MOOV AFRICA Q1">
+                                </div>
+                                <div>
+                                    <label>Client :</label>
+                                    <select id="projectClient" required>
+                                        <option value="">-- Sélectionner --</option>
+                                        <option value="moov_africa">MOOV AFRICA</option>
+                                        <option value="bank_of_africa">BANK OF AFRICA</option>
+                                        <option value="sunu_burkina">SUNU BURKINA</option>
+                                        <option value="roxgold">ROXGOLD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Budget total (FCFA) :</label>
+                                    <input type="number" id="projectBudget" required placeholder="Ex: 5000000">
+                                </div>
+                                <div>
+                                    <label>Date de livraison :</label>
+                                    <input type="date" id="projectDeadline" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn">📋 Créer le Projet</button>
+                        </form>
+                    </div>
+
+                    <!-- Gantt Chart -->
+                    <div class="chart-container">
+                        <h3>📊 Diagramme de Gantt Interactif</h3>
+                        <div class="gantt-container">
+                            <div class="gantt-chart">
+                                <div class="gantt-bar" style="width: 60%; margin-left: 10%;">
+                                    Campagne MOOV AFRICA - Brief & Stratégie
+                                </div>
+                                <div class="gantt-bar" style="width: 40%; margin-left: 30%; background: #e74c3c;">
+                                    Shooting BANK OF AFRICA - Production
+                                </div>
+                                <div class="gantt-bar" style="width: 35%; margin-left: 20%; background: #f39c12;">
+                                    Animation SUNU - Post-production
+                                </div>
+                                <div class="gantt-bar" style="width: 50%; margin-left: 45%; background: #2ecc71;">
+                                    Logo ROXGOLD - Finalisation
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Templates -->
+                    <div class="chart-container">
+                        <h3>📁 Templates de Projets Pré-configurés</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div class="member-card">
+                                <h4>🎬 Campagne Publicitaire 360°</h4>
+                                <p>Brief → Stratégie → Création → Production → Diffusion</p>
+                                <p><strong>Durée:</strong> 6-8 semaines</p>
+                                <p><strong>Budget type:</strong> 3-8M FCFA</p>
+                                <button class="btn">Utiliser ce template</button>
+                            </div>
+                            <div class="member-card">
+                                <h4>🎨 Création Identité Visuelle</h4>
+                                <p>Recherche → Concepts → Logo → Charte → Déclinaisons</p>
+                                <p><strong>Durée:</strong> 3-4 semaines</p>
+                                <p><strong>Budget type:</strong> 500K-2M FCFA</p>
+                                <button class="btn">Utiliser ce template</button>
+                            </div>
+                            <div class="member-card">
+                                <h4>📱 Campagne Digital & Réseaux</h4>
+                                <p>Stratégie → Contenus → Visuals → Community → Analytics</p>
+                                <p><strong>Durée:</strong> En continu</p>
+                                <p><strong>Budget type:</strong> 1-5M FCFA/mois</p>
+                                <button class="btn">Utiliser ce template</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow Approval -->
+                    <div class="chart-container">
+                        <h3>🔄 Workflow d'Approbation Standard</h3>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <div style="background: #3498db; color: white; padding: 10px 15px; border-radius: 8px;">1. Brief Client</div>
+                            <span>→</span>
+                            <div style="background: #e67e22; color: white; padding: 10px 15px; border-radius: 8px;">2. Création</div>
+                            <span>→</span>
+                            <div style="background: #9b59b6; color: white; padding: 10px 15px; border-radius: 8px;">3. Validation Interne</div>
+                            <span>→</span>
+                            <div style="background: #f39c12; color: white; padding: 10px 15px; border-radius: 8px;">4. Présentation Client</div>
+                            <span>→</span>
+                            <div style="background: #e74c3c; color: white; padding: 10px 15px; border-radius: 8px;">5. Révisions</div>
+                            <span>→</span>
+                            <div style="background: #27ae60; color: white; padding: 10px 15px; border-radius: 8px;">6. Livraison</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Tab -->
+                <div class="tab-pane" id="team-tab">
+                    <h2>👥 Gestion d'Équipe Complète</h2>
+                    
+                    <!-- Team Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>14</h3>
+                            <p>Membres Actifs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>92%</h3>
+                            <p>Taux de Présence</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>4.6/5</h3>
+                            <p>Performance Moyenne</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>3</h3>
+                            <p>Congés en Cours</p>
+                        </div>
+                    </div>
+
+                    <!-- Team Members -->
+                    <div class="chart-container">
+                        <h3>👤 Membres de l'Équipe Jo'Fé Digital</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- Admin Members -->
+                            <div class="member-card" style="border-left: 5px solid #e74c3c;">
+                                <h4>👑 Serge ASSALÉ</h4>
+                                <p><strong>Poste:</strong> Directeur Création & Marketing</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">ADMIN - En ligne</span></p>
+                                <p><strong>Spécialités:</strong> Stratégie, Direction artistique, Management</p>
+                                <p><strong>Taux horaire:</strong> 15,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 85% (34h cette semaine)</p>
+                            </div>
+
+                            <div class="member-card" style="border-left: 5px solid #e74c3c;">
+                                <h4>👑 Enos GOUBA</h4>
+                                <p><strong>Poste:</strong> Coordinateur Production</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">ADMIN - En ligne</span></p>
+                                <p><strong>Spécialités:</strong> Coordination, Planning, Production</p>
+                                <p><strong>Taux horaire:</strong> 12,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 78% (31h cette semaine)</p>
+                            </div>
+
+                            <!-- Creative Team -->
+                            <div class="member-card">
+                                <h4>🎨 Paul Junior OUEDRAOGO</h4>
+                                <p><strong>Poste:</strong> Graphiste Photomonteur</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">Actif - Tâche en cours</span></p>
+                                <p><strong>Spécialités:</strong> Photoshop, Photomontage, Retouche</p>
+                                <p><strong>Taux horaire:</strong> 8,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 92% (37h cette semaine)</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <h4>📸 Fortune YANOGO</h4>
+                                <p><strong>Poste:</strong> Photographe/Vidéaste</p>
+                                <p><strong>Statut:</strong> <span style="color: #f39c12;">En shooting externe</span></p>
+                                <p><strong>Spécialités:</strong> Photographie, Vidéo, Éclairage</p>
+                                <p><strong>Taux horaire:</strong> 10,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 88% (35h cette semaine)</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 88%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <h4>🎬 Bientama PARÉ</h4>
+                                <p><strong>Poste:</strong> Motion Designer</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">Disponible</span></p>
+                                <p><strong>Spécialités:</strong> After Effects, Animation, Motion</p>
+                                <p><strong>Taux horaire:</strong> 9,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 65% (26h cette semaine)</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <h4>✏️ Issa CISSE</h4>
+                                <p><strong>Poste:</strong> Graphiste Junior</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">En formation</span></p>
+                                <p><strong>Spécialités:</strong> Design graphique, Illustration</p>
+                                <p><strong>Taux horaire:</strong> 6,000 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 70% (28h cette semaine)</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 70%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="member-card">
+                                <h4>📱 Florita KABORÉ</h4>
+                                <p><strong>Poste:</strong> Responsable Médias Sociaux</p>
+                                <p><strong>Statut:</strong> <span style="color: #27ae60;">Gestion campagnes</span></p>
+                                <p><strong>Spécialités:</strong> Social Media, Ads, Analytics</p>
+                                <p><strong>Taux horaire:</strong> 7,500 FCFA/h</p>
+                                <p><strong>Charge actuelle:</strong> 95% (38h cette semaine)</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 95%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div class="chart-container">
+                        <h3>📅 Calendrier d'Équipe - Janvier 2025</h3>
+                        <div class="calendar-view">
+                            <div class="calendar-day"><strong>Lun</strong></div>
+                            <div class="calendar-day"><strong>Mar</strong></div>
+                            <div class="calendar-day"><strong>Mer</strong></div>
+                            <div class="calendar-day"><strong>Jeu</strong></div>
+                            <div class="calendar-day"><strong>Ven</strong></div>
+                            <div class="calendar-day"><strong>Sam</strong></div>
+                            <div class="calendar-day"><strong>Dim</strong></div>
+                            
+                            <div class="calendar-day other-month">30</div>
+                            <div class="calendar-day other-month">31</div>
+                            <div class="calendar-day">1</div>
+                            <div class="calendar-day">2</div>
+                            <div class="calendar-day">3</div>
+                            <div class="calendar-day">4</div>
+                            <div class="calendar-day">5</div>
+                            
+                            <div class="calendar-day">6</div>
+                            <div class="calendar-day">7
+                                <div class="calendar-event">Congé - Linda</div>
+                            </div>
+                            <div class="calendar-day">8</div>
+                            <div class="calendar-day">9</div>
+                            <div class="calendar-day">10
+                                <div class="calendar-event">Formation Adobe</div>
+                            </div>
+                            <div class="calendar-day">11</div>
+                            <div class="calendar-day">12</div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Management -->
+                    <div class="chart-container">
+                        <h3>🏖️ Gestion des Congés et Absences</h3>
+                        <div class="task-form">
+                            <h4>Demande de Congé</h4>
+                            <form onsubmit="submitLeaveRequest(event)">
+                                <div class="form-row">
+                                    <div>
+                                        <label>Membre :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="paul_ouedraogo">Paul Junior OUEDRAOGO</option>
+                                            <option value="fortune_yanogo">Fortune YANOGO</option>
+                                            <option value="bientama_pare">Bientama PARÉ</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Type de congé :</label>
+                                        <select required>
+                                            <option value="conge_annuel">Congé annuel</option>
+                                            <option value="conge_maladie">Congé maladie</option>
+                                            <option value="conge_maternite">Congé maternité</option>
+                                            <option value="permission">Permission</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div>
+                                        <label>Date début :</label>
+                                        <input type="date" required>
+                                    </div>
+                                    <div>
+                                        <label>Date fin :</label>
+                                        <input type="date" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn">📝 Soumettre la Demande</button>
+                            </form>
+                        </div>
+
+                        <!-- Pending Requests -->
+                        <h4>Demandes en Attente d'Approbation</h4>
+                        <div class="task-item">
+                            <h4>Linda KABORÉ - Congé Annuel</h4>
+                            <p><strong>Période :</strong> 15/01/2025 - 22/01/2025 (8 jours)</p>
+                            <p><strong>Motif :</strong> Vacances familiales</p>
+                            <div style="margin-top: 10px;">
+                                <button class="btn" style="background: #27ae60; margin-right: 10px;">✅ Approuver</button>
+                                <button class="btn" style="background: #e74c3c;">❌ Refuser</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients Tab -->
+                <div class="tab-pane" id="clients-tab">
+                    <h2>💼 Gestion Clients Portfolio Jo'Fé Digital</h2>
+                    
+                    <!-- Client Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>33</h3>
+                            <p>Clients Actifs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>4.8/5</h3>
+                            <p>Satisfaction Moyenne</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>87%</h3>
+                            <p>Taux de Fidélisation</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>15M</h3>
+                            <p>CA Total (FCFA)</p>
+                        </div>
+                    </div>
+
+                    <!-- Major Clients -->
+                    <div class="chart-container">
+                        <h3>🌟 Clients Majeurs - Top 10</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <div class="client-card">
+                                <h4>📱 MOOV AFRICA</h4>
+                                <p><strong>Secteur:</strong> Télécommunications</p>
+                                <p><strong>CA Annuel:</strong> 4,200,000 FCFA</p>
+                                <p><strong>Projets actifs:</strong> 3</p>
+                                <p><strong>Satisfaction:</strong> ⭐⭐⭐⭐⭐ 5/5</p>
+                                <p><strong>Prochaine deadline:</strong> 15/02/2025</p>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn" style="padding: 5px 10px;">📊 Voir Détails</button>
+                                    <button class="btn" style="padding: 5px 10px;">💬 Contacter</button>
+                                </div>
+                            </div>
+
+                            <div class="client-card">
+                                <h4>🏦 BANK OF AFRICA</h4>
+                                <p><strong>Secteur:</strong> Banque/Finance</p>
+                                <p><strong>CA Annuel:</strong> 3,800,000 FCFA</p>
+                                <p><strong>Projets actifs:</strong> 2</p>
+                                <p><strong>Satisfaction:</strong> ⭐⭐⭐⭐⭐ 5/5</p>
+                                <p><strong>Prochaine deadline:</strong> 22/02/2025</p>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn" style="padding: 5px 10px;">📊 Voir Détails</button>
+                                    <button class="btn" style="padding: 5px 10px;">💬 Contacter</button>
+                                </div>
+                            </div>
+
+                            <div class="client-card">
+                                <h4>🛡️ SUNU BURKINA</h4>
+                                <p><strong>Secteur:</strong> Assurance</p>
+                                <p><strong>CA Annuel:</strong> 2,500,000 FCFA</p>
+                                <p><strong>Projets actifs:</strong> 1</p>
+                                <p><strong>Satisfaction:</strong> ⭐⭐⭐⭐ 4/5</p>
+                                <p><strong>Prochaine deadline:</strong> 08/03/2025</p>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn" style="padding: 5px 10px;">📊 Voir Détails</button>
+                                    <button class="btn" style="padding: 5px 10px;">💬 Contacter</button>
+                                </div>
+                            </div>
+
+                            <div class="client-card">
+                                <h4>🥇 ROXGOLD</h4>
+                                <p><strong>Secteur:</strong> Mining/Or</p>
+                                <p><strong>CA Annuel:</strong> 1,900,000 FCFA</p>
+                                <p><strong>Projets actifs:</strong> 1</p>
+                                <p><strong>Satisfaction:</strong> ⭐⭐⭐⭐⭐ 5/5</p>
+                                <p><strong>Prochaine deadline:</strong> 28/02/2025</p>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn" style="padding: 5px 10px;">📊 Voir Détails</button>
+                                    <button class="btn" style="padding: 5px 10px;">💬 Contacter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Clients List -->
+                    <div class="chart-container">
+                        <h3>📋 Portfolio Complet - 33 Clients</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div class="member-card">MOOV AFRICA</div>
+                            <div class="member-card">BANK OF AFRICA</div>
+                            <div class="member-card">SUNU BURKINA</div>
+                            <div class="member-card">ROXGOLD</div>
+                            <div class="member-card">VINCENT & ASSOCIES</div>
+                            <div class="member-card">PNUD BF</div>
+                            <div class="member-card">ANSSI</div>
+                            <div class="member-card">BABALI EAU</div>
+                            <div class="member-card">DAFANI</div>
+                            <div class="member-card">BABALI BOISSONS</div>
+                            <div class="member-card">LAAFI NANDA</div>
+                            <div class="member-card">AFRICA PERFORMANCE</div>
+                            <div class="member-card">LE TRAPEZE</div>
+                            <div class="member-card">UAB ASSURANCES</div>
+                            <div class="member-card">CNPB</div>
+                            <div class="member-card">FIDELIS FINANCE</div>
+                            <div class="member-card">SUNU ASSURANCES MALI</div>
+                            <div class="member-card">SONAR GROUPE</div>
+                            <div class="member-card">ORYX BURKINA</div>
+                            <div class="member-card">BADF</div>
+                            <div class="member-card">FOREVER</div>
+                            <div class="member-card">FROID SOLUTIONS</div>
+                            <div class="member-card">KSC GROUP</div>
+                            <div class="member-card">MORISOL</div>
+                            <div class="member-card">SPH</div>
+                            <div class="member-card">LORETTA</div>
+                            <div class="member-card">NELSON SOLAR</div>
+                            <div class="member-card">AGENCE ZACA</div>
+                            <div class="member-card">ANEREE</div>
+                            <div class="member-card">JO'FÉ DIGITAL</div>
+                            <div class="member-card">J'PAY</div>
+                            <div class="member-card">JOFFRES</div>
+                            <div class="member-card">LOUDA</div>
+                        </div>
+                    </div>
+
+                    <!-- Client Management -->
+                    <div class="chart-container">
+                        <h3>➕ Ajouter Nouveau Client</h3>
+                        <div class="task-form">
+                            <form onsubmit="addClient(event)">
+                                <div class="form-row">
+                                    <div>
+                                        <label>Nom de l'entreprise :</label>
+                                        <input type="text" required placeholder="Ex: NOUVELLE ENTREPRISE SA">
+                                    </div>
+                                    <div>
+                                        <label>Secteur d'activité :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="telecoms">Télécommunications</option>
+                                            <option value="banque">Banque/Finance</option>
+                                            <option value="assurance">Assurance</option>
+                                            <option value="mining">Mining/Extractif</option>
+                                            <option value="autre">Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div>
+                                        <label>Contact principal :</label>
+                                        <input type="text" required placeholder="Nom du contact">
+                                    </div>
+                                    <div>
+                                        <label>Email :</label>
+                                        <input type="email" required placeholder="contact@entreprise.bf">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div>
+                                        <label>Téléphone :</label>
+                                        <input type="tel" required placeholder="+226 XX XX XX XX">
+                                    </div>
+                                    <div>
+                                        <label>Budget annuel estimé (FCFA) :</label>
+                                        <input type="number" placeholder="Ex: 2000000">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn">💼 Ajouter le Client</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div class="tab-pane" id="analytics-tab">
+                    <h2>📈 Analytics & Business Intelligence</h2>
+                    
+                    <!-- KPI Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>15.2M</h3>
+                            <p>CA Total 2024 (FCFA)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>23%</h3>
+                            <p>Croissance vs 2023</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>68%</h3>
+                            <p>Marge Brute Moyenne</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>156</h3>
+                            <p>Projets Livrés</p>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Charts -->
+                    <div class="chart-container">
+                        <h3>📊 Évolution CA par Trimestre (FCFA)</h3>
+                        <div class="chart">
+                            <canvas id="quarterlyChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>👥 Productivité par Membre d'Équipe</h3>
+                        <div class="chart">
+                            <canvas id="productivityChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>💰 Rentabilité par Type de Projet</h3>
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>Type de Projet</th>
+                                    <th>Nombre</th>
+                                    <th>CA Total (FCFA)</th>
+                                    <th>Coût Total (FCFA)</th>
+                                    <th>Marge (%)</th>
+                                    <th>ROI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Campagnes 360°</td>
+                                    <td>12</td>
+                                    <td class="amount">8,400,000</td>
+                                    <td class="amount negative">5,200,000</td>
+                                    <td>38%</td>
+                                    <td>1.62</td>
+                                </tr>
+                                <tr>
+                                    <td>Identité Visuelle</td>
+                                    <td>28</td>
+                                    <td class="amount">3,200,000</td>
+                                    <td class="amount negative">1,800,000</td>
+                                    <td>44%</td>
+                                    <td>1.78</td>
+                                </tr>
+                                <tr>
+                                    <td>Digital & Réseaux</td>
+                                    <td>45</td>
+                                    <td class="amount">2,800,000</td>
+                                    <td class="amount negative">1,400,000</td>
+                                    <td>50%</td>
+                                    <td>2.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Production Vidéo</td>
+                                    <td>18</td>
+                                    <td class="amount">800,000</td>
+                                    <td class="amount negative">480,000</td>
+                                    <td>40%</td>
+                                    <td>1.67</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Predictive Analytics -->
+                    <div class="chart-container">
+                        <h3>🔮 Prédictions & Tendances Marché</h3>
+                        <div class="alert info">
+                            <strong>📊 Analyse Prédictive IA :</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Croissance attendue de 28% pour Q1 2025 basée sur pipeline actuel</li>
+                                <li>Forte demande prévue en identité visuelle (+35%) pour nouvelles entreprises</li>
+                                <li>Secteur Mining en expansion - opportunité ROXGOLD à exploiter</li>
+                                <li>Digital Marketing en forte croissance - recruter spécialiste Meta Ads recommandé</li>
+                            </ul>
+                        </div>
+                        
+                        <h4>🎯 Recommandations Stratégiques :</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div class="member-card" style="border-left: 5px solid #27ae60;">
+                                <h4>💹 Opportunité</h4>
+                                <p>Développer offre Motion Design - demande en hausse de 45%</p>
+                            </div>
+                            <div class="member-card" style="border-left: 5px solid #f39c12;">
+                                <h4>⚠️ Attention</h4>
+                                <p>Surcharge équipe créative - planifier recrutement Designer Senior</p>
+                            </div>
+                            <div class="member-card" style="border-left: 5px solid #3498db;">
+                                <h4>🚀 Innovation</h4>
+                                <p>Intégrer IA générative dans workflow - gain productivité 25%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Options -->
+                    <div class="chart-container">
+                        <h3>📤 Exporter les Rapports</h3>
+                        <div class="export-buttons">
+                            <button class="export-btn" onclick="exportData('excel')">📊 Export Excel</button>
+                            <button class="export-btn" onclick="exportData('pdf')">📄 Export PDF</button>
+                            <button class="export-btn" onclick="exportData('powerpoint')">📽️ Export PowerPoint</button>
+                            <button class="export-btn" onclick="exportData('csv')">📋 Export CSV</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communication Tab -->
+                <div class="tab-pane" id="communication-tab">
+                    <h2>💬 Communication & Collaboration</h2>
+                    
+                    <!-- Project Chat -->
+                    <div class="chart-container">
+                        <h3>💬 Chat Projet - Campagne MOOV AFRICA</h3>
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message">
+                                    <strong>Serge ASSALÉ</strong> - 14:32<br>
+                                    Le brief client est arrivé, nous devons livrer pour le 15 février. @paul_ouedraogo peux-tu commencer les premières maquettes ?
+                                </div>
+                                <div class="message own">
+                                    <strong>Paul OUEDRAOGO</strong> - 14:35<br>
+                                    Parfait ! J'ai déjà quelques idées. Je commence par 3 concepts différents et je partage ça demain matin.
+                                </div>
+                                <div class="message">
+                                    <strong>Fortune YANOGO</strong> - 14:38<br>
+                                    Pour le shooting, j'ai réservé le studio pour mardi prochain. @bientama_pare tu peux prévoir les animations ?
+                                </div>
+                                <div class="message">
+                                    <strong>Enos GOUBA</strong> - 14:40<br>
+                                    Timeline mise à jour sur le Gantt. Tout le monde peut voir les deadlines intermédiaires maintenant.
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" placeholder="Tapez votre message... Utilisez @nom pour mentionner quelqu'un" onkeypress="sendMessage(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="chart-container">
+                        <h3>🔔 Centre de Notifications</h3>
+                        <div class="task-list">
+                            <div class="task-item">
+                                <h4>🚨 Deadline Urgente</h4>
+                                <p>Le projet BANK OF AFRICA se termine dans 2 jours - Statut : 78% terminé</p>
+                                <p><small>Il y a 15 minutes</small></p>
+                            </div>
+                            <div class="task-item">
+                                <h4>✅ Tâche Terminée</h4>
+                                <p>Bientama PARÉ a terminé l'animation SUNU BURKINA (4h22 de travail)</p>
+                                <p><small>Il y a 1 heure</small></p>
+                            </div>
+                            <div class="task-item">
+                                <h4>📝 Nouveau Commentaire</h4>
+                                <p>Linda KABORÉ a ajouté un commentaire sur le projet ROXGOLD</p>
+                                <p><small>Il y a 2 heures</small></p>
+                            </div>
+                            <div class="task-item">
+                                <h4>👤 Demande de Congé</h4>
+                                <p>Nouvelle demande de congé de Florita KABORÉ - Approbation requise</p>
+                                <p><small>Il y a 3 heures</small></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Sharing -->
+                    <div class="chart-container">
+                        <h3>📁 Partage de Fichiers par Projet</h3>
+                        <div class="task-form">
+                            <h4>📤 Uploader un Fichier</h4>
+                            <form onsubmit="uploadFile(event)">
+                                <div class="form-row">
+                                    <div>
+                                        <label>Projet :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="moov_africa">Campagne MOOV AFRICA</option>
+                                            <option value="bank_of_africa">Shooting BANK OF AFRICA</option>
+                                            <option value="sunu_burkina">Animation SUNU BURKINA</option>
+                                            <option value="roxgold">Logo ROXGOLD</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Type de fichier :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="brief">Brief client</option>
+                                            <option value="maquette">Maquette/Design</option>
+                                            <option value="photo">Photo/Visuel</option>
+                                            <option value="video">Vidéo</option>
+                                            <option value="document">Document</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Fichier :</label>
+                                    <input type="file" required accept=".jpg,.png,.pdf,.mp4,.doc,.psd">
+                                </div>
+                                <button type="submit" class="btn">📤 Uploader</button>
+                            </form>
+                        </div>
+
+                        <!-- Recent Files -->
+                        <h4>📂 Fichiers Récents</h4>
+                        <div class="task-list">
+                            <div class="task-item">
+                                <h4>📄 Brief_MOOV_AFRICA_2025.pdf</h4>
+                                <p>Uploadé par Serge ASSALÉ - Projet: Campagne MOOV AFRICA</p>
+                                <div class="task-meta">
+                                    <span>2.3 MB</span>
+                                    <button class="btn" style="padding: 5px 10px;">📥 Télécharger</button>
+                                </div>
+                            </div>
+                            <div class="task-item">
+                                <h4>🎨 Maquettes_Logo_ROXGOLD_v2.psd</h4>
+                                <p>Uploadé par Paul Junior OUEDRAOGO - Projet: Logo ROXGOLD</p>
+                                <div class="task-meta">
+                                    <span>45.7 MB</span>
+                                    <button class="btn" style="padding: 5px 10px;">📥 Télécharger</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Creative Tab -->
+                <div class="tab-pane" id="creative-tab">
+                    <h2>🎨 Spécificités Créatives</h2>
+                    
+                    <!-- Asset Bank -->
+                    <div class="chart-container">
+                        <h3>🏦 Banque d'Assets Créatifs</h3>
+                        <div class="task-form">
+                            <div class="form-row">
+                                <div>
+                                    <label>Catégorie :</label>
+                                    <select onchange="filterAssets(this.value)">
+                                        <option value="all">Tous les assets</option>
+                                        <option value="logos">Logos clients</option>
+                                        <option value="chartes">Chartes graphiques</option>
+                                        <option value="templates">Templates</option>
+                                        <option value="photos">Photos libres</option>
+                                        <option value="polices">Polices</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Client :</label>
+                                    <select>
+                                        <option value="all">Tous les clients</option>
+                                        <option value="moov">MOOV AFRICA</option>
+                                        <option value="boa">BANK OF AFRICA</option>
+                                        <option value="sunu">SUNU BURKINA</option>
+                                        <option value="roxgold">ROXGOLD</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="asset-grid">
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzM0OThkYiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5Mb2dvIE1PT1Y8L3RleHQ+Cjwvc3ZnPg==" alt="Logo MOOV">
+                                <h4>Logo MOOV AFRICA</h4>
+                                <p>Version officielle 2024</p>
+                            </div>
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzI3YWU2MCIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5Mb2dvIEJPQTwvdGV4dD4KPC9zdmc+" alt="Logo BOA">
+                                <h4>Logo BANK OF AFRICA</h4>
+                                <p>Déclinaisons couleurs</p>
+                            </div>
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2Y5M2QxMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5Mb2dvIFNVTlU8L3RleHQ+Cjwvc3ZnPg==" alt="Logo SUNU">
+                                <h4>Logo SUNU BURKINA</h4>
+                                <p>Version horizontale</p>
+                            </div>
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2YxYzQwZiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9ImJsYWNrIiBmb250LXNpemU9IjE0Ij5Sb3hnb2xkPC90ZXh0Pgo8L3N2Zz4=" alt="Logo ROXGOLD">
+                                <h4>Logo ROXGOLD</h4>
+                                <p>Version premium</p>
+                            </div>
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzk1YTVhNiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjEyIj5UZW1wbGF0ZTwvdGV4dD4KPC9zdmc+" alt="Template">
+                                <h4>Template Campagne</h4>
+                                <p>Modèle réutilisable</p>
+                            </div>
+                            <div class="asset-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzM0NDk1ZSIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iNjAiIHRleXQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjEyIj5Qb2xpY2VzPC90ZXh0Pgo8L3N2Zz4=" alt="Polices">
+                                <h4>Pack Polices Pro</h4>
+                                <p>Licences commerciales</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Portfolio Gallery -->
+                    <div class="chart-container">
+                        <h3>🖼️ Portfolio & Galerie Projets</h3>
+                        <div class="portfolio-grid">
+                            <div class="portfolio-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzQ5OGRiO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMyOTgwYjk7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNncmFkMSkiLz4KICA8dGV4dCB4PSIxNTAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTgiPkNhbXBhZ25lIE1PT1Y8L3RleHQ+Cjwvc3ZnPg==" alt="Campagne MOOV">
+                                <div class="portfolio-content">
+                                    <h4>Campagne 360° MOOV AFRICA</h4>
+                                    <p>Campagne "Connectons l'Afrique" - Print & Digital</p>
+                                    <p><strong>Client:</strong> MOOV AFRICA</p>
+                                    <p><strong>Année:</strong> 2024</p>
+                                    <div style="margin-top: 10px;">
+                                        <span style="background: #27ae60; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">Terminé</span>
+                                        <span style="background: #3498db; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 5px;">5/5 ⭐</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portfolio-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDIiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMjdhZTYwO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMyZWNjNzE7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNncmFkMikiLz4KICA8dGV4dCB4PSIxNTAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTgiPklkZW50aXTDqSBCT0E8L3RleHQ+Cjwvc3ZnPg==" alt="Identité BOA">
+                                <div class="portfolio-content">
+                                    <h4>Refonte Identité BANK OF AFRICA</h4>
+                                    <p>Logo, charte graphique et déclinaisons</p>
+                                    <p><strong>Client:</strong> BANK OF AFRICA</p>
+                                    <p><strong>Année:</strong> 2024</p>
+                                    <div style="margin-top: 10px;">
+                                        <span style="background: #27ae60; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">Terminé</span>
+                                        <span style="background: #3498db; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 5px;">5/5 ⭐</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portfolio-item">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDMiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZjM5YzEyO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNlNjc0MjI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNncmFkMykiLz4KICA8dGV4dCB4PSIxNTAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTgiPkFuaW1hdGlvbiBTVU5VPC90ZXh0Pgo8L3N2Zz4=" alt="Animation SUNU">
+                                <div class="portfolio-content">
+                                    <h4>Animation Motion SUNU BURKINA</h4>
+                                    <p>Vidéo explicative services d'assurance</p>
+                                    <p><strong>Client:</strong> SUNU BURKINA</p>
+                                    <p><strong>Année:</strong> 2024</p>
+                                    <div style="margin-top: 10px;">
+                                        <span style="background: #f39c12; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">En cours</span>
+                                        <span style="background: #3498db; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 5px;">4/5 ⭐</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Creative Validation -->
+                    <div class="chart-container">
+                        <h3>✅ Validation Créative avec Annotations</h3>
+                        <div class="task-form">
+                            <h4>📝 Soumettre une Création pour Validation</h4>
+                            <form onsubmit="submitForValidation(event)">
+                                <div class="form-row">
+                                    <div>
+                                        <label>Projet :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="moov_africa">Campagne MOOV AFRICA</option>
+                                            <option value="roxgold">Logo ROXGOLD</option>
+                                            <option value="sunu_burkina">Animation SUNU BURKINA</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Version :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="v1">Version 1.0</option>
+                                            <option value="v2">Version 2.0</option>
+                                            <option value="v2.1">Version 2.1 (révision)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Fichier de création :</label>
+                                    <input type="file" required accept=".jpg,.png,.pdf,.mp4,.ai,.psd">
+                                </div>
+                                <div>
+                                    <label>Notes pour validation :</label>
+                                    <textarea rows="3" placeholder="Décrivez les points clés à valider..."></textarea>
+                                </div>
+                                <button type="submit" class="btn">✅ Envoyer pour Validation</button>
+                            </form>
+                        </div>
+
+                        <!-- Pending Validations -->
+                        <h4>⏳ Validations en Attente</h4>
+                        <div class="task-list">
+                            <div class="task-item">
+                                <h4>Logo ROXGOLD - Version 2.1</h4>
+                                <p><strong>Créé par :</strong> Paul Junior OUEDRAOGO</p>
+                                <p><strong>Soumis le :</strong> 12/01/2025 à 16:30</p>
+                                <p><strong>Notes :</strong> Version finale avec ajustements couleurs selon retours client</p>
+                                <div class="task-meta">
+                                    <button class="btn" style="background: #27ae60;">✅ Valider</button>
+                                    <button class="btn" style="background: #f39c12;">📝 Demander Révision</button>
+                                    <button class="btn" style="background: #e74c3c;">❌ Refuser</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Creative Metrics -->
+                    <div class="chart-container">
+                        <h3>📊 Métriques Créatives & Impact</h3>
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>Projet</th>
+                                    <th>Type</th>
+                                    <th>Likes</th>
+                                    <th>Partages</th>
+                                    <th>Engagement</th>
+                                    <th>Portée</th>
+                                    <th>Score Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Campagne MOOV "Connectons"</td>
+                                    <td>Digital 360°</td>
+                                    <td>12,450</td>
+                                    <td>3,200</td>
+                                    <td>8.7%</td>
+                                    <td>145,000</td>
+                                    <td>9.2/10</td>
+                                </tr>
+                                <tr>
+                                    <td>Animation SUNU Assurance</td>
+                                    <td>Motion Design</td>
+                                    <td>8,900</td>
+                                    <td>2,100</td>
+                                    <td>6.4%</td>
+                                    <td>98,000</td>
+                                    <td>8.5/10</td>
+                                </tr>
+                                <tr>
+                                    <td>Logo ROXGOLD Premium</td>
+                                    <td>Identité</td>
+                                    <td>2,340</td>
+                                    <td>890</td>
+                                    <td>12.3%</td>
+                                    <td>19,000</td>
+                                    <td>9.8/10</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Finance Tab -->
+                <div class="tab-pane" id="finance-tab">
+                    <h2>💰 Finance & Facturation (Francs CFA)</h2>
+                    
+                    <!-- Financial Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>15,280,000</h3>
+                            <p>CA Total 2024 (FCFA)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>9,840,000</h3>
+                            <p>Coûts Production (FCFA)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>5,440,000</h3>
+                            <p>Bénéfice Net (FCFA)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>35.6%</h3>
+                            <p>Marge Bénéficiaire</p>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Management -->
+                    <div class="chart-container">
+                        <h3>📋 Gestion des Devis et Factures</h3>
+                        <div class="task-form">
+                            <h4>➕ Nouveau Devis</h4>
+                            <form onsubmit="createQuote(event)">
+                                <div class="form-row">
+                                    <div>
+                                        <label>Client :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="moov_africa">MOOV AFRICA</option>
+                                            <option value="bank_of_africa">BANK OF AFRICA</option>
+                                            <option value="sunu_burkina">SUNU BURKINA</option>
+                                            <option value="roxgold">ROXGOLD</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Type de projet :</label>
+                                        <select required>
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="campagne_360">Campagne 360°</option>
+                                            <option value="identite">Identité visuelle</option>
+                                            <option value="digital">Digital & Réseaux</option>
+                                            <option value="video">Production vidéo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div>
+                                        <label>Montant HT (FCFA) :</label>
+                                        <input type="number" required placeholder="Ex: 2500000">
+                                    </div>
+                                    <div>
+                                        <label>TVA (%) :</label>
+                                        <select required>
+                                            <option value="18">18% (Standard BF)</option>
+                                            <option value="0">0% (Exonéré)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Description détaillée :</label>
+                                    <textarea rows="3" placeholder="Décrivez les prestations incluses..."></textarea>
+                                </div>
+                                <button type="submit" class="btn">📄 Créer le Devis</button>
+                            </form>
+                        </div>
+
+                        <!-- Recent Invoices -->
+                        <h4>💸 Factures Récentes</h4>
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Facture</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant HT</th>
+                                    <th>TVA</th>
+                                    <th>Montant TTC</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>FAC-2025-001</td>
+                                    <td>MOOV AFRICA</td>
+                                    <td>15/01/2025</td>
+                                    <td class="amount">3,500,000 FCFA</td>
+                                    <td>630,000 FCFA</td>
+                                    <td class="amount">4,130,000 FCFA</td>
+                                    <td><span class="status-badge status-en-cours">En attente</span></td>
+                                    <td><button class="btn" style="padding: 5px 10px;">📧 Relancer</button></td>
+                                </tr>
+                                <tr>
+                                    <td>FAC-2025-002</td>
+                                    <td>BANK OF AFRICA</td>
+                                    <td>18/01/2025</td>
+                                    <td class="amount">2,800,000 FCFA</td>
+                                    <td>504,000 FCFA</td>
+                                    <td class="amount">3,304,000 FCFA</td>
+                                    <td><span class="status-badge status-termine">Payée</span></td>
+                                    <td><button class="btn" style="padding: 5px 10px;">📄 PDF</button></td>
+                                </tr>
+                                <tr>
+                                    <td>FAC-2024-089</td>
+                                    <td>SUNU BURKINA</td>
+                                    <td>28/12/2024</td>
+                                    <td class="amount">1,200,000 FCFA</td>
+                                    <td>216,000 FCFA</td>
+                                    <td class="amount">1,416,000 FCFA</td>
+                                    <td><span class="status-badge" style="background: #e74c3c;">En retard</span></td>
+                                    <td><button class="btn" style="padding: 5px 10px; background: #e74c3c;">🚨 Urgence</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Budget Tracking -->
+                    <div class="chart-container">
+                        <h3>📊 Suivi Budgétaire Temps Réel</h3>
+                        <div class="task-list">
+                            <div class="task-item">
+                                <h4>Campagne MOOV AFRICA - Q1 2025</h4>
+                                <p><strong>Budget initial :</strong> 5,000,000 FCFA</p>
+                                <p><strong>Consommé :</strong> 3,200,000 FCFA (64%)</p>
+                                <p><strong>Reste disponible :</strong> 1,800,000 FCFA</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 64%;"></div>
+                                </div>
+                                <p><small>🟢 Dans les limites du budget - Progression normale</small></p>
+                            </div>
+
+                            <div class="task-item">
+                                <h4>Production Vidéo BANK OF AFRICA</h4>
+                                <p><strong>Budget initial :</strong> 2,500,000 FCFA</p>
+                                <p><strong>Consommé :</strong> 2,750,000 FCFA (110%)</p>
+                                <p><strong>Dépassement :</strong> -250,000 FCFA</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%; background: #e74c3c;"></div>
+                                </div>
+                                <p><small>🔴 Alerte : Budget dépassé de 10% - Action requise</small></p>
+                            </div>
+
+                            <div class="task-item">
+                                <h4>Logo ROXGOLD Premium</h4>
+                                <p><strong>Budget initial :</strong> 800,000 FCFA</p>
+                                <p><strong>Consommé :</strong> 450,000 FCFA (56%)</p>
+                                <p><strong>Reste disponible :</strong> 350,000 FCFA</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 56%; background: #27ae60;"></div>
+                                </div>
+                                <p><small>🟢 Projet en avance - Économie de 44% possible</small></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Projections -->
+                    <div class="chart-container">
+                        <h3>📈 Prévisionnel CA & Cash Flow</h3>
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                            <div class="stat-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                                <h3>Q1 2025</h3>
+                                <p>4,200,000 FCFA</p>
+                                <small>Prévision (+15%)</small>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                                <h3>Q2 2025</h3>
+                                <p>5,800,000 FCFA</p>
+                                <small>Prévision (+38%)</small>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                                <h3>Q3 2025</h3>
+                                <p>3,900,000 FCFA</p>
+                                <small>Prévision (+8%)</small>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #34495e, #2c3e50);">
+                                <h3>Q4 2025</h3>
+                                <p>6,100,000 FCFA</p>
+                                <small>Prévision (+25%)</small>
+                            </div>
+                        </div>
+
+                        <div class="alert info">
+                            <strong>💡 Analyse Financière :</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Croissance prévisionnelle de 21% pour 2025 (vs 2024)</li>
+                                <li>Marge bénéficiaire cible : 38% (vs 35.6% actuel)</li>
+                                <li>Cash flow positif maintenu sur tous les trimestres</li>
+                                <li>Recommandation : Investir dans équipement vidéo Q2 pour accompagner croissance</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Cost Analysis -->
+                    <div class="chart-container">
+                        <h3>💸 Analyse des Coûts par Poste</h3>
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>Poste de Coût</th>
+                                    <th>Montant Mensuel (FCFA)</th>
+                                    <th>% du CA</th>
+                                    <th>Évolution</th>
+                                    <th>Budget Annuel (FCFA)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Salaires & Charges</td>
+                                    <td class="amount negative">4,200,000</td>
+                                    <td>55%</td>
+                                    <td style="color: #27ae60;">↗ +3%</td>
+                                    <td class="amount negative">50,400,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Équipement & Licences</td>
+                                    <td class="amount negative">650,000</td>
+                                    <td>8.5%</td>
+                                    <td style="color: #e74c3c;">↗ +12%</td>
+                                    <td class="amount negative">7,800,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Locaux & Charges</td>
+                                    <td class="amount negative">800,000</td>
+                                    <td>10.5%</td>
+                                    <td style="color: #95a5a6;">→ 0%</td>
+                                    <td class="amount negative">9,600,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Marketing & Commercial</td>
+                                    <td class="amount negative">300,000</td>
+                                    <td>4%</td>
+                                    <td style="color: #27ae60;">↗ +25%</td>
+                                    <td class="amount negative">3,600,000</td>
+                                </tr>
+                                <tr>
+                                    <td>Autres Charges</td>
+                                    <td class="amount negative">450,000</td>
+                                    <td>6%</td>
+                                    <td style="color: #f39c12;">↗ +8%</td>
+                                    <td class="amount negative">5,400,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Agent du Mois Tab -->
+                <div class="tab-pane" id="agent-month-tab">
+                    <h2>🏆 Agent du Mois - Système d'Évaluation</h2>
+                    
+                    <!-- Current Winner -->
+                    <div class="chart-container">
+                        <h3>🥇 Agent du Mois - Janvier 2025</h3>
+                        <div style="text-align: center; padding: 30px;">
+                            <div style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; padding: 40px; border-radius: 20px; margin-bottom: 20px; max-width: 400px; margin: 0 auto 20px;">
+                                <h2 style="margin: 0;">🏆 Paul Junior OUEDRAOGO</h2>
+                                <p style="font-size: 1.3em; margin: 10px 0;">Graphiste Photomonteur</p>
+                                <p style="font-size: 2em; font-weight: bold; margin: 15px 0;">Score: 94/100</p>
+                                <p style="opacity: 0.9;">"Excellence créative et respect des délais exemplaire"</p>
+                            </div>
+                            
+                            <div class="alert success">
+                                <strong>🎉 Félicitations !</strong> Paul Junior OUEDRAOGO remporte le titre d'Agent du Mois avec un score exceptionnel de 94/100. 
+                                Ses performances en qualité créative et respect des délais font de lui un exemple pour toute l'équipe.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Podium -->
+                    <div class="chart-container">
+                        <h3>🏅 Podium du Mois</h3>
+                        <div class="agent-podium">
+                            <div class="podium-place second">
+                                <h4>🥈 2ème Place</h4>
+                                <p><strong>Fortune YANOGO</strong></p>
+                                <p>Photographe/Vidéaste</p>
+                                <p><strong>87/100</strong></p>
+                            </div>
+                            
+                            <div class="podium-place first">
+                                <h4>🥇 1ère Place</h4>
+                                <p><strong>Paul Junior OUEDRAOGO</strong></p>
+                                <p>Graphiste Photomonteur</p>
+                                <p><strong>94/100</strong></p>
+                            </div>
+                            
+                            <div class="podium-place third">
+                                <h4>🥉 3ème Place</h4>
+                                <p><strong>Linda KABORÉ</strong></p>
+                                <p>Conceptrice Rédactrice Lead</p>
+                                <p><strong>83/100</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scoring Criteria -->
+                    <div class="chart-container">
+                        <h3>📊 Critères d'Évaluation Pondérés</h3>
+                        <table class="finance-table">
+                            <thead>
+                                <tr>
+                                    <th>Critère</th>
+                                    <th>Pondération</th>
+                                    <th>Paul OUEDRAOGO</th>
+                                    <th>Fortune YANOGO</th>
+                                    <th>Linda KABORÉ</th>
+                                    <th>Moyenne Équipe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Qualité du Travail</strong></td>
+                                    <td>25%</td>
+                                    <td style="background: #d5f4e6;">24/25</td>
+                                    <td style="background: #ffeaa7;">21/25</td>
+                                    <td style="background: #dff6ff;">22/25</td>
+                                    <td>20.5/25</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Respect des Délais</strong></td>
+                                    <td>20%</td>
+                                    <td style="background: #d5f4e6;">19/20</td>
+                                    <td style="background: #d5f4e6;">18/20</td>
+                                    <td style="background: #ffeaa7;">16/20</td>
+                                    <td>17.2/20</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Créativité</strong></td>
+                                    <td>15%</td>
+                                    <td style="background: #d5f4e6;">14/15</td>
+                                    <td style="background: #d5f4e6;">13/15</td>
+                                    <td style="background: #d5f4e6;">14/15</td>
+                                    <td>12.8/15</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Collaboration</strong></td>
+                                    <td>15%</td>
+                                    <td style="background: #ffeaa7;">12/15</td>
+                                    <td style="background: #d5f4e6;">14/15</td>
+                                    <td style="background: #d5f4e6;">13/15</td>
+                                    <td>12.5/15</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Proactivité</strong></td>
+                                    <td>10%</td>
+                                    <td style="background: #d5f4e6;">9/10</td>
+                                    <td style="background: #ffeaa7;">8/10</td>
+                                    <td style="background: #ffeaa7;">7/10</td>
+                                    <td>7.8/10</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Formation</strong></td>
+                                    <td>10%</td>
+                                    <td style="background: #ffeaa7;">8/10</td>
+                                    <td style="background: #d5f4e6;">9/10</td>
+                                    <td style="background: #d5f4e6;">9/10</td>
+                                    <td>8.2/10</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Satisfaction Client</strong></td>
+                                    <td>5%</td>
+                                    <td style="background: #d5f4e6;">5/5</td>
+                                    <td style="background: #ffeaa7;">4/5</td>
+                                    <td style="background: #ffeaa7;">4/5</td>
+                                    <td>4.3/5</td>
+                                </tr>
+                                <tr style="background: #f8f9fa; font-weight: bold;">
+                                    <td><strong>SCORE TOTAL</strong></td>
+                                    <td><strong>100%</strong></td>
+                                    <td style="background: #d5f4e6;"><strong>94/100</strong></td>
+                                    <td style="background: #ffeaa7;"><strong>87/100</strong></td>
+                                    <td style="background: #dff6ff;"><strong>83/100</strong></td>
+                                    <td><strong>81.3/100</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Team Ranking -->
+                    <div class="chart-container">
+                        <h3>📈 Classement Complet de
