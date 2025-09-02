@@ -80,7 +80,7 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardContent className="p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-foreground mb-2">Jo'Fé Digital</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">jofé</h1>
             <p className="text-muted-foreground">Système de Gestion d'Équipe</p>
           </div>
 
