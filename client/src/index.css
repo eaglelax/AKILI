@@ -35,6 +35,17 @@
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: 0.5rem;
+  
+  /* Variables JoFé+ authentiques */
+  --jofe-blue-deep: #162C54;
+  --jofe-blue-night: #1A4278;
+  --jofe-blue-medium: #3475BB;
+  --jofe-blue-light: #37B6E9;
+  --jofe-black: #000000;
+  --jofe-gray: #EBECED;
+  --jofe-white: #FFFFFF;
+  --jofe-green: #93C954;
+  --jofe-orange: #F68C1F;
 }
 
 .dark {

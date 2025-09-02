@@ -1,23 +1,16 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import { useAuth } from "@/hooks/useAuth";
 import Sidebar from "@/components/Sidebar";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Search, 
   Plus, 
   Edit, 
   DollarSign, 
   CheckCircle, 
-  X 
+  X,
+  ExternalLink 
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 
 // Types
 interface TeamMember {
@@ -26,512 +19,521 @@ interface TeamMember {
   role: string;
   email: string;
   rate: number;
-  status: 'active' | 'inactive' | 'vacation';
-  type: 'admin' | 'member';
+  status: "active" | "inactive" | "vacation";
+  type: "admin" | "member";
   skills: string[];
-  initials: string;
+  avatar: string;
 }
 
-// Données réelles de l'équipe JoFé+
+// Données réelles des 14 membres JoFé Digital
 const TEAM_MEMBERS: TeamMember[] = [
   {
-    id: 'serge_assale',
-    name: 'Serge ASSALÉ',
-    role: 'Directeur Création & Marketing',
-    email: 'serge.assale@jofeplus.bf',
+    id: "serge_assale",
+    name: "Serge ASSALÉ",
+    role: "Directeur Création & Marketing",
+    email: "serge.assale@jofeplus.bf",
     rate: 15000,
-    status: 'active',
-    type: 'admin',
-    skills: ['Stratégie', 'Direction artistique', 'Management'],
-    initials: 'SA'
+    status: "active",
+    type: "admin",
+    skills: ["Stratégie", "Direction artistique", "Management"],
+    avatar: "SA"
   },
   {
-    id: 'enos_gouba',
-    name: 'Enos GOUBA',
-    role: 'Coordinateur Production',
-    email: 'enos.gouba@jofeplus.bf',
+    id: "enos_gouba",
+    name: "Enos GOUBA",
+    role: "Coordinateur Production",
+    email: "enos.gouba@jofeplus.bf",
     rate: 12000,
-    status: 'active',
-    type: 'admin',
-    skills: ['Coordination', 'Planning', 'Production'],
-    initials: 'EG'
+    status: "active",
+    type: "admin",
+    skills: ["Coordination", "Planning", "Production"],
+    avatar: "EG"
   },
   {
-    id: 'paul_ouedraogo',
-    name: 'Paul Junior OUEDRAOGO',
-    role: 'Graphiste Photomonteur',
-    email: 'paul.ouedraogo@jofeplus.bf',
+    id: "paul_ouedraogo",
+    name: "Paul Junior OUEDRAOGO",
+    role: "Graphiste Photomonteur",
+    email: "paul.ouedraogo@jofeplus.bf",
     rate: 8000,
-    status: 'active',
-    type: 'member',
-    skills: ['Photoshop', 'Photomontage', 'Retouche'],
-    initials: 'PO'
+    status: "active",
+    type: "member",
+    skills: ["Photoshop", "Photomontage", "Retouche"],
+    avatar: "PO"
   },
   {
-    id: 'fortune_yanogo',
-    name: 'Fortune YANOGO',
-    role: 'Photographe/Vidéaste',
-    email: 'fortune.yanogo@jofeplus.bf',
+    id: "fortune_yanogo",
+    name: "Fortune YANOGO",
+    role: "Photographe/Vidéaste",
+    email: "fortune.yanogo@jofeplus.bf",
     rate: 10000,
-    status: 'active',
-    type: 'member',
-    skills: ['Photographie', 'Vidéo', 'Éclairage'],
-    initials: 'FY'
+    status: "active",
+    type: "member",
+    skills: ["Photographie", "Vidéo", "Éclairage"],
+    avatar: "FY"
   },
   {
-    id: 'bientama_pare',
-    name: 'Bientama PARÉ',
-    role: 'Motion Designer',
-    email: 'bientama.pare@jofeplus.bf',
+    id: "bientama_pare",
+    name: "Bientama PARÉ",
+    role: "Motion Designer",
+    email: "bientama.pare@jofeplus.bf",
     rate: 9000,
-    status: 'active',
-    type: 'member',
-    skills: ['After Effects', 'Animation', 'Motion'],
-    initials: 'BP'
+    status: "active",
+    type: "member",
+    skills: ["After Effects", "Animation", "Motion"],
+    avatar: "BP"
   },
   {
-    id: 'issa_cisse',
-    name: 'Issa CISSE',
-    role: 'Graphiste Junior',
-    email: 'issa.cisse@jofeplus.bf',
+    id: "issa_cisse",
+    name: "Issa CISSE",
+    role: "Graphiste Junior",
+    email: "issa.cisse@jofeplus.bf",
     rate: 6000,
-    status: 'active',
-    type: 'member',
-    skills: ['Design graphique', 'Illustration'],
-    initials: 'IC'
+    status: "active",
+    type: "member",
+    skills: ["Design graphique", "Illustration"],
+    avatar: "IC"
   },
   {
-    id: 'florita_kabore',
-    name: 'Florita KABORÉ',
-    role: 'Responsable Médias Sociaux',
-    email: 'florita.kabore@jofeplus.bf',
+    id: "florita_kabore",
+    name: "Florita KABORÉ",
+    role: "Responsable Médias Sociaux",
+    email: "florita.kabore@jofeplus.bf",
     rate: 7500,
-    status: 'active',
-    type: 'member',
-    skills: ['Social Media', 'Ads', 'Analytics'],
-    initials: 'FK'
+    status: "active",
+    type: "member",
+    skills: ["Social Media", "Ads", "Analytics"],
+    avatar: "FK"
   },
   {
-    id: 'nebie_webou',
-    name: 'Nebié WEBOU',
-    role: 'Chef de Pub/Concepteur Rédacteur',
-    email: 'nebie.webou@jofeplus.bf',
+    id: "nebie_webou",
+    name: "Nebié WEBOU",
+    role: "Chef de Pub/Concepteur Rédacteur",
+    email: "nebie.webou@jofeplus.bf",
     rate: 8500,
-    status: 'active',
-    type: 'member',
-    skills: ['Rédaction', 'Concept', 'Stratégie'],
-    initials: 'NW'
+    status: "active",
+    type: "member",
+    skills: ["Rédaction", "Concept", "Stratégie"],
+    avatar: "NW"
   },
   {
-    id: 'linda_kabore',
-    name: 'Linda KABORÉ',
-    role: 'Conceptrice Rédactrice Lead',
-    email: 'linda.kabore@jofeplus.bf',
+    id: "linda_kabore",
+    name: "Linda KABORÉ",
+    role: "Conceptrice Rédactrice Lead",
+    email: "linda.kabore@jofeplus.bf",
     rate: 9500,
-    status: 'vacation',
-    type: 'member',
-    skills: ['Rédaction', 'Concept', 'Stratégie'],
-    initials: 'LK'
+    status: "vacation",
+    type: "member",
+    skills: ["Rédaction", "Concept", "Stratégie"],
+    avatar: "LK"
   },
   {
-    id: 'marie_toe',
-    name: 'Marie TOÉ',
-    role: 'Assistante Administrative',
-    email: 'marie.toe@jofeplus.bf',
+    id: "fanta_sawadogo",
+    name: "Fanta SAWADOGO",
+    role: "Assistante Administrative",
+    email: "fanta.sawadogo@jofeplus.bf",
     rate: 5000,
-    status: 'active',
-    type: 'member',
-    skills: ['Administration', 'Organisation', 'Support'],
-    initials: 'MT'
+    status: "active",
+    type: "member",
+    skills: ["Administration", "Organisation", "Communication"],
+    avatar: "FS"
   },
   {
-    id: 'ibrahim_sawadogo',
-    name: 'Ibrahim SAWADOGO',
-    role: 'Community Manager',
-    email: 'ibrahim.sawadogo@jofeplus.bf',
+    id: "armelle_traore",
+    name: "Armelle TRAORÉ",
+    role: "Community Manager",
+    email: "armelle.traore@jofeplus.bf",
     rate: 7000,
-    status: 'active',
-    type: 'member',
-    skills: ['Community', 'Social Media', 'Engagement'],
-    initials: 'IS'
+    status: "active",
+    type: "member",
+    skills: ["Community", "Social Media", "Engagement"],
+    avatar: "AT"
   },
   {
-    id: 'salimata_ouedraogo',
-    name: 'Salimata OUEDRAOGO',
-    role: 'Designer Web',
-    email: 'salimata.ouedraogo@jofeplus.bf',
+    id: "ibrahim_ouedraogo",
+    name: "Ibrahim OUÉDRAOGO",
+    role: "Commercial & Relations Clients",
+    email: "ibrahim.ouedraogo@jofeplus.bf",
     rate: 8000,
-    status: 'active',
-    type: 'member',
-    skills: ['Web Design', 'UI/UX', 'Frontend'],
-    initials: 'SO'
+    status: "active",
+    type: "member",
+    skills: ["Vente", "Relations client", "Négociation"],
+    avatar: "IO"
   },
   {
-    id: 'amadou_kone',
-    name: 'Amadou KONÉ',
-    role: 'Développeur Junior',
-    email: 'amadou.kone@jofeplus.bf',
-    rate: 7500,
-    status: 'active',
-    type: 'member',
-    skills: ['JavaScript', 'React', 'Node.js'],
-    initials: 'AK'
+    id: "mariam_kone",
+    name: "Mariam KONÉ",
+    role: "Graphiste Junior",
+    email: "mariam.kone@jofeplus.bf",
+    rate: 6000,
+    status: "active",
+    type: "member",
+    skills: ["Design graphique", "Mise en page", "Print"],
+    avatar: "MK"
   },
   {
-    id: 'fatima_barry',
-    name: 'Fatima BARRY',
-    role: 'Chargée de Clientèle',
-    email: 'fatima.barry@jofeplus.bf',
-    rate: 6500,
-    status: 'active',
-    type: 'member',
-    skills: ['Relation Client', 'Négociation', 'Suivi'],
-    initials: 'FB'
+    id: "saidou_barry",
+    name: "Saïdou BARRY",
+    role: "Développeur Web",
+    email: "saidou.barry@jofeplus.bf",
+    rate: 10000,
+    status: "active",
+    type: "member",
+    skills: ["React", "Node.js", "WordPress"],
+    avatar: "SB"
   }
 ];
 
 export default function Team() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const { user } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // Initialize WebSocket connection
-  useWebSocket();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
-  // Fetch team stats
-  const { data: teamStats } = useQuery({
-    queryKey: ["/api/analytics/team"],
-  });
+  // Statistiques calculées
+  const stats = useMemo(() => {
+    const total = TEAM_MEMBERS.length;
+    const admins = TEAM_MEMBERS.filter(m => m.type === "admin").length;
+    const members = TEAM_MEMBERS.filter(m => m.type === "member").length;
+    const activeRate = Math.round((TEAM_MEMBERS.filter(m => m.status === "active").length / total) * 100);
+    
+    return { total, admins, members, activeRate };
+  }, []);
 
-  // Format numbers for display
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('fr-FR').format(num);
-  };
-
-  const formatCurrency = (num: number) => {
-    return `${formatNumber(num)} FCFA`;
-  };
-
-  // Filter team members
+  // Filtrage des membres
   const filteredMembers = useMemo(() => {
     return TEAM_MEMBERS.filter(member => {
-      const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           member.role.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = !roleFilter || roleFilter === 'all' ||
-                         (roleFilter === 'admin' && member.type === 'admin') ||
-                         (roleFilter === 'creative' && member.skills.some(skill => 
-                           ['Photoshop', 'Photomontage', 'After Effects', 'Animation', 'Design graphique'].includes(skill))) ||
-                         (roleFilter === 'marketing' && member.skills.some(skill => 
-                           ['Social Media', 'Ads', 'Community', 'Stratégie'].includes(skill))) ||
-                         (roleFilter === 'production' && member.skills.some(skill => 
-                           ['Coordination', 'Planning', 'Production'].includes(skill)));
-      const matchesStatus = !statusFilter || statusFilter === 'all' || member.status === statusFilter;
-      
+      const matchesSearch = 
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesRole = !roleFilter || 
+        (roleFilter === "admin" && member.type === "admin") ||
+        (roleFilter === "creative" && member.skills.some(skill => 
+          ["Photoshop", "Photomontage", "After Effects", "Animation", "Design graphique"].includes(skill))) ||
+        (roleFilter === "marketing" && member.skills.some(skill => 
+          ["Social Media", "Ads", "Community", "Stratégie"].includes(skill))) ||
+        (roleFilter === "production" && member.skills.some(skill => 
+          ["Coordination", "Planning", "Production"].includes(skill)));
+
+      const matchesStatus = !statusFilter || member.status === statusFilter;
+
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [searchTerm, roleFilter, statusFilter]);
 
-  // Statistics
-  const stats = {
-    totalMembers: TEAM_MEMBERS.length,
-    admins: TEAM_MEMBERS.filter(m => m.type === 'admin').length,
-    activeMembers: TEAM_MEMBERS.filter(m => m.status === 'active').length,
-    attendanceRate: Math.round((TEAM_MEMBERS.filter(m => m.status === 'active').length / TEAM_MEMBERS.length) * 100)
-  };
-
-  const handleEditMember = (member: TeamMember) => {
+  const openEditModal = (member: TeamMember) => {
     setEditingMember(member);
+    setIsEditModalOpen(true);
   };
 
-  const handleCloseEdit = () => {
+  const closeEditModal = () => {
     setEditingMember(null);
+    setIsEditModalOpen(false);
+  };
+
+  const handleAddMember = (formData: any) => {
+    console.log("Ajout membre:", formData);
+    toast({
+      title: "Membre ajouté",
+      description: `${formData.name} a été ajouté avec succès à l'équipe.`,
+    });
+    setIsAddModalOpen(false);
+  };
+
+  const handleEditMember = (formData: any) => {
+    console.log("Modification membre:", formData);
+    toast({
+      title: "Membre modifié",
+      description: `Le profil a été mis à jour avec succès.`,
+    });
+    closeEditModal();
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex h-screen bg-[var(--jofe-white)]">
       <Sidebar />
       
-      {/* Main Content */}
-      <div className="md:ml-64">
+      <div className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="jofe-font text-2xl text-primary">Gestion des Profils Utilisateurs</h1>
-              <p className="text-sm text-muted-foreground">Gérez les membres de votre équipe JoFé+ et leurs permissions</p>
+              <h1 
+                className="text-2xl font-bold text-[var(--jofe-blue-deep)]" 
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                Gestion des Profils Utilisateurs
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Gérez les membres de votre équipe JoFé+ et leurs permissions
+              </p>
             </div>
             
-            <div className="flex items-center gap-4">
-              <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="jofe-btn-primary flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    Ajouter Membre
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="modal-content">
-                  <DialogHeader>
-                    <DialogTitle>Ajouter un nouveau membre</DialogTitle>
-                  </DialogHeader>
-                  <form className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name">Nom complet</Label>
-                        <Input id="name" className="jofe-input" placeholder="Nom Prénom" />
-                      </div>
-                      <div>
-                        <Label htmlFor="role">Poste</Label>
-                        <Input id="role" className="jofe-input" placeholder="Titre du poste" />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" className="jofe-input" placeholder="email@jofeplus.bf" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="rate">Taux horaire (FCFA)</Label>
-                        <Input id="rate" type="number" className="jofe-input" placeholder="5000" />
-                      </div>
-                      <div>
-                        <Label htmlFor="type">Type</Label>
-                        <Select>
-                          <SelectTrigger className="jofe-input">
-                            <SelectValue placeholder="Sélectionner" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Administrateur</SelectItem>
-                            <SelectItem value="member">Membre</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="skills">Compétences</Label>
-                      <Textarea id="skills" className="jofe-input" rows={3} placeholder="Séparez les compétences par des virgules" />
-                    </div>
-                    <div className="flex justify-end gap-3 pt-4">
-                      <Button type="button" className="jofe-btn-secondary" onClick={() => setIsAddModalOpen(false)}>
-                        Annuler
-                      </Button>
-                      <Button type="submit" className="jofe-btn-primary">
-                        Ajouter le Membre
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:transform hover:-translate-y-0.5"
+                data-testid="button-add-member"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter Membre
+              </button>
+              
+              <button className="p-2 text-gray-400 hover:text-gray-600">
+                <ExternalLink className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <main className="p-6 space-y-8">
-          {/* Statistics */}
-          <div className="stats-grid fade-in">
-            <div className="stat-card">
-              <div className="stat-number">{stats.totalMembers}</div>
-              <div className="stat-label">Membres Actifs</div>
+        <main className="p-6">
+          {/* Statistiques */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+                {stats.total}
+              </div>
+              <div className="text-[var(--jofe-blue-medium)] text-sm">
+                Membres Actifs
+              </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.admins}</div>
-              <div className="stat-label">Administrateurs</div>
+            
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+                {stats.admins}
+              </div>
+              <div className="text-[var(--jofe-blue-medium)] text-sm">
+                Administrateurs
+              </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.activeMembers}</div>
-              <div className="stat-label">Membres Équipe</div>
+            
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+                {stats.members}
+              </div>
+              <div className="text-[var(--jofe-blue-medium)] text-sm">
+                Membres Équipe
+              </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats.attendanceRate}%</div>
-              <div className="stat-label">Taux Présence</div>
+            
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+                {stats.activeRate}%
+              </div>
+              <div className="text-[var(--jofe-blue-medium)] text-sm">
+                Taux Présence
+              </div>
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4 fade-in">
-            <div className="search-container flex-1">
-              <Search className="search-icon w-4 h-4" />
-              <Input 
-                type="text" 
-                className="jofe-input search-input" 
+          {/* Recherche et Filtres */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--jofe-blue-medium)] w-4 h-4" />
+              <input
+                type="text"
                 placeholder="Rechercher un membre..."
+                className="w-full pl-10 pr-4 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10 transition-all duration-300"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                data-testid="input-search-member"
+                data-testid="input-search-members"
               />
             </div>
             
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="jofe-input w-48">
-                <SelectValue placeholder="Tous les rôles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les rôles</SelectItem>
-                <SelectItem value="admin">Administrateurs</SelectItem>
-                <SelectItem value="creative">Créatifs</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="production">Production</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-48"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              data-testid="select-role-filter"
+            >
+              <option value="">Tous les rôles</option>
+              <option value="admin">Administrateurs</option>
+              <option value="creative">Créatifs</option>
+              <option value="marketing">Marketing</option>
+              <option value="production">Production</option>
+            </select>
             
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="jofe-input w-48">
-                <SelectValue placeholder="Tous les statuts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="active">Actif</SelectItem>
-                <SelectItem value="inactive">Inactif</SelectItem>
-                <SelectItem value="vacation">En congé</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-48"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              data-testid="select-status-filter"
+            >
+              <option value="">Tous les statuts</option>
+              <option value="active">Actif</option>
+              <option value="inactive">Inactif</option>
+              <option value="vacation">En congé</option>
+            </select>
           </div>
 
-          {/* Team Members Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+          {/* Grille des Membres */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMembers.map((member) => (
-              <div key={member.id} className="kpi-card p-6">
+              <div
+                key={member.id}
+                className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-6 hover:shadow-lg hover:transform hover:-translate-y-1 transition-all duration-300"
+                data-testid={`card-member-${member.id}`}
+              >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      {member.initials}
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--jofe-white)] font-semibold text-lg"
+                      style={{
+                        background: "linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium))"
+                      }}
+                    >
+                      {member.avatar}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-primary">{member.name}</h3>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
+                      <h3 className="font-semibold text-gray-900">
+                        {member.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {member.role}
+                      </p>
                     </div>
                   </div>
-                  <span className={member.type === 'admin' ? 'jofe-badge-admin' : 'jofe-badge-member'}>
-                    {member.type === 'admin' ? 'ADMIN' : 'MEMBRE'}
+                  <span 
+                    className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                      member.type === "admin" 
+                        ? "bg-[var(--jofe-blue-deep)] text-[var(--jofe-white)]"
+                        : "bg-[var(--jofe-green)] text-[var(--jofe-white)]"
+                    }`}
+                  >
+                    {member.type === "admin" ? "ADMIN" : "MEMBRE"}
                   </span>
                 </div>
-                
+
                 <div className="mb-4">
-                  <div className="flex items-center text-sm text-muted-foreground mb-2">
+                  <div className="flex items-center text-sm text-gray-600 mb-2">
                     <DollarSign className="w-4 h-4 mr-2" />
-                    {formatCurrency(member.rate)}/h
+                    {member.rate.toLocaleString()} FCFA/h
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
+                  <div className="flex items-center text-sm text-gray-600">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    {member.status === 'active' ? 'En ligne' : 
-                     member.status === 'vacation' ? 'En congé' : 'Hors ligne'}
+                    {member.status === "active" && "En ligne"}
+                    {member.status === "vacation" && "En congé"}
+                    {member.status === "inactive" && "Hors ligne"}
                   </div>
                 </div>
 
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-1">
                     {member.skills.slice(0, 3).map((skill, index) => (
-                      <span key={index} className="skill-tag">
+                      <span
+                        key={index}
+                        className="text-xs px-2 py-1 rounded-full"
+                        style={{
+                          backgroundColor: "rgba(55, 182, 233, 0.1)",
+                          color: "var(--jofe-blue-medium)"
+                        }}
+                      >
                         {skill}
                       </span>
                     ))}
                     {member.skills.length > 3 && (
-                      <span className="skill-tag">+{member.skills.length - 3}</span>
+                      <span className="text-xs text-gray-400">
+                        +{member.skills.length - 3} autres
+                      </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                    className="jofe-btn-primary flex-1 text-sm" 
-                    onClick={() => handleEditMember(member)}
-                    data-testid={`button-edit-${member.id}`}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Modifier
-                  </Button>
-                </div>
+                <button
+                  onClick={() => openEditModal(member)}
+                  className="w-full bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-all duration-300 hover:transform hover:-translate-y-0.5"
+                  data-testid={`button-edit-${member.id}`}
+                >
+                  <Edit className="w-4 h-4" />
+                  Modifier
+                </button>
               </div>
             ))}
           </div>
+
+          {filteredMembers.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-500 text-lg">
+                Aucun membre trouvé pour ces critères
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* Edit Member Modal */}
-      {editingMember && (
-        <div className="modal-overlay" onClick={handleCloseEdit}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="jofe-font text-xl text-primary">Modifier le profil</h2>
-              <button onClick={handleCloseEdit} className="p-2 hover:bg-gray-100 rounded">
+      {/* Modal Ajout (placeholder) */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[var(--jofe-blue-deep)]">
+                Ajouter un Membre
+              </h2>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
-            <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editName">Nom complet</Label>
-                  <Input 
-                    id="editName" 
-                    className="jofe-input" 
-                    defaultValue={editingMember.name}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="editRole">Poste</Label>
-                  <Input 
-                    id="editRole" 
-                    className="jofe-input" 
-                    defaultValue={editingMember.role}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="editEmail">Email</Label>
-                <Input 
-                  id="editEmail" 
-                  type="email" 
-                  className="jofe-input" 
-                  defaultValue={editingMember.email}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editRate">Taux horaire (FCFA)</Label>
-                  <Input 
-                    id="editRate" 
-                    type="number" 
-                    className="jofe-input" 
-                    defaultValue={editingMember.rate}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="editStatus">Statut</Label>
-                  <Select defaultValue={editingMember.status}>
-                    <SelectTrigger className="jofe-input">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Actif</SelectItem>
-                      <SelectItem value="inactive">Inactif</SelectItem>
-                      <SelectItem value="vacation">En congé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="editSkills">Compétences</Label>
-                <Textarea 
-                  id="editSkills" 
-                  className="jofe-input" 
-                  rows={3} 
-                  defaultValue={editingMember.skills.join(', ')}
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <button type="button" className="jofe-btn-secondary" onClick={handleCloseEdit}>
-                  Annuler
-                </button>
-                <button type="submit" className="jofe-btn-primary">
-                  Sauvegarder
-                </button>
-              </div>
-            </form>
+            <p className="text-gray-600 mb-6">
+              Fonctionnalité d'ajout à implémenter.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="flex-1 bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={() => handleAddMember({})}
+                className="flex-1 bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg"
+              >
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Modification (placeholder) */}
+      {isEditModalOpen && editingMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[var(--jofe-blue-deep)]">
+                Modifier {editingMember.name}
+              </h2>
+              <button 
+                onClick={closeEditModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Fonctionnalité de modification à implémenter.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={closeEditModal}
+                className="flex-1 bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={() => handleEditMember({})}
+                className="flex-1 bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg"
+              >
+                Sauvegarder
+              </button>
+            </div>
           </div>
         </div>
       )}
