@@ -98,46 +98,8 @@ export default function Login() {
       />
       
       <div className="w-full max-w-md animate-in fade-in duration-800">
-        {/* Header with Logo */}
+        {/* Header */}
         <div className="text-center mb-8 animate-in slide-in-from-bottom duration-600">
-          {/* JoFé+ Logo */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-2">
-              {/* Three Interlocked Rings */}
-              <div className="relative">
-                <div 
-                  className="w-6 h-6 rounded-full relative"
-                  style={{
-                    border: '3px solid #3475BB',
-                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
-                  }}
-                >
-                  <div 
-                    className="absolute -top-0.5 -left-0.5 w-7 h-7 rounded-full opacity-60"
-                    style={{ border: '1px solid #37B6E9' }}
-                  />
-                </div>
-                <div 
-                  className="w-6 h-6 rounded-full absolute -top-2 -right-2 opacity-80"
-                  style={{
-                    border: '3px solid #3475BB',
-                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
-                  }}
-                />
-                <div 
-                  className="w-6 h-6 rounded-full absolute -bottom-2 -left-2 opacity-60"
-                  style={{
-                    border: '3px solid #3475BB',
-                    background: 'linear-gradient(45deg, #37B6E9, #3475BB)'
-                  }}
-                />
-              </div>
-              <div className="text-3xl font-bold text-[#1A4278]">
-                JoFé<span className="text-[#37B6E9]">+</span>
-              </div>
-            </div>
-          </div>
-          
           <h1 className="text-2xl font-bold mb-2 text-[#162C54]">
             Connexion Sécurisée
           </h1>
