@@ -140,11 +140,14 @@ export default function TopNavBar() {
     <>
       {/* Main Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+        <div className="w-full px-6">
+          <div className="flex items-center justify-between h-24">
             
-            {/* Desktop Navigation - Centré */}
-            <div className="hidden lg:flex items-center space-x-2 flex-1 justify-center">
+            {/* Espace gauche vide pour équilibrer */}
+            <div className="flex-1"></div>
+            
+            {/* Desktop Navigation - Centré avec plus d'espace */}
+            <div className="hidden lg:flex items-center justify-center space-x-8">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location === item.href || 
@@ -155,43 +158,41 @@ export default function TopNavBar() {
                     key={item.href} 
                     href={item.href}
                     className={`
-                      flex flex-col items-center justify-center px-4 py-3 rounded-lg text-xs font-medium transition-all duration-200 min-w-[70px] hover:transform hover:scale-105
+                      flex flex-col items-center justify-center px-6 py-4 rounded-xl text-xs font-medium transition-all duration-300 min-w-[80px] group
                       ${isActive 
-                        ? 'bg-[#37B6E9] text-white shadow-md' 
-                        : 'text-[#3475BB] hover:bg-[#37B6E9] hover:bg-opacity-10 hover:text-[#162C54]'
+                        ? 'bg-[#37B6E9] text-white shadow-lg transform scale-105' 
+                        : 'text-[#3475BB] hover:bg-[#37B6E9] hover:bg-opacity-10 hover:text-[#162C54] hover:transform hover:scale-105'
                       }
                     `}
                     data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <Icon className="w-5 h-5 mb-1" />
-                    <span className="text-center leading-tight">{item.label}</span>
+                    <Icon className="w-6 h-6 mb-2 transition-all duration-300" />
+                    <span className="text-center leading-tight tracking-wide">{item.label}</span>
                   </Link>
                 );
               })}
             </div>
 
-            {/* User Menu and Mobile Toggle */}
-            <div className="flex items-center space-x-4">
-              
-              {/* User Information and Menu */}
+            {/* Zone droite - User Menu */}
+            <div className="flex-1 flex justify-end">
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-100"
                   data-testid="button-user-menu"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#3475BB] flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#162C54] to-[#37B6E9] flex items-center justify-center shadow-md">
+                    <User className="w-5 h-5 text-white" />
                   </div>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-[#162C54]">
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-semibold text-[#162C54]">
                       {(user as any)?.name || teamMember?.name || 'Utilisateur'}
                     </p>
-                    <p className="text-xs text-[#3475BB]">
+                    <p className="text-xs text-[#3475BB] font-medium">
                       {formatTime(currentTime)}
                     </p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-[#3475BB] transition-transform ${
+                  <ChevronDown className={`w-4 h-4 text-[#3475BB] transition-transform duration-200 ${
                     isUserMenuOpen ? 'rotate-180' : ''
                   }`} />
                 </button>
@@ -243,7 +244,7 @@ export default function TopNavBar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={toggleMobileMenu}
-                className="lg:hidden p-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-3 rounded-xl text-[#3475BB] hover:bg-gray-50 transition-all duration-200 border border-gray-100"
                 data-testid="button-mobile-menu"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -255,7 +256,7 @@ export default function TopNavBar() {
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 bg-white">
-            <div className="px-4 py-3 space-y-1">
+            <div className="px-6 py-6 space-y-3">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location === item.href || 
@@ -267,16 +268,16 @@ export default function TopNavBar() {
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`
-                      flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200
+                      flex items-center space-x-4 px-4 py-4 rounded-xl transition-all duration-200 shadow-sm
                       ${isActive 
-                        ? 'bg-[#37B6E9] text-white' 
-                        : 'text-[#3475BB] hover:bg-[#37B6E9] hover:bg-opacity-10'
+                        ? 'bg-[#37B6E9] text-white shadow-md' 
+                        : 'text-[#3475BB] hover:bg-[#37B6E9] hover:bg-opacity-10 bg-gray-50'
                       }
                     `}
                     data-testid={`mobile-nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className="w-6 h-6" />
+                    <span className="font-medium text-base">{item.label}</span>
                   </Link>
                 );
               })}
