@@ -10,26 +10,26 @@ import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
 
 const adminMembers = [
-  { value: "serge_assale", label: "Serge ASSALÉ - Directeur Création & Marketing" },
-  { value: "enos_gouba", label: "Enos GOUBA - Coordinateur Production" },
+  { value: "serge.assale", label: "Serge ASSALÉ - Directeur Création & Marketing" },
+  { value: "enos.gouba", label: "Enos GOUBA - Coordinateur Production" },
 ];
 
 const creativeTeam = [
-  { value: "paul_ouedraogo", label: "Paul Junior OUEDRAOGO - Graphiste Photomonteur" },
-  { value: "fortune_yanogo", label: "Fortune YANOGO - Photographe/Vidéaste" },
-  { value: "bientama_pare", label: "Bientama PARÉ - Motion Designer" },
-  { value: "issa_cisse", label: "Issa CISSE - Graphiste Junior" },
-  { value: "jean_sampabao", label: "Jean-Jacques SAMPABAO - Directeur Artistique Junior" },
-  { value: "latif_ouedraogo", label: "Abdoul Latif OUEDRAOGO - Designer UI/UX" },
+  { value: "paul.ouedraogo", label: "Paul Junior OUEDRAOGO - Graphiste Photomonteur" },
+  { value: "fortune.yanogo", label: "Fortune YANOGO - Photographe/Vidéaste" },
+  { value: "bientama.pare", label: "Bientama PARÉ - Motion Designer" },
+  { value: "issa.cisse", label: "Issa CISSE - Graphiste Junior" },
+  { value: "jean.sampabao", label: "Jean-Jacques SAMPABAO - Directeur Artistique Junior" },
+  { value: "latif.ouedraogo", label: "Abdoul Latif OUEDRAOGO - Designer UI/UX" },
 ];
 
 const marketingTeam = [
-  { value: "florita_kabore", label: "Florita KABORÉ - Responsable Médias Sociaux" },
-  { value: "nebie_webou", label: "Nebié WEBOU - Chef de Pub/Concepteur Rédacteur" },
-  { value: "djamilatou_guiguemde", label: "Djamilatou GUIGUEMDE - Chef de Pub Stagiaire" },
-  { value: "linda_kabore", label: "Linda KABORÉ - Conceptrice Rédactrice Lead" },
-  { value: "maryse_bombiri", label: "Maryse BOMBIRI - Community Manager" },
-  { value: "faridatou_barry", label: "Faridatou BARRY - Chef de Pub/CM" },
+  { value: "florita.kabore", label: "Florita KABORÉ - Responsable Médias Sociaux" },
+  { value: "nebie.webou", label: "Nebié WEBOU - Chef de Pub/Concepteur Rédacteur" },
+  { value: "djamilatou.guiguemde", label: "Djamilatou GUIGUEMDE - Chef de Pub Stagiaire" },
+  { value: "linda.kabore", label: "Linda KABORÉ - Conceptrice Rédactrice Lead" },
+  { value: "maryse.bombiri", label: "Maryse BOMBIRI - Community Manager" },
+  { value: "faridatou.barry", label: "Faridatou BARRY - Chef de Pub/CM" },
 ];
 
 export default function Login() {

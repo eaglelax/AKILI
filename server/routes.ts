@@ -416,24 +416,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Initialize team members - Données exactes des 14 membres Jo'Fé Digital
       const teamMembersData = [
         // Administrateurs (2)
-        { name: "Serge ASSALÉ", role: "Directeur Création & Marketing", username: "serge_assale", isAdmin: true, hourlyRate: "15000", skills: ["Stratégie", "Direction artistique", "Management"] },
-        { name: "Enos GOUBA", role: "Coordinateur Production", username: "enos_gouba", isAdmin: true, hourlyRate: "12000", skills: ["Coordination", "Planning", "Production"] },
+        { name: "Serge ASSALÉ", role: "Directeur Création & Marketing", username: "serge.assale", isAdmin: true, hourlyRate: "15000", skills: ["Stratégie", "Direction artistique", "Management"] },
+        { name: "Enos GOUBA", role: "Coordinateur Production", username: "enos.gouba", isAdmin: true, hourlyRate: "12000", skills: ["Coordination", "Planning", "Production"] },
         
         // Équipe Créative (6)
-        { name: "Paul Junior OUEDRAOGO", role: "Graphiste Photomonteur", username: "paul_ouedraogo", hourlyRate: "8000", skills: ["Photoshop", "Photomontage", "Retouche"] },
-        { name: "Fortune YANOGO", role: "Photographe/Vidéaste", username: "fortune_yanogo", hourlyRate: "10000", skills: ["Photographie", "Vidéo", "Éclairage"] },
-        { name: "Bientama PARÉ", role: "Motion Designer", username: "bientama_pare", hourlyRate: "9000", skills: ["After Effects", "Animation", "Motion"] },
-        { name: "Issa CISSE", role: "Graphiste Junior", username: "issa_cisse", hourlyRate: "6000", skills: ["Design graphique", "Illustration"] },
-        { name: "Jean-Jacques SAMPABAO", role: "Directeur Artistique Junior", username: "jean_sampabao", hourlyRate: "8500", skills: ["Direction artistique", "Concept", "Brand Design"] },
-        { name: "Abdoul Latif OUEDRAOGO", role: "Designer UI/UX", username: "latif_ouedraogo", hourlyRate: "9500", skills: ["UI/UX", "Figma", "Prototypage"] },
+        { name: "Paul Junior OUEDRAOGO", role: "Graphiste Photomonteur", username: "paul.ouedraogo", hourlyRate: "8000", skills: ["Photoshop", "Photomontage", "Retouche"] },
+        { name: "Fortune YANOGO", role: "Photographe/Vidéaste", username: "fortune.yanogo", hourlyRate: "10000", skills: ["Photographie", "Vidéo", "Éclairage"] },
+        { name: "Bientama PARÉ", role: "Motion Designer", username: "bientama.pare", hourlyRate: "9000", skills: ["After Effects", "Animation", "Motion"] },
+        { name: "Issa CISSE", role: "Graphiste Junior", username: "issa.cisse", hourlyRate: "6000", skills: ["Design graphique", "Illustration"] },
+        { name: "Jean-Jacques SAMPABAO", role: "Directeur Artistique Junior", username: "jean.sampabao", hourlyRate: "8500", skills: ["Direction artistique", "Concept", "Brand Design"] },
+        { name: "Abdoul Latif OUEDRAOGO", role: "Designer UI/UX", username: "latif.ouedraogo", hourlyRate: "9500", skills: ["UI/UX", "Figma", "Prototypage"] },
         
         // Communication & Marketing (6)
-        { name: "Florita KABORÉ", role: "Responsable Médias Sociaux", username: "florita_kabore", hourlyRate: "7500", skills: ["Social Media", "Ads", "Analytics"] },
-        { name: "Nebié WEBOU", role: "Chef de Pub/Concepteur Rédacteur", username: "nebie_webou", hourlyRate: "8500", skills: ["Rédaction", "Concept", "Stratégie"] },
-        { name: "Djamilatou GUIGUEMDE", role: "Chef de Pub Stagiaire", username: "djamilatou_guiguemde", hourlyRate: "5000", skills: ["Conception pub", "Recherche", "Analyse"] },
-        { name: "Linda KABORÉ", role: "Conceptrice Rédactrice Lead", username: "linda_kabore", hourlyRate: "9500", skills: ["Rédaction", "Concept", "Stratégie"] },
-        { name: "Maryse BOMBIRI", role: "Community Manager", username: "maryse_bombiri", hourlyRate: "6500", skills: ["Community", "Content", "Engagement"] },
-        { name: "Faridatou BARRY", role: "Chef de Pub/CM", username: "faridatou_barry", hourlyRate: "7000", skills: ["Chef de Pub", "Community", "Stratégie"] },
+        { name: "Florita KABORÉ", role: "Responsable Médias Sociaux", username: "florita.kabore", hourlyRate: "7500", skills: ["Social Media", "Ads", "Analytics"] },
+        { name: "Nebié WEBOU", role: "Chef de Pub/Concepteur Rédacteur", username: "nebie.webou", hourlyRate: "8500", skills: ["Rédaction", "Concept", "Stratégie"] },
+        { name: "Djamilatou GUIGUEMDE", role: "Chef de Pub Stagiaire", username: "djamilatou.guiguemde", hourlyRate: "5000", skills: ["Conception pub", "Recherche", "Analyse"] },
+        { name: "Linda KABORÉ", role: "Conceptrice Rédactrice Lead", username: "linda.kabore", hourlyRate: "9500", skills: ["Rédaction", "Concept", "Stratégie"] },
+        { name: "Maryse BOMBIRI", role: "Community Manager", username: "maryse.bombiri", hourlyRate: "6500", skills: ["Community", "Content", "Engagement"] },
+        { name: "Faridatou BARRY", role: "Chef de Pub/CM", username: "faridatou.barry", hourlyRate: "7000", skills: ["Chef de Pub", "Community", "Stratégie"] },
       ];
 
       // Initialize clients
