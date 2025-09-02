@@ -25,8 +25,9 @@ interface TeamMember {
   avatar: string;
 }
 
-// Données réelles des 14 membres JoFé Digital
+// Données complètes des 14 membres JoFé+ du template HTML authentique
 const TEAM_MEMBERS: TeamMember[] = [
+  // Administrateurs (2)
   {
     id: "serge_assale",
     name: "Serge ASSALÉ",
@@ -49,6 +50,8 @@ const TEAM_MEMBERS: TeamMember[] = [
     skills: ["Coordination", "Planning", "Production"],
     avatar: "EG"
   },
+  
+  // Équipe Créative (6)
   {
     id: "paul_ouedraogo",
     name: "Paul Junior OUEDRAOGO",
@@ -94,6 +97,30 @@ const TEAM_MEMBERS: TeamMember[] = [
     avatar: "IC"
   },
   {
+    id: "jean_sampabao",
+    name: "Jean-Jacques SAMPABAO",
+    role: "Directeur Artistique Junior",
+    email: "jean.sampabao@jofeplus.bf",
+    rate: 8500,
+    status: "active",
+    type: "member",
+    skills: ["Direction artistique", "Concept", "Brand Design"],
+    avatar: "JS"
+  },
+  {
+    id: "latif_ouedraogo",
+    name: "Abdoul Latif OUEDRAOGO",
+    role: "Designer UI/UX",
+    email: "latif.ouedraogo@jofeplus.bf",
+    rate: 9500,
+    status: "active",
+    type: "member",
+    skills: ["UI/UX", "Figma", "Prototypage"],
+    avatar: "AO"
+  },
+  
+  // Communication & Marketing (6)
+  {
     id: "florita_kabore",
     name: "Florita KABORÉ",
     role: "Responsable Médias Sociaux",
@@ -116,6 +143,17 @@ const TEAM_MEMBERS: TeamMember[] = [
     avatar: "NW"
   },
   {
+    id: "djamilatou_guiguemde",
+    name: "Djamilatou GUIGUEMDE",
+    role: "Chef de Pub Stagiaire",
+    email: "djamilatou.guiguemde@jofeplus.bf",
+    rate: 5000,
+    status: "active",
+    type: "member",
+    skills: ["Conception pub", "Recherche", "Analyse"],
+    avatar: "DG"
+  },
+  {
     id: "linda_kabore",
     name: "Linda KABORÉ",
     role: "Conceptrice Rédactrice Lead",
@@ -127,59 +165,26 @@ const TEAM_MEMBERS: TeamMember[] = [
     avatar: "LK"
   },
   {
-    id: "fanta_sawadogo",
-    name: "Fanta SAWADOGO",
-    role: "Assistante Administrative",
-    email: "fanta.sawadogo@jofeplus.bf",
-    rate: 5000,
+    id: "maryse_bombiri",
+    name: "Maryse BOMBIRI",
+    role: "Community Manager",
+    email: "maryse.bombiri@jofeplus.bf",
+    rate: 6500,
     status: "active",
     type: "member",
-    skills: ["Administration", "Organisation", "Communication"],
-    avatar: "FS"
+    skills: ["Community", "Content", "Engagement"],
+    avatar: "MB"
   },
   {
-    id: "armelle_traore",
-    name: "Armelle TRAORÉ",
-    role: "Community Manager",
-    email: "armelle.traore@jofeplus.bf",
+    id: "faridatou_barry",
+    name: "Faridatou BARRY",
+    role: "Chef de Pub/CM",
+    email: "faridatou.barry@jofeplus.bf",
     rate: 7000,
     status: "active",
     type: "member",
-    skills: ["Community", "Social Media", "Engagement"],
-    avatar: "AT"
-  },
-  {
-    id: "ibrahim_ouedraogo",
-    name: "Ibrahim OUÉDRAOGO",
-    role: "Commercial & Relations Clients",
-    email: "ibrahim.ouedraogo@jofeplus.bf",
-    rate: 8000,
-    status: "active",
-    type: "member",
-    skills: ["Vente", "Relations client", "Négociation"],
-    avatar: "IO"
-  },
-  {
-    id: "mariam_kone",
-    name: "Mariam KONÉ",
-    role: "Graphiste Junior",
-    email: "mariam.kone@jofeplus.bf",
-    rate: 6000,
-    status: "active",
-    type: "member",
-    skills: ["Design graphique", "Mise en page", "Print"],
-    avatar: "MK"
-  },
-  {
-    id: "saidou_barry",
-    name: "Saïdou BARRY",
-    role: "Développeur Web",
-    email: "saidou.barry@jofeplus.bf",
-    rate: 10000,
-    status: "active",
-    type: "member",
-    skills: ["React", "Node.js", "WordPress"],
-    avatar: "SB"
+    skills: ["Chef de Pub", "Community", "Stratégie"],
+    avatar: "FB"
   }
 ];
 
@@ -258,30 +263,34 @@ export default function Team() {
     <div className="flex h-screen bg-[var(--jofe-white)]">
       <Sidebar />
       
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto md:ml-0 ml-0">
+        {/* Mobile Header Spacer */}
+        <div className="h-16 md:hidden"></div>
+        
         {/* Header */}
-        <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
+        <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="min-w-0 flex-1">
               <h1 
-                className="text-2xl font-bold text-[var(--jofe-blue-deep)]" 
+                className="text-xl md:text-2xl font-bold text-[var(--jofe-blue-deep)] truncate" 
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 Gestion des Profils Utilisateurs
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-sm md:text-base text-gray-600 hidden sm:block">
                 Gérez les membres de votre équipe JoFé+ et leurs permissions
               </p>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
               <button 
                 onClick={() => setIsAddModalOpen(true)}
-                className="bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:transform hover:-translate-y-0.5"
+                className="bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] px-3 py-2 md:px-4 md:py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:transform hover:-translate-y-0.5 text-sm"
                 data-testid="button-add-member"
               >
                 <Plus className="w-4 h-4" />
-                Ajouter Membre
+                <span className="hidden sm:inline">Ajouter Membre</span>
+                <span className="sm:hidden">Ajouter</span>
               </button>
               
               <button className="p-2 text-gray-400 hover:text-gray-600">
@@ -291,54 +300,54 @@ export default function Team() {
           </div>
         </header>
 
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-4 md:p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-2xl md:text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
                 {stats.total}
               </div>
-              <div className="text-[var(--jofe-blue-medium)] text-sm">
+              <div className="text-[var(--jofe-blue-medium)] text-xs md:text-sm">
                 Membres Actifs
               </div>
             </div>
             
-            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-4 md:p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-2xl md:text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
                 {stats.admins}
               </div>
-              <div className="text-[var(--jofe-blue-medium)] text-sm">
+              <div className="text-[var(--jofe-blue-medium)] text-xs md:text-sm">
                 Administrateurs
               </div>
             </div>
             
-            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-4 md:p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-2xl md:text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
                 {stats.members}
               </div>
-              <div className="text-[var(--jofe-blue-medium)] text-sm">
+              <div className="text-[var(--jofe-blue-medium)] text-xs md:text-sm">
                 Membres Équipe
               </div>
             </div>
             
-            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
-                {stats.activeRate}%
+            <div className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-4 md:p-5 text-center hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
+              <div className="text-2xl md:text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1">
+                92%
               </div>
-              <div className="text-[var(--jofe-blue-medium)] text-sm">
+              <div className="text-[var(--jofe-blue-medium)] text-xs md:text-sm">
                 Taux Présence
               </div>
             </div>
           </div>
 
           {/* Recherche et Filtres */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--jofe-blue-medium)] w-4 h-4" />
               <input
                 type="text"
                 placeholder="Rechercher un membre..."
-                className="w-full pl-10 pr-4 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10 transition-all duration-300"
+                className="w-full pl-10 pr-4 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10 transition-all duration-300 text-sm md:text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 data-testid="input-search-members"
@@ -346,7 +355,7 @@ export default function Team() {
             </div>
             
             <select
-              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-48"
+              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-full md:w-48 text-sm md:text-base"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
               data-testid="select-role-filter"
@@ -359,7 +368,7 @@ export default function Team() {
             </select>
             
             <select
-              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-48"
+              className="border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] w-full md:w-48 text-sm md:text-base"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               data-testid="select-status-filter"
@@ -372,34 +381,34 @@ export default function Team() {
           </div>
 
           {/* Grille des Membres */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredMembers.map((member) => (
               <div
                 key={member.id}
-                className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-6 hover:shadow-lg hover:transform hover:-translate-y-1 transition-all duration-300"
+                className="bg-[var(--jofe-white)] border border-[var(--jofe-gray)] rounded-xl p-4 md:p-6 hover:shadow-lg hover:transform hover:-translate-y-1 transition-all duration-300"
                 data-testid={`card-member-${member.id}`}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div 
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-[var(--jofe-white)] font-semibold text-lg"
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-[var(--jofe-white)] font-semibold text-sm md:text-lg flex-shrink-0"
                       style={{
                         background: "linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium))"
                       }}
                     >
                       {member.avatar}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate">
                         {member.name}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs md:text-sm text-gray-600 truncate">
                         {member.role}
                       </p>
                     </div>
                   </div>
                   <span 
-                    className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                    className={`px-2 py-1 rounded-xl text-xs font-medium flex-shrink-0 ${
                       member.type === "admin" 
                         ? "bg-[var(--jofe-blue-deep)] text-[var(--jofe-white)]"
                         : "bg-[var(--jofe-green)] text-[var(--jofe-white)]"
@@ -410,24 +419,30 @@ export default function Team() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    {member.rate.toLocaleString()} FCFA/h
+                  <div className="flex items-center text-xs md:text-sm text-gray-600 mb-2">
+                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                    <span className="truncate">{member.rate.toLocaleString()} FCFA/h</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {member.status === "active" && "En ligne"}
-                    {member.status === "vacation" && "En congé"}
-                    {member.status === "inactive" && "Hors ligne"}
+                  <div className="flex items-center text-xs md:text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>
+                      {member.status === "active" && "En ligne"}
+                      {member.status === "vacation" && "En congé"}
+                      {member.status === "inactive" && "Hors ligne"}
+                    </span>
                   </div>
                 </div>
 
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-1">
-                    {member.skills.slice(0, 3).map((skill, index) => (
+                    {member.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="text-xs px-2 py-1 rounded-full"
+                        className="text-xs px-2 py-1 rounded-2xl"
                         style={{
                           backgroundColor: "rgba(55, 182, 233, 0.1)",
                           color: "var(--jofe-blue-medium)"
@@ -436,20 +451,15 @@ export default function Team() {
                         {skill}
                       </span>
                     ))}
-                    {member.skills.length > 3 && (
-                      <span className="text-xs text-gray-400">
-                        +{member.skills.length - 3} autres
-                      </span>
-                    )}
                   </div>
                 </div>
 
                 <button
                   onClick={() => openEditModal(member)}
-                  className="w-full bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-all duration-300 hover:transform hover:-translate-y-0.5"
+                  className="w-full bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] py-2 px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center gap-1 transition-all duration-300 hover:transform hover:-translate-y-0.5"
                   data-testid={`button-edit-${member.id}`}
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3 h-3 md:w-4 md:h-4" />
                   Modifier
                 </button>
               </div>
@@ -466,13 +476,13 @@ export default function Team() {
         </main>
       </div>
 
-      {/* Modal Ajout (placeholder) */}
+      {/* Modal Ajout */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[var(--jofe-blue-deep)]">
-                Ajouter un Membre
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-[var(--jofe-blue-deep)]" style={{ fontFamily: "Inter, sans-serif" }}>
+                Ajouter un Nouveau Membre
               </h2>
               <button 
                 onClick={() => setIsAddModalOpen(false)}
@@ -481,34 +491,103 @@ export default function Team() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-gray-600 mb-6">
-              Fonctionnalité d'ajout à implémenter.
-            </p>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setIsAddModalOpen(false)}
-                className="flex-1 bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg"
-              >
-                Annuler
-              </button>
-              <button 
-                onClick={() => handleAddMember({})}
-                className="flex-1 bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg"
-              >
-                Ajouter
-              </button>
-            </div>
+            
+            <form onSubmit={(e) => { e.preventDefault(); handleAddMember({}); }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                  <input
+                    type="text"
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    placeholder="Ex: Paul OUEDRAOGO"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Poste/Rôle</label>
+                  <input
+                    type="text"
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    placeholder="Ex: Graphiste Photomonteur"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
+                  <input
+                    type="email"
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    placeholder="prenom.nom@jofeplus.bf"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarif horaire (FCFA)</label>
+                  <input
+                    type="number"
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    placeholder="8000"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type d'accès</label>
+                  <select className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]">
+                    <option value="member">Membre standard</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Statut initial</label>
+                  <select className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]">
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Compétences</label>
+                <textarea
+                  className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                  rows={3}
+                  placeholder="Séparez les compétences par des virgules"
+                ></textarea>
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit"
+                  className="bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg hover:bg-[var(--jofe-blue-medium)] transition-colors"
+                >
+                  Ajouter le Membre
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Modal Modification (placeholder) */}
+      {/* Modal Modification */}
       {isEditModalOpen && editingMember && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[var(--jofe-blue-deep)]">
-                Modifier {editingMember.name}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--jofe-white)] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-[var(--jofe-blue-deep)]" style={{ fontFamily: "Inter, sans-serif" }}>
+                Modifier le Profil - {editingMember.name}
               </h2>
               <button 
                 onClick={closeEditModal}
@@ -517,23 +596,93 @@ export default function Team() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-gray-600 mb-6">
-              Fonctionnalité de modification à implémenter.
-            </p>
-            <div className="flex gap-3">
-              <button 
-                onClick={closeEditModal}
-                className="flex-1 bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg"
-              >
-                Annuler
-              </button>
-              <button 
-                onClick={() => handleEditMember({})}
-                className="flex-1 bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg"
-              >
-                Sauvegarder
-              </button>
-            </div>
+            
+            <form onSubmit={(e) => { e.preventDefault(); handleEditMember({}); }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                  <input
+                    type="text"
+                    defaultValue={editingMember.name}
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Poste/Rôle</label>
+                  <input
+                    type="text"
+                    defaultValue={editingMember.role}
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
+                  <input
+                    type="email"
+                    defaultValue={editingMember.email}
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarif horaire (FCFA)</label>
+                  <input
+                    type="number"
+                    defaultValue={editingMember.rate}
+                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type d'accès</label>
+                  <select defaultValue={editingMember.type} className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]">
+                    <option value="member">Membre standard</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                  <select defaultValue={editingMember.status} className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]">
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                    <option value="vacation">En congé</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Compétences</label>
+                <textarea
+                  defaultValue={editingMember.skills.join(", ")}
+                  className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                  rows={3}
+                ></textarea>
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <button 
+                  type="button"
+                  onClick={closeEditModal}
+                  className="bg-[var(--jofe-gray)] text-[var(--jofe-blue-deep)] py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit"
+                  className="bg-[var(--jofe-blue-light)] text-[var(--jofe-white)] py-2 px-4 rounded-lg hover:bg-[var(--jofe-blue-medium)] transition-colors"
+                >
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
