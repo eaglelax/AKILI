@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Dashboard Principal</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HeroIcons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray-pearl: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+        }
+        
+        .urial-font {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 700;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .kpi-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .timer-active {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--jofe-orange);
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dasharray 0.35s;
+            transform-origin: 50% 50%;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .task-item {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .task-item:hover {
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 4px 8px rgba(55, 182, 233, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .chart-container {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            height: 400px;
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="urial-font text-xl" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);" id="currentUserName">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="urial-font text-2xl" style="color: var(--jofe-blue-deep);">Tableau de Bord</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Vue d'ensemble de vos projets et performances</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.405-3.405A9.001 9.001 0 0012 2C6.477 2 2 6.477 2 12a9.001 9.001 0 003.405 6.595L2 22l5-1z"></path>
+                        </svg>
+                        <div class="notification-dot absolute top-1 right-1"></div>
+                    </button>
+                    
+                    <!-- User Menu -->
+                    <button class="p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6 space-y-8">
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-in">
+                <div class="kpi-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.1);">
+                            <svg class="w-6 h-6" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-green); color: white;">+12%</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold urial-font" style="color: var(--jofe-blue-deep);" id="totalProjects">23</p>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Projets Actifs</p>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.1);">
+                            <svg class="w-6 h-6" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-green); color: white;">+8%</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold urial-font" style="color: var(--jofe-blue-deep);" id="totalRevenue">12,450,000</p>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">CA Mensuel (FCFA)</p>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-lg" style="background: rgba(246, 140, 31, 0.1);">
+                            <svg class="w-6 h-6" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-green); color: white;">+5%</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold urial-font" style="color: var(--jofe-blue-deep);" id="teamProductivity">87%</p>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Productivité Équipe</p>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-lg" style="background: rgba(26, 66, 120, 0.1);">
+                            <svg class="w-6 h-6" style="color: var(--jofe-blue-night);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-green); color: white;">+2%</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold urial-font" style="color: var(--jofe-blue-deep);" id="clientSatisfaction">4.8/5</p>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Satisfaction Client</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Tasks with Timers -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in">
+                <div class="chart-container">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="urial-font text-lg" style="color: var(--jofe-blue-deep);">Tâches Actives</h3>
+                        <button class="btn-primary">Nouvelle Tâche</button>
+                    </div>
+                    
+                    <div class="space-y-4 max-h-80 overflow-y-auto">
+                        <div class="task-item">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium" style="color: var(--jofe-blue-deep);">Campagne MOOV AFRICA</h4>
+                                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-orange); color: white;">Urgent</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Paul Junior OUEDRAOGO - Photomontage créatif</p>
+                            <div class="flex items-center justify-between">
+                                <div class="timer-active">
+                                    <span class="text-sm font-mono" style="color: var(--jofe-blue-medium);" id="timer1">02:34:12</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="btn-warning">Pause</button>
+                                    <button class="btn-success">Terminé</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium" style="color: var(--jofe-blue-deep);">Shooting BANK OF AFRICA</h4>
+                                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-blue-medium); color: white;">En cours</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Fortune YANOGO - Photographie produits</p>
+                            <div class="flex items-center justify-between">
+                                <div class="timer-active">
+                                    <span class="text-sm font-mono" style="color: var(--jofe-blue-medium);" id="timer2">01:15:47</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="btn-warning">Pause</button>
+                                    <button class="btn-success">Terminé</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium" style="color: var(--jofe-blue-deep);">Animation SUNU BURKINA</h4>
+                                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--jofe-green); color: white;">Terminé</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Bientama PARÉ - Motion Design</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-mono" style="color: var(--jofe-blue-medium);">04:22:33 (Total)</span>
+                                <span class="text-sm font-semibold" style="color: var(--jofe-green);">425,000 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Team Performance Chart -->
+                <div class="chart-container">
+                    <h3 class="urial-font text-lg mb-6" style="color: var(--jofe-blue-deep);">Performance Équipe</h3>
+                    <canvas id="teamChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div class="chart-container fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="urial-font text-lg" style="color: var(--jofe-blue-deep);">Évolution CA (FCFA)</h3>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 text-sm rounded-md" style="background: var(--jofe-blue-light); color: white;">Mensuel</button>
+                        <button class="px-3 py-1 text-sm rounded-md bg-gray-100" style="color: var(--jofe-blue-medium);">Trimestriel</button>
+                    </div>
+                </div>
+                <canvas id="revenueChart" style="height: 300px;"></canvas>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
+                <div class="kpi-card text-center">
+                    <div class="p-4 rounded-lg mx-auto mb-4 w-16 h-16 flex items-center justify-center" style="background: rgba(55, 182, 233, 0.1);">
+                        <svg class="w-8 h-8" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2" style="color: var(--jofe-blue-deep);">Nouveau Projet</h4>
+                    <p class="text-sm text-gray-600 mb-4">Créer un nouveau projet client</p>
+                    <button class="btn-primary w-full">Créer</button>
+                </div>
+                
+                <div class="kpi-card text-center">
+                    <div class="p-4 rounded-lg mx-auto mb-4 w-16 h-16 flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                        <svg class="w-8 h-8" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2" style="color: var(--jofe-blue-deep);">Rapport Mensuel</h4>
+                    <p class="text-sm text-gray-600 mb-4">Générer le rapport de performance</p>
+                    <button class="btn-primary w-full">Générer</button>
+                </div>
+                
+                <div class="kpi-card text-center">
+                    <div class="p-4 rounded-lg mx-auto mb-4 w-16 h-16 flex items-center justify-center" style="background: rgba(246, 140, 31, 0.1);">
+                        <svg class="w-8 h-8" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold mb-2" style="color: var(--jofe-blue-deep);">Gérer Équipe</h4>
+                    <p class="text-sm text-gray-600 mb-4">Voir les performances de l'équipe</p>
+                    <button class="btn-primary w-full">Accéder</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            mobileOverlay.classList.toggle('hidden');
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('hidden');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        // Timer functions
+        let timers = {
+            timer1: { start: Date.now() - (2 * 3600 + 34 * 60 + 12) * 1000, running: true },
+            timer2: { start: Date.now() - (1 * 3600 + 15 * 60 + 47) * 1000, running: true }
+        };
+
+        function updateTimers() {
+            Object.keys(timers).forEach(id => {
+                const timer = timers[id];
+                if (timer.running) {
+                    const elapsed = Date.now() - timer.start;
+                    const hours = Math.floor(elapsed / 3600000);
+                    const minutes = Math.floor((elapsed % 3600000) / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    
+                    document.getElementById(id).textContent = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            });
+        }
+
+        setInterval(updateTimers, 1000);
+
+        // Charts
+        // Team Performance Chart
+        const teamCtx = document.getElementById('teamChart').getContext('2d');
+        new Chart(teamCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'In Progress', 'Pending'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: ['#93C954', '#37B6E9', '#F68C1F'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'CA Mensuel (FCFA)',
+                    data: [8500000, 9200000, 10800000, 11500000, 12100000, 12450000],
+                    borderColor: '#37B6E9',
+                    backgroundColor: 'rgba(55, 182, 233, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Real-time data updates
+        function updateKPIs() {
+            const projects = Math.floor(Math.random() * 5) + 20;
+            const revenue = (Math.floor(Math.random() * 2000000) + 11000000).toLocaleString();
+            const productivity = Math.floor(Math.random() * 10) + 80;
+            const satisfaction = (Math.random() * 0.5 + 4.5).toFixed(1);
+
+            document.getElementById('totalProjects').textContent = projects;
+            document.getElementById('totalRevenue').textContent = revenue;
+            document.getElementById('teamProductivity').textContent = productivity + '%';
+            document.getElementById('clientSatisfaction').textContent = satisfaction + '/5';
+        }
+
+        // Update KPIs every 30 seconds
+        setInterval(updateKPIs, 30000);
+
+        // Smooth scroll and animations
+        document.querySelectorAll('.fade-in').forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg text-white transform translate-x-full transition-transform duration-300`;
+            
+            switch(type) {
+                case 'success':
+                    notification.style.background = 'var(--jofe-green)';
+                    break;
+                case 'warning':
+                    notification.style.background = 'var(--jofe-orange)';
+                    break;
+                case 'error':
+                    notification.style.background = '#EF4444';
+                    break;
+                default:
+                    notification.style.background = 'var(--jofe-blue-medium)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(full)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize
+        console.log('JoFé+ Dashboard initialized');
+        showNotification('Tableau de bord chargé avec succès', 'success');
+    </script>
+</body>
+</html>

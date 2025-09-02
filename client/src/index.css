@@ -187,3 +187,137 @@
 .status-away {
   @apply bg-yellow-500;
 }
+
+/* JoFé+ Dashboard Styles */
+.jofe-font {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+.jofe-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jofe-rings {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.ring {
+  position: absolute;
+  border: 3px solid;
+  border-radius: 50%;
+  animation: rotate 8s linear infinite;
+}
+
+.ring-1 {
+  width: 20px;
+  height: 20px;
+  top: 0;
+  left: 10px;
+  border-color: hsl(219, 58%, 21%);
+}
+
+.ring-2 {
+  width: 20px;
+  height: 20px;
+  top: 15px;
+  left: 0;
+  border-color: hsl(204, 61%, 51%);
+}
+
+.ring-3 {
+  width: 20px;
+  height: 20px;
+  top: 15px;
+  right: 0;
+  border-color: hsl(196, 78%, 56%);
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.kpi-card {
+  background: hsl(0, 0%, 100%);
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+  box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+  transform: translateY(-2px);
+}
+
+.timer-active {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  background: hsl(25, 95%, 53%);
+  border-radius: 50%;
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: hsl(204, 61%, 51%);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(52, 117, 187, 0.05);
+  color: hsl(219, 58%, 21%);
+}
+
+.sidebar-link.active {
+  background-color: hsl(196, 78%, 56%);
+  color: hsl(0, 0%, 100%);
+}
+
+.task-item {
+  background: hsl(0, 0%, 100%);
+  border: 1px solid hsl(214.3, 31.8%, 91.4%);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  border-color: hsl(196, 78%, 56%);
+  box-shadow: 0 4px 8px rgba(55, 182, 233, 0.1);
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
