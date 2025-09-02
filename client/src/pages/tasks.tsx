@@ -1,8 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Clock, User, Building2, Calendar, AlertCircle, Play, Pause, CheckCircle, MoreHorizontal, Edit, Eye } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  Clock, 
+  User, 
+  Building2, 
+  Calendar, 
+  AlertCircle, 
+  Play, 
+  Pause, 
+  CheckCircle, 
+  MoreHorizontal, 
+  Edit, 
+  Eye,
+  Filter,
+  Upload,
+  ChevronDown,
+  DollarSign
+} from "lucide-react";
 import TopNavBar from "@/components/TopNavBar";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 // Types pour les tâches avec chronométrage
 interface Task {
@@ -110,10 +130,14 @@ const CLIENTS = [
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>(REAL_TASKS);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [memberFilter, setMemberFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
+  
+  // Filtres pour le tableau
+  const [memberFilter, setMemberFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   
   // État pour les statistiques en temps réel
   const [stats, setStats] = useState({
@@ -155,14 +179,27 @@ export default function Tasks() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filtrages des tâches
+  // Logique de filtrage pour le tableau
   const filteredTasks = tasks.filter(task => {
-    return (
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (statusFilter === "" || task.status === statusFilter) &&
-      (memberFilter === "" || task.assignedToId === memberFilter) &&
-      (priorityFilter === "" || task.priority === priorityFilter)
-    );
+    // Filtre par membre
+    if (memberFilter !== "all" && task.assignedToId !== memberFilter) return false;
+    
+    // Filtre par client
+    if (clientFilter !== "all" && task.clientId !== clientFilter) return false;
+    
+    // Filtre par statut
+    if (statusFilter !== "all" && task.status !== statusFilter) return false;
+    
+    // Filtre par priorité
+    if (priorityFilter !== "all" && task.priority !== priorityFilter) return false;
+    
+    // Filtre par date de début
+    if (startDate && new Date(task.dueDate) < new Date(startDate)) return false;
+    
+    // Filtre par date de fin
+    if (endDate && new Date(task.dueDate) > new Date(endDate)) return false;
+    
+    return true;
   });
 
   // Formatage du temps (secondes vers HH:MM:SS)
@@ -241,259 +278,294 @@ export default function Tasks() {
       <div className="w-full overflow-auto">
         
         {/* Header */}
-        <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
+        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 
-                className="text-xl md:text-3xl font-bold text-[var(--jofe-blue-deep)] mb-1" 
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                Gestion des Tâches
-              </h1>
-              <p className="text-sm md:text-base text-gray-600 hidden sm:block">
-                Chronométrage automatique et suivi en temps réel
-              </p>
+            <div className="flex items-center space-x-4">
+              <span className="text-2xl">📋</span>
+              <h1 className="text-2xl font-bold text-[#162C54]">Gestion des Tâches</h1>
             </div>
             
-            <button 
-              onClick={() => setIsNewTaskModalOpen(true)}
-              className="bg-[var(--jofe-blue-light)] hover:bg-[var(--jofe-blue-medium)] text-[var(--jofe-white)] px-4 py-3 md:px-6 md:py-3 rounded-lg flex items-center gap-2 transition-all duration-300 hover:transform hover:-translate-y-0.5 text-sm md:text-base"
-              data-testid="button-new-task"
-            >
-              <Plus className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Nouvelle Tâche</span>
-              <span className="sm:hidden">Nouvelle</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={() => setIsNewTaskModalOpen(true)}
+                className="bg-[#37B6E9] hover:bg-[#3475BB] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                data-testid="button-new-task"
+              >
+                <Plus className="w-4 h-4" />
+                Nouvelle Tâche
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-[#37B6E9] text-[#37B6E9] hover:bg-[#37B6E9] hover:text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                data-testid="button-import"
+              >
+                <Upload className="w-4 h-4" />
+                Importer
+              </Button>
+            </div>
           </div>
         </header>
 
-        <main className="p-4 md:p-6 lg:p-8">
-          {/* Statistiques */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div className="bg-[var(--jofe-white)] p-4 md:p-6 rounded-xl border border-[var(--jofe-gray)] hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Tâches Actives</p>
-                  <p className="text-xl md:text-2xl font-bold text-[var(--jofe-blue-deep)]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {stats.totalTasks}
-                  </p>
-                </div>
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[var(--jofe-blue-light)] bg-opacity-10 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[var(--jofe-blue-light)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[var(--jofe-white)] p-4 md:p-6 rounded-xl border border-[var(--jofe-gray)] hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">En Cours</p>
-                  <p className="text-xl md:text-2xl font-bold text-[var(--jofe-green)]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {stats.activeTasks}
-                  </p>
-                </div>
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[var(--jofe-green)] bg-opacity-10 rounded-lg flex items-center justify-center">
-                  <Clock className="w-5 h-5 md:w-6 md:h-6 text-[var(--jofe-green)]" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[var(--jofe-white)] p-4 md:p-6 rounded-xl border border-[var(--jofe-gray)] hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Temps Total</p>
-                  <p className="text-xl md:text-2xl font-bold text-[var(--jofe-blue-medium)]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {stats.totalTime}h
-                  </p>
-                </div>
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[var(--jofe-blue-medium)] bg-opacity-10 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[var(--jofe-blue-medium)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[var(--jofe-white)] p-4 md:p-6 rounded-xl border border-[var(--jofe-gray)] hover:shadow-lg hover:transform hover:-translate-y-0.5 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-600">Coûts Total</p>
-                  <p className="text-sm md:text-2xl font-bold text-[var(--jofe-orange)]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {(stats.totalCosts / 1000000).toFixed(1)}M FCFA
-                  </p>
-                </div>
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[var(--jofe-orange)] bg-opacity-10 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[var(--jofe-orange)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Filtres et Recherche */}
-          <div className="bg-[var(--jofe-white)] p-4 md:p-6 rounded-xl border border-[var(--jofe-gray)] mb-6 md:mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Nom de la tâche..." 
-                    className="w-full pl-10 pr-4 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10 transition-all duration-300 text-sm md:text-base"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    data-testid="input-search-tasks"
-                  />
-                  <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                </div>
+        <main className="p-6">
+          {/* Filtres comme dans l'image */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {/* Filtre Membres */}
+              <div className="relative">
+                <select 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white appearance-none cursor-pointer"
+                  value={memberFilter}
+                  onChange={(e) => setMemberFilter(e.target.value)}
+                  data-testid="filter-members"
+                >
+                  <option value="all">Tous les membres</option>
+                  {TEAM_MEMBERS.map(member => (
+                    <option key={member.id} value={member.id}>{member.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+              {/* Filtre Clients */}
+              <div className="relative">
                 <select 
-                  className="w-full px-3 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] text-sm md:text-base"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white appearance-none cursor-pointer"
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                  data-testid="filter-clients"
+                >
+                  <option value="all">Tous les clients</option>
+                  {CLIENTS.map(client => (
+                    <option key={client.id} value={client.id}>{client.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+              
+              {/* Filtre Statuts */}
+              <div className="relative">
+                <select 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white appearance-none cursor-pointer"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  data-testid="select-status-filter"
+                  data-testid="filter-status"
                 >
-                  <option value="">Tous les statuts</option>
+                  <option value="all">Tous les statuts</option>
                   <option value="running">En cours</option>
                   <option value="paused">En pause</option>
                   <option value="completed">Terminé</option>
                   <option value="pending">En attente</option>
                 </select>
+                <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Assigné à</label>
+              {/* Filtre Priorités */}
+              <div className="relative">
                 <select 
-                  className="w-full px-3 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] text-sm md:text-base"
-                  value={memberFilter}
-                  onChange={(e) => setMemberFilter(e.target.value)}
-                  data-testid="select-member-filter"
-                >
-                  <option value="">Tous les membres</option>
-                  {TEAM_MEMBERS.map(member => (
-                    <option key={member.id} value={member.id}>{member.name}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priorité</label>
-                <select 
-                  className="w-full px-3 py-2 border border-[var(--jofe-gray)] rounded-lg focus:outline-none focus:border-[var(--jofe-blue-light)] text-sm md:text-base"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white appearance-none cursor-pointer"
                   value={priorityFilter}
                   onChange={(e) => setPriorityFilter(e.target.value)}
-                  data-testid="select-priority-filter"
+                  data-testid="filter-priorities"
                 >
-                  <option value="">Toutes priorités</option>
+                  <option value="all">Toutes priorités</option>
                   <option value="critique">Critique</option>
                   <option value="elevee">Élevée</option>
                   <option value="normale">Normale</option>
                   <option value="basse">Basse</option>
                 </select>
+                <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+              
+              {/* Date Début */}
+              <div>
+                <input 
+                  type="date"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  placeholder="jj/mm/aaaa"
+                  data-testid="filter-start-date"
+                />
+              </div>
+              
+              {/* Date Fin */}
+              <div>
+                <input 
+                  type="date"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  placeholder="jj/mm/aaaa"
+                  data-testid="filter-end-date"
+                />
               </div>
             </div>
           </div>
 
-          {/* Liste des Tâches */}
-          <div className="bg-[var(--jofe-white)] rounded-xl border border-[var(--jofe-gray)]">
-            <div className="p-4 md:p-6 border-b border-[var(--jofe-gray)]">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-[var(--jofe-blue-deep)]" style={{ fontFamily: "Inter, sans-serif" }}>
-                  Liste des Tâches
-                </h3>
-                <div className="flex space-x-2">
-                  <button className="p-2 text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-gray)] rounded-lg transition-colors">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="divide-y divide-[var(--jofe-gray)] max-h-[500px] overflow-y-auto">
-              {filteredTasks.map((task, index) => (
-                <div key={task.id} className="p-4 md:p-6 hover:bg-gray-50 transition-colors" data-testid={`task-item-${task.id}`}>
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                        <h4 className="font-semibold text-[var(--jofe-blue-deep)] text-sm md:text-base truncate">
+          {/* Tableau des Tâches */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1200px]">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tâche</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigné</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priorité</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Échéance</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temps</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progression</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredTasks.map((task) => (
+                    <tr key={task.id} className="hover:bg-gray-50 transition-colors" data-testid={`table-row-${task.id}`}>
+                      {/* Tâche */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-medium text-[#162C54] truncate max-w-[200px]" title={task.title}>
                           {task.title}
-                        </h4>
-                        <span className={`px-2 py-1 text-xs rounded-2xl font-medium w-fit ${getPriorityStyle(task.priority)}`}>
-                          {task.priority === "critique" && "Critique"}
-                          {task.priority === "elevee" && "Élevée"}
-                          {task.priority === "normale" && "Normale"}
-                          {task.priority === "basse" && "Basse"}
+                        </div>
+                      </td>
+                      
+                      {/* Assigné */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">{task.assignedTo}</div>
+                      </td>
+                      
+                      {/* Client */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">{task.client}</div>
+                      </td>
+                      
+                      {/* Priorité */}
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          task.priority === "critique" ? "bg-red-100 text-red-800" :
+                          task.priority === "elevee" ? "bg-orange-100 text-orange-800" :
+                          task.priority === "normale" ? "bg-blue-100 text-blue-800" :
+                          "bg-gray-100 text-gray-800"
+                        }`}>
+                          {task.priority === "critique" ? "Haute" :
+                           task.priority === "elevee" ? "Élevée" :
+                           task.priority === "normale" ? "Normale" : "Basse"}
                         </span>
-                      </div>
-                      <p className="text-xs md:text-sm text-gray-600 mb-3 line-clamp-2">
-                        {task.description}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <User className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{task.assignedTo}</span>
+                      </td>
+                      
+                      {/* Échéance */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">
+                          {new Date(task.dueDate).toLocaleDateString('fr-FR', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric' 
+                          })}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Building2 className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{task.client}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4 flex-shrink-0" />
-                          <span>{new Date(task.dueDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between lg:justify-end gap-4">
-                      <div className="text-right">
-                        <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${getTimerStyle(task.status)}`}>
+                      </td>
+                      
+                      {/* Statut */}
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          task.status === "running" ? "bg-blue-100 text-blue-800" :
+                          task.status === "paused" ? "bg-yellow-100 text-yellow-800" :
+                          task.status === "completed" ? "bg-green-100 text-green-800" :
+                          "bg-gray-100 text-gray-800"
+                        }`}>
+                          {task.status === "running" ? "En cours" :
+                           task.status === "paused" ? "En pause" :
+                           task.status === "completed" ? "Terminé" : "En attente"}
+                        </span>
+                      </td>
+                      
+                      {/* Temps */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-mono text-gray-900">
                           {formatTime(task.timeSpent)}
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {task.status === "completed" ? "Terminé - " : ""}{task.totalCost.toLocaleString()} FCFA
-                        </p>
-                      </div>
+                      </td>
                       
-                      <div className="flex gap-2">
-                        <Link href={`/tasks/${task.id}`}>
+                      {/* Coût */}
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">
+                          {(task.totalCost / 1000).toFixed(0)} K CFA
+                        </div>
+                      </td>
+                      
+                      {/* Progression */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center">
+                          <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
+                            <div 
+                              className="bg-[#37B6E9] h-2 rounded-full" 
+                              style={{ 
+                                width: `${task.status === "completed" ? 100 : 
+                                       task.status === "running" ? Math.min(90, Math.floor(task.timeSpent / 3600) * 10 + 50) :
+                                       task.status === "paused" ? 60 : 30}%` 
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {task.status === "completed" ? "100" : 
+                             task.status === "running" ? Math.min(90, Math.floor(task.timeSpent / 3600) * 10 + 50) :
+                             task.status === "paused" ? "60" : "30"}%
+                          </span>
+                        </div>
+                      </td>
+                      
+                      {/* Actions */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center space-x-2">
+                          <Link href={`/tasks/${task.id}`}>
+                            <button 
+                              className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                              data-testid={`button-view-${task.id}`}
+                              title="Voir détails"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </Link>
+                          
                           <button 
-                            className="p-2 text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-medium)] hover:text-[var(--jofe-white)] rounded-lg transition-colors"
-                            data-testid={`button-detail-${task.id}`}
+                            className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                            data-testid={`button-edit-${task.id}`}
+                            title="Modifier"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Edit className="w-4 h-4" />
                           </button>
-                        </Link>
-                        
-                        {task.status !== "completed" && (
-                          <button 
-                            onClick={() => toggleTimer(task.id)}
-                            className="p-2 text-[var(--jofe-orange)] hover:bg-[var(--jofe-orange)] hover:text-[var(--jofe-white)] rounded-lg transition-colors"
-                            data-testid={`button-toggle-timer-${task.id}`}
-                          >
-                            {task.status === "running" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                          </button>
-                        )}
-                        
-                        {task.status !== "completed" && (
-                          <button 
-                            onClick={() => completeTask(task.id)}
-                            className="p-2 text-[var(--jofe-green)] hover:bg-[var(--jofe-green)] hover:text-[var(--jofe-white)] rounded-lg transition-colors"
-                            data-testid={`button-complete-${task.id}`}
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                          
+                          {task.status !== "completed" && (
+                            <button 
+                              onClick={() => toggleTimer(task.id)}
+                              className={`p-1 transition-colors ${
+                                task.status === "running" 
+                                  ? "text-orange-600 hover:text-orange-800" 
+                                  : "text-green-600 hover:text-green-800"
+                              }`}
+                              data-testid={`button-timer-${task.id}`}
+                              title={task.status === "running" ? "Pause" : "Démarrer"}
+                            >
+                              {task.status === "running" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                            </button>
+                          )}
+                          
+                          {task.status !== "completed" && (
+                            <button 
+                              onClick={() => completeTask(task.id)}
+                              className="p-1 text-green-600 hover:text-green-800 transition-colors"
+                              data-testid={`button-complete-${task.id}`}
+                              title="Marquer terminé"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               
               {filteredTasks.length === 0 && (
                 <div className="p-8 text-center text-gray-500">
