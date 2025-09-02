@@ -9,20 +9,20 @@ import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
 
 const teamMembers = [
-  { value: "serge_assale", label: "Serge ASSALÉ (Admin)" },
-  { value: "enos_gouba", label: "Enos GOUBA (Admin)" },
-  { value: "paul_ouedraogo", label: "Paul Junior OUEDRAOGO" },
-  { value: "fortune_yanogo", label: "Fortune YANOGO" },
-  { value: "bientama_pare", label: "Bientama PARÉ" },
-  { value: "issa_cisse", label: "Issa CISSE" },
-  { value: "florita_kabore", label: "Florita KABORÉ" },
-  { value: "nebie_webou", label: "Nebié WEBOU" },
-  { value: "djamilatou_guiguemde", label: "Djamilatou GUIGUEMDE" },
-  { value: "jeanjacques_sampabao", label: "Jean-Jacques SAMPABAO" },
-  { value: "abdoul_ouedraogo", label: "Abdoul Latif OUEDRAOGO" },
-  { value: "linda_kabore", label: "Linda KABORÉ" },
-  { value: "maryse_bombiri", label: "Maryse BOMBIRI" },
-  { value: "faridatou_barry", label: "Faridatou BARRY" },
+  { value: "serge.assale", label: "Serge ASSALÉ (Admin)" },
+  { value: "enos.gouba", label: "Enos GOUBA (Admin)" },
+  { value: "paul.ouedraogo", label: "Paul Junior OUEDRAOGO" },
+  { value: "fortune.yanogo", label: "Fortune YANOGO" },
+  { value: "bientama.pare", label: "Bientama PARÉ" },
+  { value: "issa.cisse", label: "Issa CISSE" },
+  { value: "florita.kabore", label: "Florita KABORÉ" },
+  { value: "nebie.webou", label: "Nebié WEBOU" },
+  { value: "djamilatou.guiguemde", label: "Djamilatou GUIGUEMDE" },
+  { value: "jean.sampabao", label: "Jean-Jacques SAMPABAO" },
+  { value: "latif.ouedraogo", label: "Abdoul Latif OUEDRAOGO" },
+  { value: "linda.kabore", label: "Linda KABORÉ" },
+  { value: "maryse.bombiri", label: "Maryse BOMBIRI" },
+  { value: "faridatou.barry", label: "Faridatou BARRY" },
 ];
 
 export default function Login() {
@@ -80,9 +80,6 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardContent className="p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 gradient-bg rounded-xl mx-auto mb-4 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">J+</span>
-            </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Jo'Fé Digital</h1>
             <p className="text-muted-foreground">Système de Gestion d'Équipe</p>
           </div>
