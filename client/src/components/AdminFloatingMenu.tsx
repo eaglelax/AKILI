@@ -22,16 +22,18 @@ import {
   EyeOff
 } from "lucide-react";
 
-// Liste de toutes les pages de l'application JoFé Digital
+// Liste complète de toutes les pages de l'application JoFé Digital
 const allPages = [
-  // Pages créées
+  // Pages d'authentification
   { 
     name: "Connexion", 
     path: "/login", 
     icon: LogIn, 
     status: "created", 
-    category: "Auth" 
+    category: "Authentification" 
   },
+  
+  // Pages principales créées
   { 
     name: "Tableau de Bord", 
     path: "/dashboard", 
@@ -47,7 +49,7 @@ const allPages = [
     category: "Équipe" 
   },
   
-  // Pages à créer
+  // Pages de gestion du temps (à créer)
   { 
     name: "Chronométrage", 
     path: "/timer", 
@@ -56,12 +58,30 @@ const allPages = [
     category: "Temps" 
   },
   { 
+    name: "Feuilles de Temps", 
+    path: "/timesheets", 
+    icon: FileText, 
+    status: "pending", 
+    category: "Temps" 
+  },
+  
+  // Pages de gestion de projets (à créer)
+  { 
     name: "Projets", 
     path: "/projects", 
     icon: FolderOpen, 
     status: "pending", 
     category: "Projets" 
   },
+  { 
+    name: "Tâches", 
+    path: "/tasks", 
+    icon: Calendar, 
+    status: "pending", 
+    category: "Projets" 
+  },
+  
+  // Pages client (à créer)
   { 
     name: "Gestion Clients", 
     path: "/clients", 
@@ -70,12 +90,37 @@ const allPages = [
     category: "Clients" 
   },
   { 
+    name: "Factures", 
+    path: "/invoices", 
+    icon: FileText, 
+    status: "pending", 
+    category: "Clients" 
+  },
+  
+  // Pages analytiques (à créer)
+  { 
     name: "Analytics", 
     path: "/analytics", 
     icon: BarChart3, 
     status: "pending", 
-    category: "Analytique" 
+    category: "Analytics" 
   },
+  { 
+    name: "Rapports", 
+    path: "/reports", 
+    icon: FileText, 
+    status: "pending", 
+    category: "Analytics" 
+  },
+  { 
+    name: "Performance", 
+    path: "/performance", 
+    icon: BarChart3, 
+    status: "pending", 
+    category: "Analytics" 
+  },
+  
+  // Pages de communication (à créer)
   { 
     name: "Chat Équipe", 
     path: "/chat", 
@@ -84,6 +129,15 @@ const allPages = [
     category: "Communication" 
   },
   { 
+    name: "Notifications", 
+    path: "/notifications", 
+    icon: MessageSquare, 
+    status: "pending", 
+    category: "Communication" 
+  },
+  
+  // Pages de planning (à créer)
+  { 
     name: "Calendrier", 
     path: "/calendar", 
     icon: Calendar, 
@@ -91,25 +145,43 @@ const allPages = [
     category: "Planning" 
   },
   { 
-    name: "Rapports", 
-    path: "/reports", 
-    icon: FileText, 
+    name: "Planning Équipe", 
+    path: "/schedule", 
+    icon: Calendar, 
     status: "pending", 
-    category: "Reporting" 
+    category: "Planning" 
   },
+  
+  // Pages personnelles (à créer)
   { 
-    name: "Profil", 
+    name: "Mon Profil", 
     path: "/profile", 
     icon: UserCircle, 
     status: "pending", 
     category: "Personnel" 
   },
   { 
-    name: "Paramètres", 
+    name: "Mes Préférences", 
+    path: "/preferences", 
+    icon: Settings, 
+    status: "pending", 
+    category: "Personnel" 
+  },
+  
+  // Pages de configuration (à créer)
+  { 
+    name: "Paramètres Généraux", 
     path: "/settings", 
     icon: Settings, 
     status: "pending", 
-    category: "Config" 
+    category: "Configuration" 
+  },
+  { 
+    name: "Gestion Utilisateurs", 
+    path: "/users", 
+    icon: Users, 
+    status: "pending", 
+    category: "Configuration" 
   }
 ];
 
