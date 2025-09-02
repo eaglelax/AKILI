@@ -15,9 +15,7 @@ export default function Landing() {
             <h1 className="text-5xl font-bold text-white mb-6">
               Jo'Fé Digital
             </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Système de Gestion d'Équipe Marketing & Création
-            </p>
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Système de gestion d'équipe du département Marketing & Création</p>
             <p className="text-lg text-white/80 mb-12">
               Plateforme collaborative pour le suivi de projets, chronométrage temps réel et analytics avancées
             </p>
@@ -32,7 +30,6 @@ export default function Landing() {
           </div>
         </div>
       </div>
-
       {/* Features Section */}
       <div className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
@@ -102,7 +99,6 @@ export default function Landing() {
           </Card>
         </div>
       </div>
-
       {/* Stats Section */}
       <div className="bg-muted py-20">
         <div className="container mx-auto px-6">
@@ -122,7 +118,6 @@ export default function Landing() {
           </div>
         </div>
       </div>
-
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8">
         <div className="container mx-auto px-6 text-center">
