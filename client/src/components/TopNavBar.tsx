@@ -141,7 +141,7 @@ export default function TopNavBar() {
       {/* Main Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             
             {/* Logo and Brand */}
             <div className="flex items-center space-x-4">
@@ -156,7 +156,7 @@ export default function TopNavBar() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location === item.href || 
@@ -167,7 +167,7 @@ export default function TopNavBar() {
                     key={item.href} 
                     href={item.href}
                     className={`
-                      flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                      flex flex-col items-center justify-center px-4 py-3 rounded-lg text-xs font-medium transition-all duration-200 min-w-[70px] hover:transform hover:scale-105
                       ${isActive 
                         ? 'bg-[#37B6E9] text-white shadow-md' 
                         : 'text-[#3475BB] hover:bg-[#37B6E9] hover:bg-opacity-10 hover:text-[#162C54]'
@@ -175,8 +175,8 @@ export default function TopNavBar() {
                     `}
                     data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <Icon className="w-5 h-5 mb-1" />
+                    <span className="text-center leading-tight">{item.label}</span>
                   </Link>
                 );
               })}
