@@ -93,7 +93,6 @@ export default function Sidebar() {
               <h1 className="jofe-font text-xl text-primary">
                 jofé<span className="text-secondary">+</span>
               </h1>
-              <p className="text-sm text-muted-foreground">Digital Excellence</p>
             </div>
           </div>
           
