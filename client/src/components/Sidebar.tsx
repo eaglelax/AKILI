@@ -82,19 +82,6 @@ export default function Sidebar() {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-6">
-          {/* Logo JoFé+ avec anneaux animés */}
-          <div className="jofe-logo mb-8">
-            <div className="jofe-rings">
-              <div className="ring ring-1"></div>
-              <div className="ring ring-2"></div>
-              <div className="ring ring-3"></div>
-            </div>
-            <div>
-              <h1 className="jofe-font text-xl text-primary">
-                jofé<span className="text-secondary">+</span>
-              </h1>
-            </div>
-          </div>
           
           {/* Navigation */}
           <nav className="space-y-2">
