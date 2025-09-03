@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
+import logoImage from "@assets/1_1756859322480.png";
 
 const adminMembers = [
   { value: "serge.assale", label: "Serge ASSALÉ - Directeur Création & Marketing" },
@@ -85,7 +86,18 @@ export default function Login() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4" style={{ backgroundColor: '#162C54' }}>
-      {/* Background Pattern */}
+      {/* Logo en filigrane */}
+      <div 
+        className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-10"
+        style={{
+          backgroundImage: `url(${logoImage})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: '300px 300px'
+        }}
+      />
+      
+      {/* Pattern subtil */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-5"
         style={{
