@@ -421,9 +421,11 @@ function Projects() {
                       )}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="border-[var(--jofe-gray)] text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-gray)]">
-                    Voir détails
-                  </Button>
+                  <Link href={`/projects/${project.id}`}>
+                    <Button variant="outline" size="sm" className="border-[var(--jofe-gray)] text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-gray)]" data-testid={`btn-details-${project.id}`}>
+                      Voir détails
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             ))}

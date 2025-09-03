@@ -20,6 +20,7 @@ import RoiProfitability from "@/pages/roi-profitability";
 import Splash from "@/pages/splash";
 import Projects from "@/pages/projects";
 import ProjectCreate from "@/pages/project-create";
+import ProjectDetail from "@/pages/project-detail";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/roi-profitability" component={RoiProfitability} />
       <Route path="/projects" component={Projects} />
       <Route path="/projects/create" component={ProjectCreate} />
+      <Route path="/projects/:id" component={ProjectDetail} />
       
       {/* Route 404 */}
       <Route component={NotFound} />
