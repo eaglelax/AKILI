@@ -331,20 +331,20 @@ export default function AdminFloatingMenu() {
       <button
         onClick={toggleMenu}
         className={`
-          admin-menu-toggle fixed bottom-6 right-6 z-[60] 
-          w-14 h-14 rounded-full shadow-lg transition-all duration-300
-          flex items-center justify-center
+          admin-menu-toggle fixed top-1/2 right-4 z-[60] 
+          w-12 h-20 rounded-l-full shadow-lg transition-all duration-300
+          flex items-center justify-center transform -translate-y-1/2
           ${isOpen 
-            ? 'bg-red-500 hover:bg-red-600 rotate-180' 
+            ? 'bg-red-500 hover:bg-red-600' 
             : 'bg-[#162C54] hover:bg-[#1a2f5a]'
           }
         `}
         data-testid="button-admin-menu-toggle"
       >
         {isOpen ? (
-          <X className="w-6 h-6 text-white" />
+          <EyeOff className="w-5 h-5 text-white" />
         ) : (
-          <Settings2 className="w-6 h-6 text-white" />
+          <Settings2 className="w-5 h-5 text-white" />
         )}
       </button>
 
@@ -358,13 +358,13 @@ export default function AdminFloatingMenu() {
 
       {/* Menu Panel */}
       <div className={`
-        admin-menu-panel fixed bottom-24 right-6 z-[55]
-        w-80 max-h-[70vh] bg-white rounded-xl shadow-2xl border
-        transform transition-all duration-300 origin-bottom-right overflow-hidden
+        admin-menu-panel fixed top-16 right-4 z-[55]
+        w-80 h-[calc(100vh-5rem)] bg-white rounded-xl shadow-2xl border
+        transform transition-all duration-300 origin-top-right overflow-hidden flex flex-col
         ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
       `}>
         {/* Header */}
-        <div className="admin-menu-header p-4 bg-[#162C54] text-white">
+        <div className="admin-menu-header p-4 bg-[#162C54] text-white flex-shrink-0">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
               <Settings2 className="w-4 h-4" />
@@ -392,7 +392,7 @@ export default function AdminFloatingMenu() {
         </div>
 
         {/* Content */}
-        <div className="admin-menu-content max-h-96 overflow-y-auto">
+        <div className="admin-menu-content flex-1 overflow-y-auto">
           {Object.entries(pagesByCategory).map(([category, pages]) => (
             <div key={category} className="border-b border-gray-100 last:border-b-0">
               <button
@@ -464,7 +464,7 @@ export default function AdminFloatingMenu() {
         </div>
 
         {/* Footer */}
-        <div className="admin-menu-footer p-3 bg-gray-50 border-t text-center">
+        <div className="admin-menu-footer p-3 bg-gray-50 border-t text-center flex-shrink-0">
           <p className="text-xs text-gray-500">
             Menu Super Admin
           </p>
