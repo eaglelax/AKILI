@@ -64,6 +64,7 @@ Preferred communication style: Simple, everyday language.
 ## Pages Architecture (100 Pages Total)
 
 ### 🔐 AUTHENTIFICATION & SÉCURITÉ
+- Page 0 - Page de splash avec logo animé ✅
 - Page 1 - Page de connexion avec sélection utilisateur ✅
 - Page 2 - Tableau de bord d'accueil personnalisé par rôle
 - Page 3 - Gestion des profils utilisateurs et permissions ✅

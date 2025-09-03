@@ -17,6 +17,7 @@ import Analytics from "@/pages/analytics";
 import Reports from "@/pages/reports";
 import ProductivityAnalysis from "@/pages/productivity-analysis";
 import RoiProfitability from "@/pages/roi-profitability";
+import Splash from "@/pages/splash";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -32,6 +33,9 @@ function Router() {
 
   return (
     <Switch>
+      {/* Page splash */}
+      <Route path="/splash" component={Splash} />
+      
       {/* Routes d'authentification */}
       <Route path="/login" component={Login} />
       
