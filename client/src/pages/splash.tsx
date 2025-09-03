@@ -128,7 +128,7 @@ function Splash() {
         }
         
         .logo-spinning {
-          animation: rotateZ 8s linear infinite;
+          animation: rotateZ 12s linear infinite;
         }
         
         @keyframes rotateZ {
