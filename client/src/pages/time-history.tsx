@@ -315,11 +315,6 @@ export default function TimeHistory() {
 
         {/* Contenu Principal */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* En-tête de page */}
-          <div className="mb-8">
-            <h1 className="jofe-font text-3xl text-[var(--jofe-blue-deep)] mb-2">Historique des Temps de Travail</h1>
-            <p className="text-[var(--jofe-blue-medium)]">Vue détaillée des temps de travail par membre et projet</p>
-          </div>
 
           {/* Filtres */}
           <Card className="p-6 mb-8 border border-[var(--jofe-gray)] fade-in">
