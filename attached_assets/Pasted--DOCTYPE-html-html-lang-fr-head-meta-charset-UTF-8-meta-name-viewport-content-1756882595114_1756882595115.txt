@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Diagramme de Gantt</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HeroIcons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .urial-font {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .gantt-container {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            overflow: hidden;
+            height: calc(100vh - 200px);
+            min-height: 800px;
+        }
+        
+        .gantt-toolbar {
+            background: var(--jofe-white);
+            border-bottom: 1px solid var(--jofe-gray);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-toolbar {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-toolbar:hover {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .btn-toolbar.active {
+            background: var(--jofe-blue-medium);
+            color: var(--jofe-white);
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .gantt-main {
+            display: flex;
+            height: calc(100% - 80px);
+        }
+        
+        .gantt-sidebar {
+            width: 300px;
+            background: var(--jofe-white);
+            border-right: 1px solid var(--jofe-gray);
+            overflow-y: auto;
+        }
+        
+        .gantt-timeline {
+            flex: 1;
+            background: var(--jofe-white);
+            position: relative;
+            overflow: auto;
+        }
+        
+        .project-group {
+            border-bottom: 1px solid var(--jofe-gray);
+        }
+        
+        .project-header {
+            background: rgba(22, 44, 84, 0.05);
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .project-header:hover {
+            background: rgba(22, 44, 84, 0.08);
+        }
+        
+        .task-row {
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(235, 236, 237, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .task-row:hover {
+            background: rgba(55, 182, 233, 0.05);
+        }
+        
+        .task-row.selected {
+            background: rgba(55, 182, 233, 0.1);
+            border-left: 3px solid var(--jofe-blue-light);
+        }
+        
+        .task-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--jofe-blue-deep);
+        }
+        
+        .task-assignee {
+            font-size: 12px;
+            color: var(--jofe-blue-medium);
+            background: rgba(52, 117, 187, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .task-duration {
+            font-size: 12px;
+            color: var(--jofe-blue-medium);
+            font-weight: 500;
+        }
+        
+        .timeline-header {
+            background: var(--jofe-white);
+            border-bottom: 2px solid var(--jofe-gray);
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: end;
+            padding: 0 20px;
+        }
+        
+        .timeline-scale {
+            display: flex;
+            height: 100%;
+            align-items: end;
+        }
+        
+        .timeline-unit {
+            border-left: 1px solid var(--jofe-gray);
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--jofe-blue-medium);
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .timeline-body {
+            position: relative;
+            padding: 20px;
+        }
+        
+        .gantt-bar {
+            position: absolute;
+            height: 24px;
+            border-radius: 4px;
+            cursor: move;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .gantt-bar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .gantt-bar.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+        
+        .gantt-bar.moov { background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium)); }
+        .gantt-bar.bank { background: linear-gradient(135deg, var(--jofe-green), #7BB946); }
+        .gantt-bar.sunu { background: linear-gradient(135deg, var(--jofe-orange), #E67E0C); }
+        .gantt-bar.roxgold { background: linear-gradient(135deg, var(--jofe-blue-deep), var(--jofe-blue-night)); }
+        
+        .gantt-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px 0 0 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .gantt-milestone {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--jofe-orange);
+            transform: rotate(45deg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .gantt-milestone:hover {
+            transform: rotate(45deg) scale(1.1);
+        }
+        
+        .dependency-line {
+            position: absolute;
+            background: var(--jofe-blue-medium);
+            z-index: 5;
+        }
+        
+        .dependency-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 6px solid var(--jofe-blue-medium);
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .critical-path {
+            box-shadow: 0 0 0 2px var(--jofe-orange) !important;
+        }
+        
+        .resource-conflict {
+            background: repeating-linear-gradient(
+                45deg,
+                var(--jofe-orange),
+                var(--jofe-orange) 10px,
+                #FFB347 10px,
+                #FFB347 20px
+            ) !important;
+        }
+        
+        .gantt-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .grid-line {
+            position: absolute;
+            border-left: 1px solid rgba(235, 236, 237, 0.5);
+            top: 0;
+            bottom: 0;
+        }
+        
+        .today-line {
+            position: absolute;
+            border-left: 2px solid var(--jofe-orange);
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+        }
+        
+        .today-marker {
+            position: absolute;
+            top: -10px;
+            left: -6px;
+            background: var(--jofe-orange);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .zoom-btn {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .filters-panel {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--jofe-blue-deep);
+            min-width: 80px;
+        }
+        
+        .filter-select {
+            border: 1px solid var(--jofe-gray);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            color: var(--jofe-blue-medium);
+            background: var(--jofe-white);
+        }
+        
+        .legend {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 12px;
+        }
+        
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--jofe-blue-medium);
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--jofe-blue-medium);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--jofe-blue-medium);
+            background: var(--jofe-white);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--jofe-green);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: #EF4444;
+        }
+        
+        .notification.warning {
+            background: var(--jofe-orange);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .gantt-sidebar {
+                width: 250px;
+            }
+            
+            .gantt-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .toolbar-group {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .gantt-sidebar {
+                width: 200px;
+            }
+            
+            .timeline-unit {
+                min-width: 80px;
+                font-size: 10px;
+            }
+            
+            .gantt-bar {
+                height: 20px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="urial-font text-xl" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Planning Gantt
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);" id="currentUserName">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="urial-font text-2xl" style="color: var(--jofe-blue-deep);">Planning Gantt</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Visualisation interactive des projets et dépendances</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button class="btn-primary" onclick="exportGantt()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Exporter
+                    </button>
+                    
+                    <button class="btn-primary" onclick="showTaskModal()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Nouvelle Tâche
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6">
+            <!-- Filters Panel -->
+            <div class="filters-panel fade-in">
+                <div class="filter-group">
+                    <label class="filter-label">Projets :</label>
+                    <select class="filter-select" id="projectFilter" onchange="filterTasks()">
+                        <option value="all">Tous les projets</option>
+                        <option value="moov">Campagne MOOV AFRICA</option>
+                        <option value="bank">Rebranding BANK OF AFRICA</option>
+                        <option value="sunu">Site web SUNU BURKINA</option>
+                        <option value="roxgold">Logo ROXGOLD</option>
+                    </select>
+                    
+                    <label class="filter-label">Membres :</label>
+                    <select class="filter-select" id="memberFilter" onchange="filterTasks()">
+                        <option value="all">Tous les membres</option>
+                        <option value="paul">Paul Junior OUEDRAOGO</option>
+                        <option value="fortune">Fortune YANOGO</option>
+                        <option value="bientama">Bientama PARÉ</option>
+                        <option value="issa">Issa CISSE</option>
+                        <option value="florita">Florita KABORÉ</option>
+                    </select>
+                    
+                    <label class="filter-label">Statut :</label>
+                    <select class="filter-select" id="statusFilter" onchange="filterTasks()">
+                        <option value="all">Tous les statuts</option>
+                        <option value="todo">À faire</option>
+                        <option value="progress">En cours</option>
+                        <option value="done">Terminé</option>
+                        <option value="blocked">Bloqué</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gantt Container -->
+            <div class="gantt-container fade-in">
+                <!-- Toolbar -->
+                <div class="gantt-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn-toolbar active" onclick="setZoomLevel('day')" data-zoom="day">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            Jour
+                        </button>
+                        <button class="btn-toolbar" onclick="setZoomLevel('week')" data-zoom="week">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Semaine
+                        </button>
+                        <button class="btn-toolbar" onclick="setZoomLevel('month')" data-zoom="month">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            Mois
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button class="btn-toolbar" onclick="toggleCriticalPath()" id="criticalPathBtn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Chemin Critique
+                        </button>
+                        <button class="btn-toolbar" onclick="toggleResourceView()" id="resourceBtn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Ressources
+                        </button>
+                        <button class="btn-toolbar" onclick="autoSchedule()">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Auto-Planning
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Gantt -->
+                <div class="gantt-main">
+                    <!-- Sidebar with tasks list -->
+                    <div class="gantt-sidebar">
+                        <div class="project-group">
+                            <div class="project-header" onclick="toggleProject('moov')">
+                                <span>🔵 Campagne MOOV AFRICA</span>
+                                <span>12 tâches</span>
+                            </div>
+                            <div id="moov-tasks" class="project-tasks">
+                                <div class="task-row" data-task="moov-1">
+                                    <div class="task-name">Brief et Analyse Client</div>
+                                    <div class="task-assignee">Serge A.</div>
+                                    <div class="task-duration">2j</div>
+                                </div>
+                                <div class="task-row" data-task="moov-2">
+                                    <div class="task-name">Recherche Créative</div>
+                                    <div class="task-assignee">Linda K.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                                <div class="task-row" data-task="moov-3">
+                                    <div class="task-name">Concept Visual</div>
+                                    <div class="task-assignee">Paul J.</div>
+                                    <div class="task-duration">4j</div>
+                                </div>
+                                <div class="task-row" data-task="moov-4">
+                                    <div class="task-name">Shooting Photo</div>
+                                    <div class="task-assignee">Fortune Y.</div>
+                                    <div class="task-duration">2j</div>
+                                </div>
+                                <div class="task-row" data-task="moov-5">
+                                    <div class="task-name">Motion Design</div>
+                                    <div class="task-assignee">Bientama P.</div>
+                                    <div class="task-duration">5j</div>
+                                </div>
+                                <div class="task-row" data-task="moov-6">
+                                    <div class="task-name">Montage Final</div>
+                                    <div class="task-assignee">Paul J.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-group">
+                            <div class="project-header" onclick="toggleProject('bank')">
+                                <span>🟢 Rebranding BANK OF AFRICA</span>
+                                <span>8 tâches</span>
+                            </div>
+                            <div id="bank-tasks" class="project-tasks">
+                                <div class="task-row" data-task="bank-1">
+                                    <div class="task-name">Audit Identité Actuelle</div>
+                                    <div class="task-assignee">Serge A.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                                <div class="task-row" data-task="bank-2">
+                                    <div class="task-name">Propositions Logo</div>
+                                    <div class="task-assignee">Jean-Jacques S.</div>
+                                    <div class="task-duration">5j</div>
+                                </div>
+                                <div class="task-row" data-task="bank-3">
+                                    <div class="task-name">Charte Graphique</div>
+                                    <div class="task-assignee">Abdoul L.</div>
+                                    <div class="task-duration">4j</div>
+                                </div>
+                                <div class="task-row" data-task="bank-4">
+                                    <div class="task-name">Déclinaisons Print</div>
+                                    <div class="task-assignee">Issa C.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-group">
+                            <div class="project-header" onclick="toggleProject('sunu')">
+                                <span>🟠 Site web SUNU BURKINA</span>
+                                <span>15 tâches</span>
+                            </div>
+                            <div id="sunu-tasks" class="project-tasks">
+                                <div class="task-row" data-task="sunu-1">
+                                    <div class="task-name">Cahier des Charges</div>
+                                    <div class="task-assignee">Nebié W.</div>
+                                    <div class="task-duration">2j</div>
+                                </div>
+                                <div class="task-row" data-task="sunu-2">
+                                    <div class="task-name">Wireframes</div>
+                                    <div class="task-assignee">Abdoul L.</div>
+                                    <div class="task-duration">4j</div>
+                                </div>
+                                <div class="task-row" data-task="sunu-3">
+                                    <div class="task-name">Design UI/UX</div>
+                                    <div class="task-assignee">Abdoul L.</div>
+                                    <div class="task-duration">6j</div>
+                                </div>
+                                <div class="task-row" data-task="sunu-4">
+                                    <div class="task-name">Développement Front</div>
+                                    <div class="task-assignee">Externe</div>
+                                    <div class="task-duration">10j</div>
+                                </div>
+                                <div class="task-row" data-task="sunu-5">
+                                    <div class="task-name">Intégration Contenu</div>
+                                    <div class="task-assignee">Florita K.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-group">
+                            <div class="project-header" onclick="toggleProject('roxgold')">
+                                <span>🔷 Logo ROXGOLD</span>
+                                <span>5 tâches</span>
+                            </div>
+                            <div id="roxgold-tasks" class="project-tasks">
+                                <div class="task-row" data-task="roxgold-1">
+                                    <div class="task-name">Briefing Client</div>
+                                    <div class="task-assignee">Enos G.</div>
+                                    <div class="task-duration">1j</div>
+                                </div>
+                                <div class="task-row" data-task="roxgold-2">
+                                    <div class="task-name">Recherches Visuelles</div>
+                                    <div class="task-assignee">Jean-Jacques S.</div>
+                                    <div class="task-duration">2j</div>
+                                </div>
+                                <div class="task-row" data-task="roxgold-3">
+                                    <div class="task-name">Propositions Logo</div>
+                                    <div class="task-assignee">Jean-Jacques S.</div>
+                                    <div class="task-duration">3j</div>
+                                </div>
+                                <div class="task-row" data-task="roxgold-4">
+                                    <div class="task-name">Révisions</div>
+                                    <div class="task-assignee">Jean-Jacques S.</div>
+                                    <div class="task-duration">2j</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="gantt-timeline" id="ganttTimeline">
+                        <!-- Timeline Header -->
+                        <div class="timeline-header" id="timelineHeader">
+                            <div class="timeline-scale" id="timelineScale">
+                                <!-- Generated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Timeline Body -->
+                        <div class="timeline-body" id="timelineBody">
+                            <!-- Grid Lines -->
+                            <div class="gantt-grid" id="ganttGrid">
+                                <!-- Generated dynamically -->
+                            </div>
+
+                            <!-- Today Line -->
+                            <div class="today-line" id="todayLine">
+                                <div class="today-marker">Aujourd'hui</div>
+                            </div>
+
+                            <!-- Gantt Bars -->
+                            <div id="ganttBars">
+                                <!-- Generated dynamically -->
+                            </div>
+
+                            <!-- Dependencies -->
+                            <div id="dependencies">
+                                <!-- Generated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend fade-in">
+                <div class="legend-title">Légende</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));"></div>
+                        <span>Campagne MOOV AFRICA</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, var(--jofe-green), #7BB946);"></div>
+                        <span>Rebranding BANK OF AFRICA</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, var(--jofe-orange), #E67E0C);"></div>
+                        <span>Site web SUNU BURKINA</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, var(--jofe-blue-deep), var(--jofe-blue-night));"></div>
+                        <span>Logo ROXGOLD</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--jofe-orange); transform: rotate(45deg);"></div>
+                        <span>Jalons importants</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: repeating-linear-gradient(45deg, var(--jofe-orange), var(--jofe-orange) 4px, #FFB347 4px, #FFB347 8px);"></div>
+                        <span>Conflits de ressources</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()" title="Zoom +">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+        </button>
+        <button class="zoom-btn" onclick="zoomOut()" title="Zoom -">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path>
+            </svg>
+        </button>
+        <button class="zoom-btn" onclick="fitToScreen()" title="Ajuster">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Éditer la Tâche</h2>
+                <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label class="form-label">Nom de la tâche</label>
+                    <input type="text" class="form-input" id="taskName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Projet</label>
+                    <select class="form-input" id="taskProject" required>
+                        <option value="moov">Campagne MOOV AFRICA</option>
+                        <option value="bank">Rebranding BANK OF AFRICA</option>
+                        <option value="sunu">Site web SUNU BURKINA</option>
+                        <option value="roxgold">Logo ROXGOLD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assigné à</label>
+                    <select class="form-input" id="taskAssignee" required>
+                        <option value="serge">Serge ASSALÉ</option>
+                        <option value="paul">Paul Junior OUEDRAOGO</option>
+                        <option value="fortune">Fortune YANOGO</option>
+                        <option value="bientama">Bientama PARÉ</option>
+                        <option value="issa">Issa CISSE</option>
+                        <option value="florita">Florita KABORÉ</option>
+                        <option value="nebie">Nebié WEBOU</option>
+                        <option value="djamilatou">Djamilatou GUIGUEMDE</option>
+                        <option value="jean-jacques">Jean-Jacques SAMPABAO</option>
+                        <option value="abdoul">Abdoul Latif OUEDRAOGO</option>
+                        <option value="linda">Linda KABORÉ</option>
+                        <option value="maryse">Maryse BOMBIRI</option>
+                        <option value="faridatou">Faridatou BARRY</option>
+                        <option value="enos">Enos GOUBA</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Date de début</label>
+                        <input type="date" class="form-input" id="taskStartDate" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Durée (jours)</label>
+                        <input type="number" class="form-input" id="taskDuration" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <select class="form-input" id="taskStatus" required>
+                        <option value="todo">À faire</option>
+                        <option value="progress">En cours</option>
+                        <option value="done">Terminé</option>
+                        <option value="blocked">Bloqué</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: end; margin-top: 24px;">
+                    <button type="button" class="btn-toolbar" onclick="closeTaskModal()">Annuler</button>
+                    <button type="submit" class="btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Global variables
+        let currentZoom = 'week';
+        let showCriticalPath = false;
+        let showResourceView = false;
+        let ganttData = {
+            projects: {
+                moov: {
+                    name: "Campagne MOOV AFRICA",
+                    color: "moov",
+                    tasks: [
+                        { id: "moov-1", name: "Brief et Analyse Client", assignee: "Serge A.", duration: 2, startDate: "2024-01-08", status: "done", progress: 100 },
+                        { id: "moov-2", name: "Recherche Créative", assignee: "Linda K.", duration: 3, startDate: "2024-01-10", status: "done", progress: 100, dependencies: ["moov-1"] },
+                        { id: "moov-3", name: "Concept Visual", assignee: "Paul J.", duration: 4, startDate: "2024-01-15", status: "progress", progress: 75, dependencies: ["moov-2"] },
+                        { id: "moov-4", name: "Shooting Photo", assignee: "Fortune Y.", duration: 2, startDate: "2024-01-18", status: "progress", progress: 50, dependencies: ["moov-3"] },
+                        { id: "moov-5", name: "Motion Design", assignee: "Bientama P.", duration: 5, startDate: "2024-01-22", status: "todo", progress: 0, dependencies: ["moov-4"] },
+                        { id: "moov-6", name: "Montage Final", assignee: "Paul J.", duration: 3, startDate: "2024-01-29", status: "todo", progress: 0, dependencies: ["moov-5"] }
+                    ]
+                },
+                bank: {
+                    name: "Rebranding BANK OF AFRICA",
+                    color: "bank",
+                    tasks: [
+                        { id: "bank-1", name: "Audit Identité Actuelle", assignee: "Serge A.", duration: 3, startDate: "2024-01-15", status: "done", progress: 100 },
+                        { id: "bank-2", name: "Propositions Logo", assignee: "Jean-Jacques S.", duration: 5, startDate: "2024-01-18", status: "progress", progress: 60, dependencies: ["bank-1"] },
+                        { id: "bank-3", name: "Charte Graphique", assignee: "Abdoul L.", duration: 4, startDate: "2024-01-25", status: "todo", progress: 0, dependencies: ["bank-2"] },
+                        { id: "bank-4", name: "Déclinaisons Print", assignee: "Issa C.", duration: 3, startDate: "2024-01-31", status: "todo", progress: 0, dependencies: ["bank-3"] }
+                    ]
+                },
+                sunu: {
+                    name: "Site web SUNU BURKINA",
+                    color: "sunu",
+                    tasks: [
+                        { id: "sunu-1", name: "Cahier des Charges", assignee: "Nebié W.", duration: 2, startDate: "2024-01-10", status: "done", progress: 100 },
+                        { id: "sunu-2", name: "Wireframes", assignee: "Abdoul L.", duration: 4, startDate: "2024-01-12", status: "done", progress: 100, dependencies: ["sunu-1"] },
+                        { id: "sunu-3", name: "Design UI/UX", assignee: "Abdoul L.", duration: 6, startDate: "2024-01-18", status: "progress", progress: 80, dependencies: ["sunu-2"] },
+                        { id: "sunu-4", name: "Développement Front", assignee: "Externe", duration: 10, startDate: "2024-01-26", status: "todo", progress: 0, dependencies: ["sunu-3"] },
+                        { id: "sunu-5", name: "Intégration Contenu", assignee: "Florita K.", duration: 3, startDate: "2024-02-09", status: "todo", progress: 0, dependencies: ["sunu-4"] }
+                    ]
+                },
+                roxgold: {
+                    name: "Logo ROXGOLD",
+                    color: "roxgold",
+                    tasks: [
+                        { id: "roxgold-1", name: "Briefing Client", assignee: "Enos G.", duration: 1, startDate: "2024-01-22", status: "done", progress: 100 },
+                        { id: "roxgold-2", name: "Recherches Visuelles", assignee: "Jean-Jacques S.", duration: 2, startDate: "2024-01-23", status: "progress", progress: 70, dependencies: ["roxgold-1"] },
+                        { id: "roxgold-3", name: "Propositions Logo", assignee: "Jean-Jacques S.", duration: 3, startDate: "2024-01-25", status: "todo", progress: 0, dependencies: ["roxgold-2"] },
+                        { id: "roxgold-4", name: "Révisions", assignee: "Jean-Jacques S.", duration: 2, startDate: "2024-01-30", status: "todo", progress: 0, dependencies: ["roxgold-3"] }
+                    ]
+                }
+            }
+        };
+
+        // Initialize Gantt
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGantt();
+            setupEventListeners();
+            renderGantt();
+        });
+
+        function initializeGantt() {
+            const today = new Date();
+            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            const endDate = new Date(today.getFullYear(), today.getMonth() + 3, 0);
+            
+            generateTimelineScale(startDate, endDate);
+            generateGrid(startDate, endDate);
+            positionTodayLine();
+            renderTasks();
+            renderDependencies();
+        }
+
+        function generateTimelineScale(startDate, endDate) {
+            const scale = document.getElementById('timelineScale');
+            scale.innerHTML = '';
+            
+            let current = new Date(startDate);
+            const pixelsPerDay = getPixelsPerDay();
+            
+            while (current <= endDate) {
+                const unit = document.createElement('div');
+                unit.className = 'timeline-unit';
+                unit.style.width = `${pixelsPerDay * getDaysInUnit()}px`;
+                
+                if (currentZoom === 'day') {
+                    unit.textContent = current.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
+                    current.setDate(current.getDate() + 1);
+                } else if (currentZoom === 'week') {
+                    unit.textContent = `Sem. ${getWeekNumber(current)}`;
+                    current.setDate(current.getDate() + 7);
+                } else {
+                    unit.textContent = current.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                    current.setMonth(current.getMonth() + 1);
+                }
+                
+                scale.appendChild(unit);
+            }
+        }
+
+        function generateGrid(startDate, endDate) {
+            const grid = document.getElementById('ganttGrid');
+            grid.innerHTML = '';
+            
+            let current = new Date(startDate);
+            const pixelsPerDay = getPixelsPerDay();
+            let position = 0;
+            
+            while (current <= endDate) {
+                const line = document.createElement('div');
+                line.className = 'grid-line';
+                line.style.left = `${position}px`;
+                grid.appendChild(line);
+                
+                if (currentZoom === 'day') {
+                    current.setDate(current.getDate() + 1);
+                    position += pixelsPerDay;
+                } else if (currentZoom === 'week') {
+                    current.setDate(current.getDate() + 7);
+                    position += pixelsPerDay * 7;
+                } else {
+                    const daysInMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate();
+                    current.setMonth(current.getMonth() + 1);
+                    position += pixelsPerDay * daysInMonth;
+                }
+            }
+        }
+
+        function positionTodayLine() {
+            const todayLine = document.getElementById('todayLine');
+            const today = new Date();
+            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const pixelsPerDay = getPixelsPerDay();
+            
+            todayLine.style.left = `${daysDiff * pixelsPerDay}px`;
+        }
+
+        function renderTasks() {
+            const barsContainer = document.getElementById('ganttBars');
+            barsContainer.innerHTML = '';
+            
+            let rowIndex = 0;
+            const rowHeight = 40;
+            
+            Object.values(ganttData.projects).forEach(project => {
+                project.tasks.forEach(task => {
+                    const bar = createTaskBar(task, rowIndex * rowHeight + 60);
+                    barsContainer.appendChild(bar);
+                    rowIndex++;
+                });
+            });
+        }
+
+        function createTaskBar(task, topPosition) {
+            const bar = document.createElement('div');
+            bar.className = `gantt-bar ${getProjectColor(task.id)}`;
+            bar.dataset.taskId = task.id;
+            
+            const startDate = new Date(task.startDate);
+            const baseDate = new Date(2024, 0, 1); // January 1, 2024
+            const daysDiff = Math.floor((startDate - baseDate) / (1000 * 60 * 60 * 24));
+            const pixelsPerDay = getPixelsPerDay();
+            
+            const left = daysDiff * pixelsPerDay;
+            const width = task.duration * pixelsPerDay;
+            
+            bar.style.left = `${left}px`;
+            bar.style.width = `${width}px`;
+            bar.style.top = `${topPosition}px`;
+            
+            // Progress bar
+            if (task.progress > 0) {
+                const progress = document.createElement('div');
+                progress.className = 'gantt-progress';
+                progress.style.width = `${task.progress}%`;
+                bar.appendChild(progress);
+            }
+            
+            // Task name
+            const text = document.createElement('span');
+            text.textContent = task.name;
+            bar.appendChild(text);
+            
+            // Add drag functionality
+            makeDraggable(bar);
+            
+            return bar;
+        }
+
+        function makeDraggable(element) {
+            let isDragging = false;
+            let startX = 0;
+            let startLeft = 0;
+            
+            element.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startLeft = parseInt(element.style.left, 10);
+                element.classList.add('dragging');
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+                e.preventDefault();
+            });
+            
+            function handleMouseMove(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const newLeft = Math.max(0, startLeft + deltaX);
+                element.style.left = `${newLeft}px`;
+                
+                // Update task data
+                updateTaskDate(element.dataset.taskId, newLeft);
+            }
+            
+            function handleMouseUp() {
+                if (isDragging) {
+                    isDragging = false;
+                    element.classList.remove('dragging');
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    // Recalculate dependencies
+                    renderDependencies();
+                    showNotification('Tâche déplacée avec succès', 'success');
+                }
+            }
+        }
+
+        function updateTaskDate(taskId, leftPosition) {
+            const pixelsPerDay = getPixelsPerDay();
+            const daysDiff = Math.floor(leftPosition / pixelsPerDay);
+            const baseDate = new Date(2024, 0, 1);
+            const newDate = new Date(baseDate);
+            newDate.setDate(newDate.getDate() + daysDiff);
+            
+            // Find and update task
+            Object.values(ganttData.projects).forEach(project => {
+                const task = project.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.startDate = newDate.toISOString().split('T')[0];
+                }
+            });
+        }
+
+        function renderDependencies() {
+            const container = document.getElementById('dependencies');
+            container.innerHTML = '';
+            
+            Object.values(ganttData.projects).forEach(project => {
+                project.tasks.forEach(task => {
+                    if (task.dependencies) {
+                        task.dependencies.forEach(depId => {
+                            const line = createDependencyLine(depId, task.id);
+                            if (line) container.appendChild(line);
+                        });
+                    }
+                });
+            });
+        }
+
+        function createDependencyLine(fromTaskId, toTaskId) {
+            const fromBar = document.querySelector(`[data-task-id="${fromTaskId}"]`);
+            const toBar = document.querySelector(`[data-task-id="${toTaskId}"]`);
+            
+            if (!fromBar || !toBar) return null;
+            
+            const fromRect = fromBar.getBoundingClientRect();
+            const toRect = toBar.getBoundingClientRect();
+            const containerRect = document.getElementById('timelineBody').getBoundingClientRect();
+            
+            const line = document.createElement('div');
+            line.className = 'dependency-line';
+            
+            const fromX = fromRect.right - containerRect.left;
+            const fromY = fromRect.top - containerRect.top + fromRect.height / 2;
+            const toX = toRect.left - containerRect.left;
+            const toY = toRect.top - containerRect.top + toRect.height / 2;
+            
+            // Simple horizontal line for now
+            line.style.left = `${fromX}px`;
+            line.style.top = `${fromY}px`;
+            line.style.width = `${toX - fromX}px`;
+            line.style.height = '2px';
+            
+            return line;
+        }
+
+        function getProjectColor(taskId) {
+            if (taskId.startsWith('moov')) return 'moov';
+            if (taskId.startsWith('bank')) return 'bank';
+            if (taskId.startsWith('sunu')) return 'sunu';
+            if (taskId.startsWith('roxgold')) return 'roxgold';
+            return 'moov';
+        }
+
+        function getPixelsPerDay() {
+            switch (currentZoom) {
+                case 'day': return 40;
+                case 'week': return 20;
+                case 'month': return 5;
+                default: return 20;
+            }
+        }
+
+        function getDaysInUnit() {
+            switch (currentZoom) {
+                case 'day': return 1;
+                case 'week': return 7;
+                case 'month': return 30;
+                default: return 7;
+            }
+        }
+
+        function getWeekNumber(date) {
+            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+        }
+
+        function setZoomLevel(zoom) {
+            currentZoom = zoom;
+            
+            // Update toolbar buttons
+            document.querySelectorAll('[data-zoom]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-zoom="${zoom}"]`).classList.add('active');
+            
+            renderGantt();
+            showNotification(`Vue ${zoom} activée`, 'success');
+        }
+
+        function renderGantt() {
+            initializeGantt();
+        }
+
+        function toggleCriticalPath() {
+            showCriticalPath = !showCriticalPath;
+            const btn = document.getElementById('criticalPathBtn');
+            
+            if (showCriticalPath) {
+                btn.classList.add('active');
+                // Add critical path highlighting
+                document.querySelectorAll('.gantt-bar').forEach(bar => {
+                    // Simple critical path simulation
+                    if (Math.random() > 0.7) {
+                        bar.classList.add('critical-path');
+                    }
+                });
+                showNotification('Chemin critique affiché', 'success');
+            } else {
+                btn.classList.remove('active');
+                document.querySelectorAll('.gantt-bar').forEach(bar => {
+                    bar.classList.remove('critical-path');
+                });
+                showNotification('Chemin critique masqué', 'success');
+            }
+        }
+
+        function toggleResourceView() {
+            showResourceView = !showResourceView;
+            const btn = document.getElementById('resourceBtn');
+            
+            if (showResourceView) {
+                btn.classList.add('active');
+                // Add resource conflict highlighting
+                document.querySelectorAll('.gantt-bar').forEach(bar => {
+                    if (Math.random() > 0.8) {
+                        bar.classList.add('resource-conflict');
+                    }
+                });
+                showNotification('Vue ressources activée', 'success');
+            } else {
+                btn.classList.remove('active');
+                document.querySelectorAll('.gantt-bar').forEach(bar => {
+                    bar.classList.remove('resource-conflict');
+                });
+                showNotification('Vue ressources désactivée', 'success');
+            }
+        }
+
+        function autoSchedule() {
+            showNotification('Planification automatique en cours...', 'info');
+            
+            setTimeout(() => {
+                // Simulate auto-scheduling
+                Object.values(ganttData.projects).forEach(project => {
+                    project.tasks.forEach((task, index) => {
+                        if (index > 0) {
+                            const prevTask = project.tasks[index - 1];
+                            const prevEndDate = new Date(prevTask.startDate);
+                            prevEndDate.setDate(prevEndDate.getDate() + prevTask.duration);
+                            task.startDate = prevEndDate.toISOString().split('T')[0];
+                        }
+                    });
+                });
+                
+                renderGantt();
+                showNotification('Planification automatique terminée', 'success');
+            }, 2000);
+        }
+
+        function zoomIn() {
+            if (currentZoom === 'month') setZoomLevel('week');
+            else if (currentZoom === 'week') setZoomLevel('day');
+        }
+
+        function zoomOut() {
+            if (currentZoom === 'day') setZoomLevel('week');
+            else if (currentZoom === 'week') setZoomLevel('month');
+        }
+
+        function fitToScreen() {
+            setZoomLevel('week');
+            showNotification('Vue ajustée à l\'écran', 'success');
+        }
+
+        function toggleProject(projectId) {
+            const tasks = document.getElementById(`${projectId}-tasks`);
+            tasks.style.display = tasks.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function filterTasks() {
+            const projectFilter = document.getElementById('projectFilter').value;
+            const memberFilter = document.getElementById('memberFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            // Apply filters to task rows and bars
+            document.querySelectorAll('.task-row').forEach(row => {
+                let show = true;
+                
+                if (projectFilter !== 'all') {
+                    const taskId = row.dataset.task;
+                    if (!taskId.startsWith(projectFilter)) show = false;
+                }
+                
+                row.style.display = show ? 'flex' : 'none';
+            });
+            
+            document.querySelectorAll('.gantt-bar').forEach(bar => {
+                let show = true;
+                
+                if (projectFilter !== 'all') {
+                    const taskId = bar.dataset.taskId;
+                    if (!taskId.startsWith(projectFilter)) show = false;
+                }
+                
+                bar.style.display = show ? 'flex' : 'none';
+            });
+            
+            showNotification('Filtres appliqués', 'success');
+        }
+
+        function showTaskModal(taskId = null) {
+            const modal = document.getElementById('taskModal');
+            modal.classList.add('show');
+            
+            if (taskId) {
+                // Load task data for editing
+                const task = findTaskById(taskId);
+                if (task) {
+                    document.getElementById('taskName').value = task.name;
+                    document.getElementById('taskProject').value = getProjectFromTaskId(taskId);
+                    document.getElementById('taskStartDate').value = task.startDate;
+                    document.getElementById('taskDuration').value = task.duration;
+                    document.getElementById('taskStatus').value = task.status;
+                }
+            }
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('show');
+        }
+
+        function findTaskById(taskId) {
+            for (const project of Object.values(ganttData.projects)) {
+                const task = project.tasks.find(t => t.id === taskId);
+                if (task) return task;
+            }
+            return null;
+        }
+
+        function getProjectFromTaskId(taskId) {
+            return taskId.split('-')[0];
+        }
+
+        function exportGantt() {
+            showNotification('Export en cours...', 'info');
+            
+            setTimeout(() => {
+                // Simulate export
+                const data = {
+                    exported: new Date().toISOString(),
+                    projects: ganttData.projects,
+                    settings: {
+                        zoom: currentZoom,
+                        showCriticalPath,
+                        showResourceView
+                    }
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'jofe-planning-gantt.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Planning exporté avec succès', 'success');
+            }, 1000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function setupEventListeners() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('hidden');
+                    mobileOverlay.classList.toggle('hidden');
+                });
+            }
+
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', () => {
+                    sidebar.classList.add('hidden');
+                    mobileOverlay.classList.add('hidden');
+                });
+            }
+
+            // Task form submission
+            document.getElementById('taskForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const taskData = Object.fromEntries(formData);
+                
+                // Update or create task
+                showNotification('Tâche sauvegardée avec succès', 'success');
+                closeTaskModal();
+                renderGantt();
+            });
+
+            // Task row clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.task-row')) {
+                    const taskRow = e.target.closest('.task-row');
+                    const taskId = taskRow.dataset.task;
+                    
+                    // Highlight corresponding gantt bar
+                    document.querySelectorAll('.gantt-bar').forEach(bar => {
+                        bar.classList.remove('selected');
+                    });
+                    
+                    const correspondingBar = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (correspondingBar) {
+                        correspondingBar.classList.add('selected');
+                    }
+                    
+                    // Highlight task row
+                    document.querySelectorAll('.task-row').forEach(row => {
+                        row.classList.remove('selected');
+                    });
+                    taskRow.classList.add('selected');
+                }
+            });
+
+            // Gantt bar double-click to edit
+            document.addEventListener('dblclick', function(e) {
+                if (e.target.closest('.gantt-bar')) {
+                    const bar = e.target.closest('.gantt-bar');
+                    const taskId = bar.dataset.taskId;
+                    showTaskModal(taskId);
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    exportGantt();
+                }
+                if (e.key === 'Escape') {
+                    closeTaskModal();
+                }
+            });
+        }
+
+        // Initialize
+        console.log('JoFé+ Gantt Chart initialized');
+    </script>
+</body>
+</html>
+
+OK
