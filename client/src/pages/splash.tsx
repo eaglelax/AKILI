@@ -128,16 +128,15 @@ function Splash() {
         }
         
         .logo-spinning {
-          animation: rotateY 4s linear infinite;
-          transform-style: preserve-3d;
+          animation: rotateZ 4s linear infinite;
         }
         
-        @keyframes rotateY {
+        @keyframes rotateZ {
           0% {
-            transform: rotateY(0deg);
+            transform: rotate(0deg);
           }
           100% {
-            transform: rotateY(360deg);
+            transform: rotate(360deg);
           }
         }
         
