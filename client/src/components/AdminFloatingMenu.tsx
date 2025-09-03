@@ -331,8 +331,8 @@ export default function AdminFloatingMenu() {
       <button
         onClick={toggleMenu}
         className={`
-          admin-menu-toggle fixed top-1/2 right-4 z-[60] 
-          w-12 h-20 rounded-l-full shadow-lg transition-all duration-300
+          admin-menu-toggle fixed top-1/2 left-4 z-[60] 
+          w-12 h-20 rounded-r-full shadow-lg transition-all duration-300
           flex items-center justify-center transform -translate-y-1/2
           ${isOpen 
             ? 'bg-red-500 hover:bg-red-600' 
@@ -358,9 +358,9 @@ export default function AdminFloatingMenu() {
 
       {/* Menu Panel */}
       <div className={`
-        admin-menu-panel fixed top-16 right-4 z-[55]
+        admin-menu-panel fixed top-16 left-4 z-[55]
         w-80 h-[calc(100vh-5rem)] bg-white rounded-xl shadow-2xl border
-        transform transition-all duration-300 origin-top-right overflow-hidden flex flex-col
+        transform transition-all duration-300 origin-top-left overflow-hidden flex flex-col
         ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
       `}>
         {/* Header */}
