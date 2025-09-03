@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Workflow d'Approbation</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HeroIcons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray-pearl: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .inter-font {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .workflow-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+        
+        .workflow-card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .workflow-step {
+            background: var(--jofe-white);
+            border: 2px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .workflow-step.pending {
+            border-color: var(--jofe-orange);
+            background: rgba(246, 140, 31, 0.05);
+        }
+        
+        .workflow-step.approved {
+            border-color: var(--jofe-green);
+            background: rgba(147, 201, 84, 0.05);
+        }
+        
+        .workflow-step.rejected {
+            border-color: #EF4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .workflow-step.in-progress {
+            border-color: var(--jofe-blue-light);
+            background: rgba(55, 182, 233, 0.05);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .workflow-connector {
+            width: 2px;
+            height: 40px;
+            background: var(--jofe-blue-medium);
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .workflow-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 10px solid var(--jofe-blue-medium);
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray-pearl);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--jofe-blue-medium);
+            background: rgba(52, 117, 187, 0.05);
+        }
+        
+        .btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-success:hover {
+            background: #7AB23D;
+        }
+        
+        .btn-danger {
+            background: #EF4444;
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+        
+        .btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-warning:hover {
+            background: #EA580C;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: rgba(246, 140, 31, 0.1);
+            color: var(--jofe-orange);
+        }
+        
+        .status-approved {
+            background: rgba(147, 201, 84, 0.1);
+            color: var(--jofe-green);
+        }
+        
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        
+        .status-in-progress {
+            background: rgba(55, 182, 233, 0.1);
+            color: var(--jofe-blue-light);
+        }
+        
+        .timeline-item {
+            padding: 16px 0;
+            border-left: 2px solid var(--jofe-gray-pearl);
+            margin-left: 20px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 24px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--jofe-blue-medium);
+        }
+        
+        .timeline-item.completed::before {
+            background: var(--jofe-green);
+        }
+        
+        .timeline-item.current::before {
+            background: var(--jofe-orange);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            background: var(--jofe-gray-pearl);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--jofe-blue-light), var(--jofe-green));
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--jofe-green);
+        }
+        
+        .notification.warning {
+            border-left: 4px solid var(--jofe-orange);
+        }
+        
+        .notification.error {
+            border-left: 4px solid #EF4444;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .workflow-main {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--jofe-gray-pearl);
+        }
+        
+        .workflow-sidebar {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--jofe-gray-pearl);
+            height: fit-content;
+        }
+        
+        .workflow-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--jofe-gray-pearl);
+            margin-bottom: 24px;
+        }
+        
+        .workflow-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            color: var(--jofe-blue-medium);
+        }
+        
+        .workflow-tab.active {
+            border-bottom-color: var(--jofe-blue-light);
+            color: var(--jofe-blue-deep);
+            font-weight: 600;
+        }
+        
+        .workflow-tab:hover {
+            background: rgba(55, 182, 233, 0.05);
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--jofe-white);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .avatar-sm {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--jofe-blue-deep);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .validation-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(55, 182, 233, 0.05);
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .sidebar.mobile-active {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 999;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .chart-container {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="inter-font text-xl font-bold" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Workflow & Approbations
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="avatar" style="background: var(--jofe-blue-light);">SA</div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="inter-font text-2xl font-bold" style="color: var(--jofe-blue-deep);">Workflow d'Approbation</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Gestion des validations et jalons projets</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.405-3.405A9.001 9.001 0 0012 2C6.477 2 2 6.477 2 12a9.001 9.001 0 003.405 6.595L2 22l5-1z"></path>
+                        </svg>
+                        <div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                    </button>
+                    
+                    <!-- Actions -->
+                    <button class="btn-primary" onclick="openModal('newWorkflowModal')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Nouveau Workflow
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6">
+            <!-- Tabs -->
+            <div class="workflow-tabs">
+                <div class="workflow-tab active" onclick="switchTab('overview')">Vue d'ensemble</div>
+                <div class="workflow-tab" onclick="switchTab('projects')">Projets en cours</div>
+                <div class="workflow-tab" onclick="switchTab('approvals')">En attente d'approbation</div>
+                <div class="workflow-tab" onclick="switchTab('analytics')">Analytics</div>
+                <div class="workflow-tab" onclick="switchTab('templates')">Templates</div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="workflow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="status-badge status-approved">+8%</span>
+                        </div>
+                        <h3 class="text-2xl font-bold inter-font" style="color: var(--jofe-blue-deep);">23</h3>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Validations en cours</p>
+                    </div>
+                    
+                    <div class="workflow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="status-badge status-approved">2.3h</span>
+                        </div>
+                        <h3 class="text-2xl font-bold inter-font" style="color: var(--jofe-blue-deep);">4.7h</h3>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Temps moyen validation</p>
+                    </div>
+                    
+                    <div class="workflow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-lg" style="background: rgba(246, 140, 31, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="status-badge status-pending">Urgent</span>
+                        </div>
+                        <h3 class="text-2xl font-bold inter-font" style="color: var(--jofe-blue-deep);">87%</h3>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Taux d'approbation</p>
+                    </div>
+                    
+                    <div class="workflow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-lg" style="background: rgba(26, 66, 120, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-blue-night);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            <span class="status-badge status-approved">+12%</span>
+                        </div>
+                        <h3 class="text-2xl font-bold inter-font" style="color: var(--jofe-blue-deep);">5</h3>
+                        <p class="text-sm" style="color: var(--jofe-blue-medium);">Projets livrés</p>
+                    </div>
+                </div>
+
+                <!-- Current Workflows -->
+                <div class="workflow-grid">
+                    <div class="workflow-main">
+                        <h3 class="inter-font text-lg font-semibold mb-6" style="color: var(--jofe-blue-deep);">Workflows Actifs</h3>
+                        
+                        <!-- Workflow 1: MOOV AFRICA -->
+                        <div class="workflow-card">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Campagne MOOV AFRICA - Data Mobile</h4>
+                                    <p class="text-sm text-gray-600">Client: MOOV AFRICA • Budget: 12,500,000 FCFA</p>
+                                </div>
+                                <span class="status-badge status-in-progress">En cours</span>
+                            </div>
+                            
+                            <div class="progress-bar mb-4">
+                                <div class="progress-fill" style="width: 65%;"></div>
+                            </div>
+                            
+                            <div class="workflow-steps">
+                                <div class="workflow-step approved">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium">Brief Client</p>
+                                                <p class="text-sm text-gray-600">Validé par Linda KABORÉ</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs text-gray-500">Il y a 2 jours</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="workflow-connector"></div>
+                                
+                                <div class="workflow-step approved">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium">Stratégie Créative</p>
+                                                <p class="text-sm text-gray-600">Validé par Serge ASSALÉ</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs text-gray-500">Il y a 1 jour</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="workflow-connector"></div>
+                                
+                                <div class="workflow-step in-progress">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium">Concepts Initiaux</p>
+                                                <p class="text-sm text-gray-600">En cours - Paul Junior OUEDRAOGO</p>
+                                            </div>
+                                        </div>
+                                        <div class="validation-action">
+                                            <button class="btn-success" onclick="approveStep('moov-concepts')">Valider</button>
+                                            <button class="btn-warning" onclick="requestRevision('moov-concepts')">Révision</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="workflow-connector"></div>
+                                
+                                <div class="workflow-step pending">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <div>
+                                            <p class="font-medium text-gray-600">Validation Client</p>
+                                            <p class="text-sm text-gray-500">En attente étape précédente</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workflow 2: BANK OF AFRICA -->
+                        <div class="workflow-card">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Rebranding BANK OF AFRICA</h4>
+                                    <p class="text-sm text-gray-600">Client: BANK OF AFRICA • Budget: 25,000,000 FCFA</p>
+                                </div>
+                                <span class="status-badge status-pending">Validation requise</span>
+                            </div>
+                            
+                            <div class="progress-bar mb-4">
+                                <div class="progress-fill" style="width: 45%;"></div>
+                            </div>
+                            
+                            <div class="workflow-steps">
+                                <div class="workflow-step approved">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium">Audit Existant</p>
+                                                <p class="text-sm text-gray-600">Validé par Enos GOUBA</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs text-gray-500">Il y a 3 jours</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="workflow-connector"></div>
+                                
+                                <div class="workflow-step pending">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="font-medium">Benchmark Concurrentiel</p>
+                                                <p class="text-sm text-gray-600">Validation requise - Jean-Jacques SAMPABAO</p>
+                                            </div>
+                                        </div>
+                                        <div class="validation-action">
+                                            <button class="btn-success" onclick="approveStep('boa-benchmark')">Approuver</button>
+                                            <button class="btn-danger" onclick="rejectStep('boa-benchmark')">Rejeter</button>
+                                            <button class="btn-secondary" onclick="openComments('boa-benchmark')">Commenter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workflow 3: SUNU BURKINA -->
+                        <div class="workflow-card">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Site Web SUNU BURKINA</h4>
+                                    <p class="text-sm text-gray-600">Client: SUNU BURKINA • Budget: 18,500,000 FCFA</p>
+                                </div>
+                                <span class="status-badge status-approved">Validé</span>
+                            </div>
+                            
+                            <div class="progress-bar mb-4">
+                                <div class="progress-fill" style="width: 80%;"></div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium">Maquettes UX/UI approuvées</p>
+                                    <p class="text-sm text-gray-600">Phase développement en cours - Abdoul Latif OUEDRAOGO</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="workflow-sidebar">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Actions Rapides</h3>
+                        
+                        <div class="space-y-3">
+                            <button class="btn-primary w-full justify-center" onclick="showPendingApprovals()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Validations en attente (5)
+                            </button>
+                            
+                            <button class="btn-secondary w-full justify-center" onclick="openModal('delegationModal')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                                Déléguer pouvoir
+                            </button>
+                        </div>
+
+                        <hr class="my-6" style="border-color: var(--jofe-gray-pearl);">
+
+                        <h4 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Notifications Récentes</h4>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05); border-left: 3px solid var(--jofe-green);">
+                                <p class="text-sm font-medium">MOOV AFRICA approuvé</p>
+                                <p class="text-xs text-gray-600">Brief validé par le client</p>
+                                <span class="text-xs text-gray-500">Il y a 15 min</span>
+                            </div>
+                            
+                            <div class="p-3 rounded-lg" style="background: rgba(246, 140, 31, 0.05); border-left: 3px solid var(--jofe-orange);">
+                                <p class="text-sm font-medium">BANK OF AFRICA en attente</p>
+                                <p class="text-xs text-gray-600">Benchmark à valider</p>
+                                <span class="text-xs text-gray-500">Il y a 2h</span>
+                            </div>
+                            
+                            <div class="p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05); border-left: 3px solid var(--jofe-blue-light);">
+                                <p class="text-sm font-medium">ROXGOLD démarré</p>
+                                <p class="text-xs text-gray-600">Nouveau projet logo</p>
+                                <span class="text-xs text-gray-500">Il y a 4h</span>
+                            </div>
+                        </div>
+
+                        <hr class="my-6" style="border-color: var(--jofe-gray-pearl);">
+
+                        <h4 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Équipe - Charge Validation</h4>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar avatar-sm" style="background: var(--jofe-blue-deep);">SA</div>
+                                    <span class="text-sm">Serge A.</span>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded" style="background: rgba(246, 140, 31, 0.1); color: var(--jofe-orange);">3 en attente</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar avatar-sm" style="background: var(--jofe-blue-medium);">EG</div>
+                                    <span class="text-sm">Enos G.</span>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded" style="background: rgba(147, 201, 84, 0.1); color: var(--jofe-green);">À jour</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar avatar-sm" style="background: var(--jofe-blue-light);">LK</div>
+                                    <span class="text-sm">Linda K.</span>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded" style="background: rgba(246, 140, 31, 0.1); color: var(--jofe-orange);">1 en attente</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects-tab" class="tab-content" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Active Projects -->
+                    <div class="workflow-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Projets Actifs (8)</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <h4 class="font-medium">Campagne MOOV AFRICA</h4>
+                                    <p class="text-sm text-gray-600">Étape 3/7 • Concepts Initiaux</p>
+                                    <div class="progress-bar mt-2" style="width: 150px; height: 4px;">
+                                        <div class="progress-fill" style="width: 43%;"></div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-in-progress">En cours</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 rounded-lg" style="background: rgba(246, 140, 31, 0.05);">
+                                <div>
+                                    <h4 class="font-medium">Rebranding BANK OF AFRICA</h4>
+                                    <p class="text-sm text-gray-600">Étape 2/8 • Benchmark</p>
+                                    <div class="progress-bar mt-2" style="width: 150px; height: 4px;">
+                                        <div class="progress-fill" style="width: 25%;"></div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-pending">Validation</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div>
+                                    <h4 class="font-medium">Site Web SUNU BURKINA</h4>
+                                    <p class="text-sm text-gray-600">Étape 6/8 • Développement</p>
+                                    <div class="progress-bar mt-2" style="width: 150px; height: 4px;">
+                                        <div class="progress-fill" style="width: 75%;"></div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-approved">En avance</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow Templates -->
+                    <div class="workflow-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Templates Workflow</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="p-4 border rounded-lg hover:border-blue-300 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(55, 182, 233, 0.1);">
+                                        <svg class="w-4 h-4" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Campagne Publicitaire</h4>
+                                        <p class="text-sm text-gray-600">7 étapes • 4-6 semaines</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 border rounded-lg hover:border-blue-300 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                                        <svg class="w-4 h-4" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h4"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Identité Visuelle</h4>
+                                        <p class="text-sm text-gray-600">8 étapes • 6-8 semaines</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 border rounded-lg hover:border-blue-300 cursor-pointer transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(246, 140, 31, 0.1);">
+                                        <svg class="w-4 h-4" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m0 0a9 9 0 01-9-9m9 9v-9a9 9 0 019-9m-9 9a9 9 0 01-9-9m9 9v-9"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium">Site Web/Digital</h4>
+                                        <p class="text-sm text-gray-600">10 étapes • 8-12 semaines</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approvals Tab -->
+            <div id="approvals-tab" class="tab-content" style="display: none;">
+                <div class="workflow-card">
+                    <h3 class="inter-font text-lg font-semibold mb-6" style="color: var(--jofe-blue-deep);">Validations en Attente</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="p-6 border-l-4 rounded-lg" style="border-left-color: var(--jofe-orange); background: rgba(246, 140, 31, 0.05);">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold">BANK OF AFRICA - Benchmark Concurrentiel</h4>
+                                    <p class="text-sm text-gray-600">Soumis par Jean-Jacques SAMPABAO • Il y a 2 heures</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="status-badge status-pending">Urgent</span>
+                                    <span class="text-sm text-gray-500">Délai: 4h restantes</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm mb-4">Analyse comparative des identités visuelles des principales banques burkinabé et régionales. Recommandations pour le repositionnement de BANK OF AFRICA.</p>
+                            
+                            <div class="flex items-center gap-3">
+                                <button class="btn-success" onclick="validateApproval('boa-benchmark')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approuver
+                                </button>
+                                <button class="btn-warning" onclick="requestRevisionModal('boa-benchmark')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                    </svg>
+                                    Demander révision
+                                </button>
+                                <button class="btn-danger" onclick="rejectApproval('boa-benchmark')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    Rejeter
+                                </button>
+                                <button class="btn-secondary" onclick="viewDetails('boa-benchmark')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    Voir détails
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-l-4 rounded-lg" style="border-left-color: var(--jofe-blue-light); background: rgba(55, 182, 233, 0.05);">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="font-semibold">ROXGOLD - Concepts Logo Initial</h4>
+                                    <p class="text-sm text-gray-600">Soumis par Issa CISSE • Il y a 6 heures</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="status-badge status-in-progress">Normal</span>
+                                    <span class="text-sm text-gray-500">Délai: 1 jour restant</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm mb-4">Trois propositions de logo pour ROXGOLD intégrant les codes miniers et l'identité burkinabé. Variations couleur et noir & blanc incluses.</p>
+                            
+                            <div class="flex items-center gap-3">
+                                <button class="btn-success" onclick="validateApproval('roxgold-logo')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Approuver
+                                </button>
+                                <button class="btn-warning" onclick="requestRevisionModal('roxgold-logo')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                    </svg>
+                                    Demander révision
+                                </button>
+                                <button class="btn-secondary" onclick="delegateApproval('roxgold-logo')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                    </svg>
+                                    Déléguer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="chart-container">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Temps de Validation par Étape</h3>
+                        <canvas id="validationTimeChart" style="height: 200px;"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Taux d'Approbation par Projet</h3>
+                        <canvas id="approvalRateChart" style="height: 200px;"></canvas>
+                    </div>
+                    
+                    <div class="workflow-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Performance Validateurs</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar" style="background: var(--jofe-green);">LK</div>
+                                    <div>
+                                        <p class="font-medium">Linda KABORÉ</p>
+                                        <p class="text-sm text-gray-600">Chef de Pub Lead</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-green-600">2.3h</p>
+                                    <p class="text-xs text-gray-500">Temps moyen</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar" style="background: var(--jofe-blue-medium);">EG</div>
+                                    <div>
+                                        <p class="font-medium">Enos GOUBA</p>
+                                        <p class="text-sm text-gray-600">Coordinateur Production</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold" style="color: var(--jofe-blue-medium);">4.7h</p>
+                                    <p class="text-xs text-gray-500">Temps moyen</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 rounded-lg" style="background: rgba(246, 140, 31, 0.05);">
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar" style="background: var(--jofe-orange);">SA</div>
+                                    <div>
+                                        <p class="font-medium">Serge ASSALÉ</p>
+                                        <p class="text-sm text-gray-600">Directeur Création</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-orange-600">6.2h</p>
+                                    <p class="text-xs text-gray-500">Temps moyen</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Goulots d'Étranglement</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(239, 68, 68, 0.05);">
+                                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-red-600">Validation Client</p>
+                                    <p class="text-sm text-gray-600">Délai moyen: 8.5 jours</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(246, 140, 31, 0.05);">
+                                <svg class="w-5 h-5" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium" style="color: var(--jofe-orange);">Révisions Créatives</p>
+                                    <p class="text-sm text-gray-600">Délai moyen: 3.2 jours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Tab -->
+            <div id="templates-tab" class="tab-content" style="display: none;">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="workflow-card cursor-pointer hover:shadow-lg" onclick="useTemplate('telecom-campaign')">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background: rgba(55, 182, 233, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Campagne Télécoms</h4>
+                                <p class="text-sm text-gray-600">MOOV AFRICA, Orange</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Étapes:</span>
+                                <span class="font-medium">7</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Durée:</span>
+                                <span class="font-medium">4-6 semaines</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Budget type:</span>
+                                <span class="font-medium">10-15M FCFA</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary w-full mt-4">Utiliser ce template</button>
+                    </div>
+
+                    <div class="workflow-card cursor-pointer hover:shadow-lg" onclick="useTemplate('banking-rebrand')">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Rebranding Bancaire</h4>
+                                <p class="text-sm text-gray-600">BANK OF AFRICA, SUNU</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Étapes:</span>
+                                <span class="font-medium">8</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Durée:</span>
+                                <span class="font-medium">6-8 semaines</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Budget type:</span>
+                                <span class="font-medium">20-30M FCFA</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary w-full mt-4">Utiliser ce template</button>
+                    </div>
+
+                    <div class="workflow-card cursor-pointer hover:shadow-lg" onclick="useTemplate('website-development')">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background: rgba(246, 140, 31, 0.1);">
+                                <svg class="w-6 h-6" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m0 0a9 9 0 01-9-9m9 9v-9a9 9 0 019-9m-9 9a9 9 0 01-9-9m9 9v-9"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Site Web Corporate</h4>
+                                <p class="text-sm text-gray-600">SUNU, ROXGOLD, PNUD</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Étapes:</span>
+                                <span class="font-medium">10</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Durée:</span>
+                                <span class="font-medium">8-12 semaines</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Budget type:</span>
+                                <span class="font-medium">15-25M FCFA</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary w-full mt-4">Utiliser ce template</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- New Workflow Modal -->
+    <div id="newWorkflowModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="inter-font text-xl font-bold" style="color: var(--jofe-blue-deep);">Nouveau Workflow</h2>
+                <button onclick="closeModal('newWorkflowModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="form-group">
+                    <label class="form-label">Nom du projet</label>
+                    <input type="text" class="form-input" placeholder="Ex: Campagne MOOV AFRICA - Data Mobile">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Client</label>
+                    <select class="form-input">
+                        <option>MOOV AFRICA</option>
+                        <option>BANK OF AFRICA</option>
+                        <option>SUNU BURKINA</option>
+                        <option>ROXGOLD</option>
+                        <option>PNUD BF</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Template workflow</label>
+                    <select class="form-input">
+                        <option>Campagne Publicitaire (7 étapes)</option>
+                        <option>Identité Visuelle (8 étapes)</option>
+                        <option>Site Web/Digital (10 étapes)</option>
+                        <option>Événementiel (6 étapes)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Budget estimé (FCFA)</label>
+                    <input type="number" class="form-input" placeholder="Ex: 12500000">
+                </div>
+                
+                <div class="flex gap-3">
+                    <button class="btn-primary flex-1">Créer le workflow</button>
+                    <button class="btn-secondary" onclick="closeModal('newWorkflowModal')">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revision Request Modal -->
+    <div id="revisionModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="inter-font text-xl font-bold" style="color: var(--jofe-blue-deep);">Demander une Révision</h2>
+                <button onclick="closeModal('revisionModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="form-group">
+                    <label class="form-label">Motif de la révision</label>
+                    <select class="form-input">
+                        <option>Non conforme au brief</option>
+                        <option>Qualité insuffisante</option>
+                        <option>Changement de direction</option>
+                        <option>Demande client</option>
+                        <option>Autre (préciser)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Commentaires détaillés</label>
+                    <textarea class="form-input form-textarea" placeholder="Précisez les modifications attendues..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Priorité</label>
+                    <select class="form-input">
+                        <option>Normale</option>
+                        <option>Élevée</option>
+                        <option>Urgente</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button class="btn-warning flex-1">Demander révision</button>
+                    <button class="btn-secondary" onclick="closeModal('revisionModal')">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delegation Modal -->
+    <div id="delegationModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="inter-font text-xl font-bold" style="color: var(--jofe-blue-deep);">Déléguer Pouvoir de Validation</h2>
+                <button onclick="closeModal('delegationModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="form-group">
+                    <label class="form-label">Déléguer à</label>
+                    <select class="form-input">
+                        <option>Enos GOUBA - Coordinateur Production</option>
+                        <option>Linda KABORÉ - Chef de Pub Lead</option>
+                        <option>Jean-Jacques SAMPABAO - Directeur Artistique Jr</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Période</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="date" class="form-input" placeholder="Du">
+                        <input type="date" class="form-input" placeholder="Au">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Niveau de délégation</label>
+                    <select class="form-input">
+                        <option>Validation créative uniquement</option>
+                        <option>Validation opérationnelle</option>
+                        <option>Toutes validations < 5M FCFA</option>
+                        <option>Pouvoir complet temporaire</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button class="btn-primary flex-1">Déléguer</button>
+                    <button class="btn-secondary" onclick="closeModal('delegationModal')">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <script>
+        // Global variables
+        let currentTab = 'overview';
+        let workflowData = {
+            projects: [
+                {
+                    id: 'moov-campaign',
+                    name: 'Campagne MOOV AFRICA - Data Mobile',
+                    client: 'MOOV AFRICA',
+                    budget: 12500000,
+                    progress: 65,
+                    status: 'in-progress',
+                    currentStep: 'concepts',
+                    steps: [
+                        { name: 'Brief Client', status: 'approved', validator: 'Linda KABORÉ', date: '2 jours' },
+                        { name: 'Stratégie Créative', status: 'approved', validator: 'Serge ASSALÉ', date: '1 jour' },
+                        { name: 'Concepts Initiaux', status: 'in-progress', validator: 'Paul Junior OUEDRAOGO', date: 'En cours' },
+                        { name: 'Validation Client', status: 'pending', validator: 'En attente', date: '' }
+                    ]
+                },
+                {
+                    id: 'boa-rebrand',
+                    name: 'Rebranding BANK OF AFRICA',
+                    client: 'BANK OF AFRICA', 
+                    budget: 25000000,
+                    progress: 25,
+                    status: 'pending',
+                    currentStep: 'benchmark',
+                    steps: [
+                        { name: 'Audit Existant', status: 'approved', validator: 'Enos GOUBA', date: '3 jours' },
+                        { name: 'Benchmark', status: 'pending', validator: 'Jean-Jacques SAMPABAO', date: 'En attente' }
+                    ]
+                }
+            ]
+        };
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-active');
+            mobileOverlay.classList.toggle('hidden');
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-active');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.workflow-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Initialize charts if analytics tab
+            if (tabName === 'analytics') {
+                setTimeout(initCharts, 100);
+            }
+        }
+
+        // Modal management
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Workflow actions
+        function approveStep(stepId) {
+            showNotification('Étape validée avec succès', 'success');
+            updateWorkflowProgress(stepId, 'approved');
+        }
+
+        function rejectStep(stepId) {
+            showNotification('Étape rejetée', 'error');
+            updateWorkflowProgress(stepId, 'rejected');
+        }
+
+        function requestRevision(stepId) {
+            openModal('revisionModal');
+        }
+
+        function requestRevisionModal(stepId) {
+            openModal('revisionModal');
+        }
+
+        function validateApproval(approvalId) {
+            showNotification('Validation approuvée', 'success');
+            // Update UI
+        }
+
+        function rejectApproval(approvalId) {
+            if (confirm('Êtes-vous sûr de vouloir rejeter cette validation ?')) {
+                showNotification('Validation rejetée', 'error');
+                // Update UI
+            }
+        }
+
+        function delegateApproval(approvalId) {
+            openModal('delegationModal');
+        }
+
+        function viewDetails(itemId) {
+            // Open detailed view
+            showNotification('Ouverture des détails...', 'info');
+        }
+
+        function updateWorkflowProgress(stepId, status) {
+            // Update progress in UI
+            const stepElement = document.querySelector(`[data-step="${stepId}"]`);
+            if (stepElement) {
+                stepElement.className = `workflow-step ${status}`;
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type} show`;
+            
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ⓘ';
+            
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-lg">${icon}</span>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Template functions
+        function useTemplate(templateId) {
+            showNotification(`Template "${templateId}" sélectionné`, 'success');
+            openModal('newWorkflowModal');
+        }
+
+        // Charts initialization
+        function initCharts() {
+            if (typeof Chart === 'undefined') return;
+            
+            // Validation Time Chart
+            const timeCtx = document.getElementById('validationTimeChart');
+            if (timeCtx) {
+                new Chart(timeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Brief', 'Stratégie', 'Concepts', 'Validation', 'Production', 'Révisions', 'Livraison'],
+                        datasets: [{
+                            label: 'Temps moyen (heures)',
+                            data: [2, 4, 8, 12, 16, 6, 2],
+                            backgroundColor: '#37B6E9',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+            
+            // Approval Rate Chart
+            const rateCtx = document.getElementById('approvalRateChart');
+            if (rateCtx) {
+                new Chart(rateCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Approuvé', 'Révision', 'Rejeté'],
+                        datasets: [{
+                            data: [75, 20, 5],
+                            backgroundColor: ['#93C954', '#F68C1F', '#EF4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Real-time updates simulation
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Update notification badges randomly
+                const badges = document.querySelectorAll('.status-badge');
+                badges.forEach(badge => {
+                    if (Math.random() > 0.95) {
+                        badge.style.animation = 'pulse 1s ease-in-out';
+                        setTimeout(() => {
+                            badge.style.animation = '';
+                        }, 1000);
+                    }
+                });
+            }, 5000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        switchTab('overview');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchTab('projects');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchTab('approvals');
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        openModal('newWorkflowModal');
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal.active');
+                modals.forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Auto-save functionality
+        function autoSave() {
+            const formData = {};
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                if (input.id) {
+                    formData[input.id] = input.value;
+                }
+            });
+            
+            localStorage.setItem('jofe_workflow_draft', JSON.stringify(formData));
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            const savedData = localStorage.getItem('jofe_workflow_draft');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(key => {
+                    const input = document.getElementById(key);
+                    if (input) {
+                        input.value = formData[key];
+                    }
+                });
+            }
+        }
+
+        // Priority actions for pending approvals
+        function showPendingApprovals() {
+            switchTab('approvals');
+            showNotification('5 validations en attente de votre approbation', 'warning');
+        }
+
+        // Export functionality
+        function exportWorkflowReport() {
+            showNotification('Export du rapport en cours...', 'info');
+            setTimeout(() => {
+                showNotification('Rapport exporté avec succès', 'success');
+            }, 2000);
+        }
+
+        // Search functionality
+        function searchWorkflows(query) {
+            const results = workflowData.projects.filter(project => 
+                project.name.toLowerCase().includes(query.toLowerCase()) ||
+                project.client.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            return results;
+        }
+
+        // Drag and drop for workflow reordering (future feature)
+        function initDragAndDrop() {
+            // Implementation for drag and drop reordering of workflow steps
+            console.log('Drag and drop initialized');
+        }
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('JoFé+ Workflow App initialized');
+            loadSavedData();
+            simulateRealTimeUpdates();
+            initDragAndDrop();
+            
+            // Auto-save every 30 seconds
+            setInterval(autoSave, 30000);
+            
+            // Show welcome notification
+            setTimeout(() => {
+                showNotification('Workflow d\'approbation chargé avec succès', 'success');
+            }, 1000);
+            
+            // Initial chart load for analytics if it's the current tab
+            if (currentTab === 'analytics') {
+                setTimeout(initCharts, 500);
+            }
+        });
+
+        // Close modals on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Form validation
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.style.borderColor = '#EF4444';
+                    isValid = false;
+                } else {
+                    input.style.borderColor = '#EBECED';
+                }
+            });
+            
+            return isValid;
+        }
+
+        // Workflow templates data
+        const workflowTemplates = {
+            'telecom-campaign': {
+                name: 'Campagne Télécommunications',
+                steps: ['Brief Client', 'Stratégie', 'Concepts', 'Validation Client', 'Production', 'Tests', 'Livraison'],
+                duration: '4-6 semaines',
+                budget: '10-15M FCFA'
+            },
+            'banking-rebrand': {
+                name: 'Rebranding Bancaire',
+                steps: ['Audit', 'Benchmark', 'Concepts', 'Présentation', 'Déclinaisons', 'Tests', 'Charte', 'Livraison'],
+                duration: '6-8 semaines',
+                budget: '20-30M FCFA'
+            },
+            'website-development': {
+                name: 'Site Web/Digital',
+                steps: ['Cahier charges', 'Architecture', 'Maquettes', 'Développement', 'Tests', 'Recette', 'Corrections', 'Mise en ligne'],
+                duration: '8-12 semaines',
+                budget: '15-25M FCFA'
+            }
+        };
+    </script>
+</body>
+</html>

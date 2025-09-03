@@ -23,6 +23,7 @@ import ProjectCreate from "@/pages/project-create";
 import ProjectDetail from "@/pages/project-detail";
 import Gantt from "@/pages/gantt";
 import ProjectTemplates from "@/pages/project-templates";
+import WorkflowApproval from "@/pages/workflow-approval";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/gantt" component={Gantt} />
       <Route path="/project-templates" component={ProjectTemplates} />
+      <Route path="/workflow-approval" component={WorkflowApproval} />
       
       {/* Route 404 */}
       <Route component={NotFound} />
