@@ -16,6 +16,7 @@ import Permissions from "@/pages/permissions";
 import Analytics from "@/pages/analytics";
 import Reports from "@/pages/reports";
 import ProductivityAnalysis from "@/pages/productivity-analysis";
+import RoiProfitability from "@/pages/roi-profitability";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/reports" component={Reports} />
       <Route path="/productivity-analysis" component={ProductivityAnalysis} />
+      <Route path="/roi-profitability" component={RoiProfitability} />
       
       {/* Route 404 */}
       <Route component={NotFound} />

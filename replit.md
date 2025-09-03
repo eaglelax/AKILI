@@ -78,8 +78,8 @@ Preferred communication style: Simple, everyday language.
 - Page 8 - Dashboard analytics principal avec KPIs ✅
 - Page 9 - Rapports détaillés (2 semaines, mensuel, trimestriel) ✅
 - Page 10 - Graphiques pour présentations CODIR
-- Page 11 - Analyse productivité par membre/équipe
-- Page 12 - ROI et rentabilité par client/projet
+- Page 11 - Analyse productivité par membre/équipe ✅
+- Page 12 - ROI et rentabilité par client/projet ✅
 
 ### 📋 GESTION DE PROJETS
 - Page 13 - Liste des projets actifs/terminés
