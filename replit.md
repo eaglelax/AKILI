@@ -84,7 +84,7 @@ Preferred communication style: Simple, everyday language.
 
 ### 📋 GESTION DE PROJETS
 - Page 13 - Liste des projets actifs/terminés ✅
-- Page 14 - Création/édition de projet
+- Page 14 - Création/édition de projet ✅
 - Page 15 - Vue détaillée d'un projet
 - Page 16 - Diagramme de Gantt interactif
 - Page 17 - Templates de projets pré-configurés
