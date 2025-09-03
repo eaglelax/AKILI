@@ -297,19 +297,9 @@ export default function TimeHistory() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-lg hover:bg-[var(--jofe-gray)] transition-colors">
-                <TrendingUp className="w-5 h-5 text-[var(--jofe-blue-medium)]" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-[var(--jofe-blue-light)] rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm font-medium text-[var(--jofe-blue-deep)]">
-                  {(user as any)?.name || 'Utilisateur'}
-                </span>
-              </div>
-            </div>
+            <button className="p-2 rounded-lg hover:bg-[var(--jofe-gray)] transition-colors">
+              <TrendingUp className="w-5 h-5 text-[var(--jofe-blue-medium)]" />
+            </button>
           </div>
         </header>
 
