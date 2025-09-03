@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Vue d'Ensemble Équipe</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray-pearl: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .urial-font {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .member-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .member-card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jofe-blue-light), var(--jofe-blue-medium));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .status-available { background: var(--jofe-green); }
+        .status-busy { background: var(--jofe-orange); }
+        .status-away { background: #6B7280; }
+        .status-leave { background: #EF4444; }
+        
+        .workload-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--jofe-gray-pearl);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .workload-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+        
+        .workload-low { background: var(--jofe-green); }
+        .workload-medium { background: var(--jofe-blue-light); }
+        .workload-high { background: var(--jofe-orange); }
+        .workload-critical { background: #EF4444; }
+        
+        .skill-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 2px;
+        }
+        
+        .skill-expert {
+            background: rgba(147, 201, 84, 0.2);
+            color: var(--jofe-green);
+        }
+        
+        .skill-advanced {
+            background: rgba(55, 182, 233, 0.2);
+            color: var(--jofe-blue-light);
+        }
+        
+        .skill-intermediate {
+            background: rgba(52, 117, 187, 0.2);
+            color: var(--jofe-blue-medium);
+        }
+        
+        .skill-beginner {
+            background: rgba(235, 236, 237, 0.8);
+            color: #6B7280;
+        }
+        
+        .performance-stars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            width: 16px;
+            height: 16px;
+            color: var(--jofe-orange);
+        }
+        
+        .star.filled {
+            fill: currentColor;
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray-pearl);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--jofe-blue-light);
+            color: var(--jofe-blue-light);
+        }
+        
+        .dashboard-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .metric-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            box-shadow: 0 4px 8px rgba(22, 44, 84, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 4px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--jofe-blue-medium);
+        }
+        
+        .filter-button {
+            padding: 8px 16px;
+            border: 1px solid var(--jofe-gray-pearl);
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .filter-button.active,
+        .filter-button:hover {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--jofe-white);
+            margin: 5% auto;
+            padding: 32px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--jofe-blue-deep);
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--jofe-green);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .member-card {
+                padding: 16px;
+            }
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--jofe-gray-pearl);
+            border-top: 2px solid var(--jofe-blue-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="urial-font text-xl" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="urial-font text-2xl" style="color: var(--jofe-blue-deep);">Vue d'Ensemble Équipe</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Gestion des 14 membres créatifs JoFé+ Digital</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button id="exportBtn" class="btn-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Exporter Rapport
+                    </button>
+                    
+                    <button id="addMemberBtn" class="btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Nouveau Membre
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6 space-y-8">
+            <!-- Team Overview Dashboard -->
+            <div class="dashboard-card fade-in">
+                <h2 class="urial-font text-xl mb-6" style="color: var(--jofe-blue-deep);">Tableau de Bord Équipe</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalMembers">14</div>
+                        <div class="metric-label">Membres Actifs</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: var(--jofe-green);" id="availableMembers">6</div>
+                        <div class="metric-label">Disponibles</div>
+                    </div>
+                    
+                    <div class="metric-value" style="color: var(--jofe-orange);" id="busyMembers">7</div>
+                        <div class="metric-label">En Cours</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: var(--jofe-blue-light);" id="avgWorkload">72%</div>
+                        <div class="metric-label">Charge Moyenne</div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-semibold mb-4" style="color: var(--jofe-blue-deep);">Répartition par Spécialité</h3>
+                        <div class="chart-container">
+                            <canvas id="specialtyChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold mb-4" style="color: var(--jofe-blue-deep);">Charge de Travail</h3>
+                        <div class="chart-container">
+                            <canvas id="workloadChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="dashboard-card fade-in">
+                <div class="flex flex-wrap gap-3 items-center justify-between">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-button active" data-filter="all">Tous</button>
+                        <button class="filter-button" data-filter="available">Disponibles</button>
+                        <button class="filter-button" data-filter="busy">Occupés</button>
+                        <button class="filter-button" data-filter="senior">Senior</button>
+                        <button class="filter-button" data-filter="junior">Junior</button>
+                        <button class="filter-button" data-filter="design">Design</button>
+                        <button class="filter-button" data-filter="strategy">Stratégie</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="searchInput" placeholder="Rechercher un membre..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none">
+                            <option value="name">Trier par nom</option>
+                            <option value="workload">Trier par charge</option>
+                            <option value="performance">Trier par performance</option>
+                            <option value="rate">Trier par taux</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Members Grid -->
+            <div class="team-grid fade-in" id="teamGrid">
+                <!-- Members will be populated by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Member Details -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="memberModalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <script>
+        // Team data
+        const teamMembers = [
+            {
+                id: 1,
+                name: "Serge ASSALÉ",
+                position: "Directeur Création & Marketing",
+                category: "direction",
+                rate: 15000,
+                workload: 75,
+                performance: 4.9,
+                status: "available",
+                avatar: "SA",
+                skills: [
+                    { name: "Stratégie", level: "expert" },
+                    { name: "Direction Artistique", level: "expert" },
+                    { name: "Management", level: "expert" }
+                ],
+                projects: ["MOOV AFRICA", "BANK OF AFRICA", "SUNU BURKINA"],
+                specialties: ["Vision stratégique", "Relation client", "Innovation"],
+                isAdmin: true,
+                hoursPerWeek: 30,
+                email: "serge.assale@jofeplus.bf",
+                phone: "+226 70 12 34 56"
+            },
+            {
+                id: 2,
+                name: "Enos GOUBA",
+                position: "Coordinateur Production",
+                category: "direction",
+                rate: 12000,
+                workload: 80,
+                performance: 4.8,
+                status: "available",
+                avatar: "EG",
+                skills: [
+                    { name: "Coordination", level: "expert" },
+                    { name: "Planning", level: "expert" },
+                    { name: "Production", level: "expert" }
+                ],
+                projects: ["Transversal"],
+                specialties: ["Optimisation workflow", "Gestion ressources"],
+                isAdmin: true,
+                hoursPerWeek: 32,
+                email: "enos.gouba@jofeplus.bf",
+                phone: "+226 70 12 34 57"
+            },
+            {
+                id: 3,
+                name: "Paul Junior OUEDRAOGO",
+                position: "Graphiste Photomonteur",
+                category: "senior",
+                rate: 8000,
+                workload: 90,
+                performance: 4.7,
+                status: "busy",
+                avatar: "PO",
+                skills: [
+                    { name: "Photoshop", level: "expert" },
+                    { name: "Photomontage", level: "expert" },
+                    { name: "Print", level: "advanced" }
+                ],
+                projects: ["MOOV AFRICA", "ROXGOLD", "DAFANI"],
+                specialties: ["Retouche photo", "Créations visuelles complexes"],
+                isAdmin: false,
+                hoursPerWeek: 36,
+                email: "paul.ouedraogo@jofeplus.bf",
+                phone: "+226 70 12 34 58"
+            },
+            {
+                id: 4,
+                name: "Fortune YANOGO",
+                position: "Photographe/Vidéaste",
+                category: "senior",
+                rate: 10000,
+                workload: 70,
+                performance: 4.6,
+                status: "available",
+                avatar: "FY",
+                skills: [
+                    { name: "Photographie", level: "expert" },
+                    { name: "Vidéo", level: "expert" },
+                    { name: "Post-production", level: "advanced" }
+                ],
+                projects: ["BANK OF AFRICA", "NELSON SOLAR"],
+                specialties: ["Shooting corporate", "Vidéos institutionnelles"],
+                isAdmin: false,
+                hoursPerWeek: 28,
+                email: "fortune.yanogo@jofeplus.bf",
+                phone: "+226 70 12 34 59"
+            },
+            {
+                id: 5,
+                name: "Bientama PARÉ",
+                position: "Motion Designer",
+                category: "senior",
+                rate: 9000,
+                workload: 85,
+                performance: 4.8,
+                status: "busy",
+                avatar: "BP",
+                skills: [
+                    { name: "After Effects", level: "expert" },
+                    { name: "Motion Design", level: "expert" },
+                    { name: "3D", level: "intermediate" }
+                ],
+                projects: ["SUNU BURKINA", "BABALI BOISSONS"],
+                specialties: ["Motion graphics", "Explainer videos"],
+                isAdmin: false,
+                hoursPerWeek: 34,
+                email: "bientama.pare@jofeplus.bf",
+                phone: "+226 70 12 34 60"
+            },
+            {
+                id: 6,
+                name: "Linda KABORÉ",
+                position: "Conceptrice Rédactrice Lead",
+                category: "senior",
+                rate: 9500,
+                workload: 65,
+                performance: 4.9,
+                status: "available",
+                avatar: "LK",
+                skills: [
+                    { name: "Rédaction", level: "expert" },
+                    { name: "Stratégie", level: "advanced" },
+                    { name: "Conceptualisation", level: "expert" }
+                ],
+                projects: ["Projets transversaux"],
+                specialties: ["Naming", "Storytelling", "Stratégie de contenu"],
+                isAdmin: false,
+                hoursPerWeek: 26,
+                email: "linda.kabore@jofeplus.bf",
+                phone: "+226 70 12 34 61"
+            },
+            {
+                id: 7,
+                name: "Jean-Jacques SAMPABAO",
+                position: "Directeur Artistique Junior",
+                category: "intermediate",
+                rate: 7000,
+                workload: 0,
+                performance: 4.5,
+                status: "leave",
+                avatar: "JS",
+                skills: [
+                    { name: "Direction Artistique", level: "intermediate" },
+                    { name: "Design", level: "advanced" }
+                ],
+                projects: [],
+                specialties: ["Identités visuelles", "Supervision créative"],
+                isAdmin: false,
+                hoursPerWeek: 0,
+                email: "jeanjacques.sampabao@jofeplus.bf",
+                phone: "+226 70 12 34 62",
+                note: "En congé - retour 15/01"
+            },
+            {
+                id: 8,
+                name: "Abdoul Latif OUEDRAOGO",
+                position: "Designer UI/UX",
+                category: "intermediate",
+                rate: 8500,
+                workload: 95,
+                performance: 4.7,
+                status: "busy",
+                avatar: "AO",
+                skills: [
+                    { name: "UI/UX", level: "expert" },
+                    { name: "Web Design", level: "expert" },
+                    { name: "Prototypage", level: "advanced" }
+                ],
+                projects: ["SUNU site web", "AGENCE ZACA", "FROID SOLUTIONS"],
+                specialties: ["Interfaces digitales", "Expérience utilisateur"],
+                isAdmin: false,
+                hoursPerWeek: 38,
+                email: "abdoul.ouedraogo@jofeplus.bf",
+                phone: "+226 70 12 34 63"
+            },
+            {
+                id: 9,
+                name: "Florita KABORÉ",
+                position: "Responsable Médias Sociaux",
+                category: "intermediate",
+                rate: 7500,
+                workload: 70,
+                performance: 4.6,
+                status: "available",
+                avatar: "FK",
+                skills: [
+                    { name: "Social Media", level: "expert" },
+                    { name: "Media Buying", level: "advanced" },
+                    { name: "Analytics", level: "advanced" }
+                ],
+                projects: ["Gestion multi-comptes"],
+                specialties: ["Stratégie sociale", "Publicité digitale"],
+                isAdmin: false,
+                hoursPerWeek: 28,
+                email: "florita.kabore@jofeplus.bf",
+                phone: "+226 70 12 34 64"
+            },
+            {
+                id: 10,
+                name: "Nebié WEBOU",
+                position: "Chef de Pub/Concepteur Rédacteur",
+                category: "intermediate",
+                rate: 8500,
+                workload: 80,
+                performance: 4.5,
+                status: "busy",
+                avatar: "NW",
+                skills: [
+                    { name: "Stratégie Pub", level: "advanced" },
+                    { name: "Rédaction", level: "advanced" },
+                    { name: "Relations Client", level: "expert" }
+                ],
+                projects: ["PNUD BF", "ANSSI", "LAAFI NANDA"],
+                specialties: ["Campagnes institutionnelles", "Communication corporate"],
+                isAdmin: false,
+                hoursPerWeek: 32,
+                email: "nebie.webou@jofeplus.bf",
+                phone: "+226 70 12 34 65"
+            },
+            {
+                id: 11,
+                name: "Issa CISSE",
+                position: "Graphiste Junior",
+                category: "junior",
+                rate: 6000,
+                workload: 60,
+                performance: 4.2,
+                status: "available",
+                avatar: "IC",
+                skills: [
+                    { name: "Graphisme", level: "intermediate" },
+                    { name: "Mise en page", level: "advanced" }
+                ],
+                projects: ["Support sur projets complexes"],
+                specialties: ["Support graphique", "Mise en page"],
+                isAdmin: false,
+                hoursPerWeek: 24,
+                email: "issa.cisse@jofeplus.bf",
+                phone: "+226 70 12 34 66",
+                note: "Formation Design avancé - 20% temps"
+            },
+            {
+                id: 12,
+                name: "Djamilatou GUIGUEMDE",
+                position: "Chef de Pub Stagiaire",
+                category: "junior",
+                rate: 4500,
+                workload: 50,
+                performance: 4.0,
+                status: "available",
+                avatar: "DG",
+                skills: [
+                    { name: "Communication", level: "beginner" },
+                    { name: "Organisation", level: "intermediate" }
+                ],
+                projects: ["Assistance projets"],
+                specialties: ["Support administratif", "Coordination junior"],
+                isAdmin: false,
+                hoursPerWeek: 20,
+                email: "djamilatou.guiguemde@jofeplus.bf",
+                phone: "+226 70 12 34 67",
+                note: "En formation - 30% temps"
+            },
+            {
+                id: 13,
+                name: "Maryse BOMBIRI",
+                position: "Community Manager",
+                category: "intermediate",
+                rate: 7000,
+                workload: 75,
+                performance: 4.4,
+                status: "available",
+                avatar: "MB",
+                skills: [
+                    { name: "Community Management", level: "advanced" },
+                    { name: "E-reputation", level: "expert" }
+                ],
+                projects: ["Gestion communautés clients"],
+                specialties: ["Animation communautés", "Gestion de crise digitale"],
+                isAdmin: false,
+                hoursPerWeek: 30,
+                email: "maryse.bombiri@jofeplus.bf",
+                phone: "+226 70 12 34 68"
+            },
+            {
+                id: 14,
+                name: "Faridatou BARRY",
+                position: "Chef de Pub/CM",
+                category: "intermediate",
+                rate: 7500,
+                workload: 65,
+                performance: 4.3,
+                status: "busy",
+                avatar: "FB",
+                skills: [
+                    { name: "Publicité", level: "intermediate" },
+                    { name: "Community Management", level: "advanced" }
+                ],
+                projects: ["Projets hybrides pub/digital"],
+                specialties: ["Stratégies hybrides", "Multi-canal"],
+                isAdmin: false,
+                hoursPerWeek: 26,
+                email: "faridatou.barry@jofeplus.bf",
+                phone: "+226 70 12 34 69"
+            }
+        ];
+
+        // Global variables
+        let filteredMembers = [...teamMembers];
+        let currentSort = 'name';
+        let currentFilter = 'all';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTeamMembers();
+            initializeCharts();
+            updateMetrics();
+            initializeEventListeners();
+        });
+
+        // Event listeners
+        function initializeEventListeners() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mobileOverlay.classList.toggle('hidden');
+            });
+
+            mobileOverlay.addEventListener('click', () => {
+                sidebar.classList.add('hidden');
+                mobileOverlay.classList.add('hidden');
+            });
+
+            // Filter buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    applyFilters();
+                });
+            });
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                applyFilters();
+            });
+
+            // Sort select
+            document.getElementById('sortSelect').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                applySorting();
+            });
+
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', exportReport);
+
+            // Add member button
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                showNotification('Fonctionnalité à venir : Ajout de nouveau membre', 'info');
+            });
+
+            // Modal close
+            document.querySelector('.close').addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => {
+                const modal = document.getElementById('memberModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Render team members
+        function renderTeamMembers() {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+
+            filteredMembers.forEach(member => {
+                const card = createMemberCard(member);
+                grid.appendChild(card);
+            });
+        }
+
+        // Create member card
+        function createMemberCard(member) {
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            card.dataset.memberId = member.id;
+
+            const workloadColor = getWorkloadColor(member.workload);
+            const statusClass = `status-${member.status}`;
+
+            card.innerHTML = `
+                <div class="status-indicator ${statusClass}"></div>
+                <div class="member-avatar">${member.avatar}</div>
+                <div class="mb-4">
+                    <h3 class="font-semibold text-lg" style="color: var(--jofe-blue-deep);">${member.name}</h3>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">${member.position}</p>
+                    <p class="text-xs text-gray-500">${member.rate.toLocaleString()} FCFA/h</p>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Charge de travail</span>
+                        <span class="text-sm font-semibold">${member.workload}%</span>
+                    </div>
+                    <div class="workload-bar">
+                        <div class="workload-fill ${workloadColor}" style="width: ${member.workload}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Performance</span>
+                        <div class="performance-stars">
+                            ${generateStars(member.performance)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="text-sm mb-2">Compétences principales</div>
+                    <div class="flex flex-wrap">
+                        ${member.skills.slice(0, 3).map(skill => 
+                            `<span class="skill-badge skill-${skill.level}">${skill.name}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="text-sm mb-2">Projets actifs</div>
+                    <div class="text-xs text-gray-600">
+                        ${member.projects.length > 0 ? member.projects.slice(0, 2).join(', ') : 'Aucun projet actif'}
+                        ${member.projects.length > 2 ? ` +${member.projects.length - 2} autres` : ''}
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 mt-4">
+                    <button class="btn-primary flex-1" onclick="viewMemberDetails(${member.id})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Voir Profil
+                    </button>
+                    <button class="btn-secondary" onclick="assignTasks(${member.id})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Assigner
+                    </button>
+                </div>
+                
+                ${member.note ? `<div class="mt-2 text-xs text-orange-600 bg-orange-50 p-2 rounded">${member.note}</div>` : ''}
+            `;
+
+            return card;
+        }
+
+        // Helper functions
+        function getWorkloadColor(workload) {
+            if (workload < 60) return 'workload-low';
+            if (workload < 80) return 'workload-medium';
+            if (workload < 95) return 'workload-high';
+            return 'workload-critical';
+        }
+
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let stars = '';
+
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<svg class="star filled" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+            }
+
+            if (hasHalfStar) {
+                stars += '<svg class="star filled" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill-opacity="0.5"/></svg>';
+            }
+
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<svg class="star" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+            }
+
+            return stars;
+        }
+
+        // Filter and sort functions
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredMembers = teamMembers.filter(member => {
+                // Search filter
+                const matchesSearch = member.name.toLowerCase().includes(searchTerm) ||
+                                    member.position.toLowerCase().includes(searchTerm) ||
+                                    member.specialties.some(s => s.toLowerCase().includes(searchTerm));
+
+                // Category filter
+                let matchesFilter = true;
+                switch (currentFilter) {
+                    case 'available':
+                        matchesFilter = member.status === 'available';
+                        break;
+                    case 'busy':
+                        matchesFilter = member.status === 'busy';
+                        break;
+                    case 'senior':
+                        matchesFilter = member.category === 'senior' || member.category === 'direction';
+                        break;
+                    case 'junior':
+                        matchesFilter = member.category === 'junior';
+                        break;
+                    case 'design':
+                        matchesFilter = member.skills.some(skill => 
+                            ['Photoshop', 'Design', 'UI/UX', 'Motion Design', 'Graphisme'].includes(skill.name)
+                        );
+                        break;
+                    case 'strategy':
+                        matchesFilter = member.skills.some(skill => 
+                            ['Stratégie', 'Management', 'Rédaction', 'Conceptualisation'].includes(skill.name)
+                        );
+                        break;
+                }
+
+                return matchesSearch && matchesFilter;
+            });
+
+            applySorting();
+        }
+
+        function applySorting() {
+            filteredMembers.sort((a, b) => {
+                switch (currentSort) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'workload':
+                        return b.workload - a.workload;
+                    case 'performance':
+                        return b.performance - a.performance;
+                    case 'rate':
+                        return b.rate - a.rate;
+                    default:
+                        return 0;
+                }
+            });
+
+            renderTeamMembers();
+            updateMetrics();
+        }
+
+        // Update metrics
+        function updateMetrics() {
+            const available = filteredMembers.filter(m => m.status === 'available').length;
+            const busy = filteredMembers.filter(m => m.status === 'busy').length;
+            const avgWorkload = Math.round(filteredMembers.reduce((sum, m) => sum + m.workload, 0) / filteredMembers.length);
+
+            document.getElementById('totalMembers').textContent = filteredMembers.length;
+            document.getElementById('availableMembers').textContent = available;
+            document.getElementById('busyMembers').textContent = busy;
+            document.getElementById('avgWorkload').textContent = avgWorkload + '%';
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Specialty Chart
+            const specialtyCtx = document.getElementById('specialtyChart').getContext('2d');
+            const specialtyData = {
+                'Design': teamMembers.filter(m => m.skills.some(s => ['Photoshop', 'Design', 'UI/UX', 'Motion Design', 'Graphisme'].includes(s.name))).length,
+                'Stratégie': teamMembers.filter(m => m.skills.some(s => ['Stratégie', 'Management', 'Rédaction', 'Conceptualisation'].includes(s.name))).length,
+                'Digital': teamMembers.filter(m => m.skills.some(s => ['Social Media', 'Community Management', 'Analytics'].includes(s.name))).length,
+                'Production': teamMembers.filter(m => m.skills.some(s => ['Photographie', 'Vidéo', 'Coordination', 'Production'].includes(s.name))).length
+            };
+
+            new Chart(specialtyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(specialtyData),
+                    datasets: [{
+                        data: Object.values(specialtyData),
+                        backgroundColor: [
+                            'var(--jofe-blue-light)',
+                            'var(--jofe-blue-medium)',
+                            'var(--jofe-green)',
+                            'var(--jofe-orange)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Workload Chart
+            const workloadCtx = document.getElementById('workloadChart').getContext('2d');
+            const workloadRanges = {
+                '0-50%': teamMembers.filter(m => m.workload <= 50).length,
+                '51-75%': teamMembers.filter(m => m.workload > 50 && m.workload <= 75).length,
+                '76-90%': teamMembers.filter(m => m.workload > 75 && m.workload <= 90).length,
+                '91-100%': teamMembers.filter(m => m.workload > 90).length
+            };
+
+            new Chart(workloadCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(workloadRanges),
+                    datasets: [{
+                        label: 'Nombre de membres',
+                        data: Object.values(workloadRanges),
+                        backgroundColor: [
+                            'var(--jofe-green)',
+                            'var(--jofe-blue-light)',
+                            'var(--jofe-orange)',
+                            '#EF4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Member actions
+        function viewMemberDetails(memberId) {
+            const member = teamMembers.find(m => m.id === memberId);
+            if (!member) return;
+
+            const modalContent = document.getElementById('memberModalContent');
+            modalContent.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="member-avatar mx-auto mb-4" style="width: 80px; height: 80px; font-size: 24px;">
+                        ${member.avatar}
+                    </div>
+                    <h2 class="urial-font text-2xl mb-2" style="color: var(--jofe-blue-deep);">${member.name}</h2>
+                    <p class="text-lg" style="color: var(--jofe-blue-medium);">${member.position}</p>
+                    <p class="text-sm text-gray-600">${member.rate.toLocaleString()} FCFA/h</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Informations Générales</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><strong>Email:</strong> ${member.email}</div>
+                            <div><strong>Téléphone:</strong> ${member.phone}</div>
+                            <div><strong>Statut:</strong> 
+                                <span class="px-2 py-1 rounded text-xs ${getStatusColor(member.status)}">${getStatusLabel(member.status)}</span>
+                            </div>
+                            <div><strong>Heures/semaine:</strong> ${member.hoursPerWeek}h</div>
+                            <div><strong>Performance:</strong> ${member.performance}/5</div>
+                            ${member.isAdmin ? '<div><strong>Privilèges:</strong> Administrateur</div>' : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Charge de Travail</h3>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-2">
+                                <span>Occupation actuelle</span>
+                                <span class="font-semibold">${member.workload}%</span>
+                            </div>
+                            <div class="workload-bar">
+                                <div class="workload-fill ${getWorkloadColor(member.workload)}" style="width: ${member.workload}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Compétences</h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${member.skills.map(skill => 
+                            `<span class="skill-badge skill-${skill.level}">${skill.name} (${getLevelLabel(skill.level)})</span>`
+                        ).join('')}
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Spécialités</h3>
+                    <div class="text-sm text-gray-600">
+                        ${member.specialties.join(' • ')}
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="font-semibold mb-3" style="color: var(--jofe-blue-deep);">Projets Actifs</h3>
+                    <div class="text-sm">
+                        ${member.projects.length > 0 ? 
+                            `<ul class="list-disc list-inside space-y-1">
+                                ${member.projects.map(project => `<li>${project}</li>`).join('')}
+                            </ul>` : 
+                            '<p class="text-gray-600">Aucun projet actif actuellement</p>'
+                        }
+                    </div>
+                </div>
+
+                ${member.note ? `
+                    <div class="mt-6">
+                        <div class="bg-orange-50 border-l-4 border-orange-400 p-3">
+                            <p class="text-sm text-orange-700">${member.note}</p>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="mt-8 flex gap-3">
+                    <button class="btn-primary" onclick="assignTasks(${member.id})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Assigner Tâche
+                    </button>
+                    <button class="btn-secondary" onclick="contactMember(${member.id})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Contacter
+                    </button>
+                    <button class="btn-secondary" onclick="editMember(${member.id})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Modifier
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('memberModal').style.display = 'block';
+        }
+
+        function assignTasks(memberId) {
+            const member = teamMembers.find(m => m.id === memberId);
+            showNotification(`Assignation de tâche à ${member.name} - Fonctionnalité à venir`, 'info');
+            closeModal();
+        }
+
+        function contactMember(memberId) {
+            const member = teamMembers.find(m => m.id === memberId);
+            window.location.href = `mailto:${member.email}`;
+        }
+
+        function editMember(memberId) {
+            const member = teamMembers.find(m => m.id === memberId);
+            showNotification(`Édition du profil de ${member.name} - Fonctionnalité à venir`, 'info');
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('memberModal').style.display = 'none';
+        }
+
+        // Helper functions for labels
+        function getStatusLabel(status) {
+            const labels = {
+                'available': 'Disponible',
+                'busy': 'Occupé',
+                'away': 'Absent',
+                'leave': 'En congé'
+            };
+            return labels[status] || status;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'available': 'bg-green-100 text-green-800',
+                'busy': 'bg-orange-100 text-orange-800',
+                'away': 'bg-gray-100 text-gray-800',
+                'leave': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getLevelLabel(level) {
+            const labels = {
+                'expert': 'Expert',
+                'advanced': 'Avancé',
+                'intermediate': 'Intermédiaire',
+                'beginner': 'Débutant'
+            };
+            return labels[level] || level;
+        }
+
+        // Export functionality
+        function exportReport() {
+            const reportData = {
+                date: new Date().toLocaleDateString('fr-FR'),
+                totalMembers: teamMembers.length,
+                available: teamMembers.filter(m => m.status === 'available').length,
+                busy: teamMembers.filter(m => m.status === 'busy').length,
+                avgWorkload: Math.round(teamMembers.reduce((sum, m) => sum + m.workload, 0) / teamMembers.length),
+                members: teamMembers.map(m => ({
+                    name: m.name,
+                    position: m.position,
+                    rate: m.rate,
+                    workload: m.workload,
+                    performance: m.performance,
+                    status: getStatusLabel(m.status),
+                    projects: m.projects.join(', ')
+                }))
+            };
+
+            const csvContent = generateCSV(reportData);
+            downloadCSV(csvContent, `rapport_equipe_jofe_${new Date().toISOString().split('T')[0]}.csv`);
+            showNotification('Rapport exporté avec succès', 'success');
+        }
+
+        function generateCSV(data) {
+            const headers = ['Nom', 'Poste', 'Taux (FCFA/h)', 'Charge (%)', 'Performance', 'Statut', 'Projets'];
+            const rows = data.members.map(m => [
+                m.name, m.position, m.rate, m.workload, m.performance, m.status, m.projects
+            ]);
+            
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            messageEl.textContent = message;
+            toast.className = `notification-toast ${type === 'success' ? '' : type === 'info' ? 'bg-blue-500' : 'bg-orange-500'}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Real-time updates simulation
+        setInterval(() => {
+            // Simulate workload changes
+            const randomMember = teamMembers[Math.floor(Math.random() * teamMembers.length)];
+            if (randomMember.status !== 'leave') {
+                const change = Math.floor(Math.random() * 10) - 5; // -5 to +5
+                randomMember.workload = Math.max(0, Math.min(100, randomMember.workload + change));
+            }
+            
+            if (currentFilter === 'all' || filteredMembers.includes(randomMember)) {
+                updateMetrics();
+                // Update specific member card if visible
+                const memberCard = document.querySelector(`[data-member-id="${randomMember.id}"]`);
+                if (memberCard) {
+                    const workloadBar = memberCard.querySelector('.workload-fill');
+                    const workloadText = memberCard.querySelector('.workload-bar').previousElementSibling.lastElementChild;
+                    if (workloadBar && workloadText) {
+                        workloadBar.style.width = randomMember.workload + '%';
+                        workloadBar.className = `workload-fill ${getWorkloadColor(randomMember.workload)}`;
+                        workloadText.textContent = randomMember.workload + '%';
+                    }
+                }
+            }
+        }, 30000); // Update every 30 seconds
+
+        // Initialize on load
+        console.log('JoFé+ Team Management initialized');
+    </script>
+</body>
+</html>
