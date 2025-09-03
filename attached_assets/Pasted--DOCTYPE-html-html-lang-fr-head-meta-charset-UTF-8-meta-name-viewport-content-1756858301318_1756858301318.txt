@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Rapports Détaillés</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+            --jofe-white: #FFFFFF;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+        }
+
+        .urial-font {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .jofe-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--jofe-blue-medium), var(--jofe-blue-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .jofe-logo::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--jofe-blue-deep);
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+
+        .jofe-logo::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--jofe-blue-light);
+            border-radius: 50%;
+            top: 20px;
+            right: 10px;
+        }
+
+        .card {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(22, 44, 84, 0.08);
+            border: 1px solid var(--jofe-gray);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(22, 44, 84, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--jofe-blue-medium), var(--jofe-blue-light));
+            color: var(--jofe-white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 117, 187, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 2px solid var(--jofe-gray);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--jofe-blue-medium);
+            background: rgba(52, 117, 187, 0.05);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--jofe-blue-deep), var(--jofe-blue-night));
+            color: var(--jofe-white);
+            padding: 24px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            transform: rotate(45deg);
+        }
+
+        .filter-chip {
+            background: var(--jofe-gray);
+            color: var(--jofe-blue-deep);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .filter-chip.active {
+            background: var(--jofe-blue-medium);
+            color: var(--jofe-white);
+        }
+
+        .filter-chip:hover {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+
+        .progress-bar {
+            background: var(--jofe-gray);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--jofe-green), var(--jofe-blue-light));
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        .export-btn {
+            background: var(--jofe-white);
+            border: 2px solid var(--jofe-gray);
+            color: var(--jofe-blue-deep);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            border-color: var(--jofe-orange);
+            background: rgba(246, 140, 31, 0.05);
+            color: var(--jofe-orange);
+        }
+
+        .sidebar {
+            background: var(--jofe-white);
+            border-right: 1px solid var(--jofe-gray);
+            min-height: 100vh;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            color: var(--jofe-blue-deep);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-medium);
+        }
+
+        .nav-item.active {
+            background: var(--jofe-blue-medium);
+            color: var(--jofe-white);
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .trend-up {
+            color: var(--jofe-green);
+        }
+
+        .trend-down {
+            color: var(--jofe-orange);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo et titre -->
+                <div class="flex items-center space-x-4">
+                    <div class="jofe-logo"></div>
+                    <div>
+                        <h1 class="urial-font text-xl font-bold" style="color: var(--jofe-blue-deep);">JoFé+</h1>
+                        <p class="text-sm text-gray-500">Rapports Détaillés</p>
+                    </div>
+                </div>
+
+                <!-- Navigation rapide -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 7 4-3 4 3"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Tâches
+                    </a>
+                    <a href="#" class="nav-item active">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6"/>
+                        </svg>
+                        Rapports
+                    </a>
+                </nav>
+
+                <!-- Actions utilisateur -->
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 01-15 0V7a7.5 7.5 0 0115 0z"/>
+                        </svg>
+                    </button>
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        SA
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 hidden lg:block">
+            <div class="p-6">
+                <h2 class="urial-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Types de Rapports</h2>
+                <nav class="space-y-1">
+                    <div class="nav-item active">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6"/>
+                        </svg>
+                        Vue d'ensemble
+                    </div>
+                    <div class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Performance Équipe
+                    </div>
+                    <div class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        Financier
+                    </div>
+                    <div class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Clients
+                    </div>
+                    <div class="nav-item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        Projets
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Filtres et contrôles -->
+            <div class="card p-6 mb-6 fade-in">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                    <div>
+                        <h2 class="urial-font text-2xl font-bold mb-2" style="color: var(--jofe-blue-deep);">Rapports d'Analyse</h2>
+                        <p class="text-gray-600">Analyses détaillées des performances JoFé+ par période</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <!-- Filtres de période -->
+                        <div class="flex space-x-2">
+                            <div class="filter-chip active">2 Semaines</div>
+                            <div class="filter-chip">Mensuel</div>
+                            <div class="filter-chip">Trimestriel</div>
+                        </div>
+                        
+                        <!-- Sélecteur de date -->
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v14a2 2 0 002 2z"/>
+                            </svg>
+                            <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value="2025-01-15">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métriques principales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stat-card slide-in">
+                    <div class="flex items-center justify-between mb-2">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        <div class="metric-trend trend-up">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            +12%
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-1">2,450,000</h3>
+                    <p class="text-sm opacity-90">CA 2 Semaines (FCFA)</p>
+                </div>
+
+                <div class="stat-card slide-in" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between mb-2">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <div class="metric-trend trend-up">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            +8%
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-1">23</h3>
+                    <p class="text-sm opacity-90">Projets Livrés</p>
+                </div>
+
+                <div class="stat-card slide-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-2">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <div class="metric-trend trend-up">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            +5%
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-1">89%</h3>
+                    <p class="text-sm opacity-90">Productivité Équipe</p>
+                </div>
+
+                <div class="stat-card slide-in" style="animation-delay: 0.3s;">
+                    <div class="flex items-center justify-between mb-2">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        <div class="metric-trend trend-up">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            +3%
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-1">4.8/5</h3>
+                    <p class="text-sm opacity-90">Satisfaction Client</p>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Évolution CA -->
+                <div class="card p-6 fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="urial-font text-lg font-semibold" style="color: var(--jofe-blue-deep);">Évolution CA (FCFA)</h3>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Performance par membre -->
+                <div class="card p-6 fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="urial-font text-lg font-semibold" style="color: var(--jofe-blue-deep);">Performance par Membre</h3>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau de données -->
+            <div class="card p-6 mb-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="urial-font text-lg font-semibold" style="color: var(--jofe-blue-deep);">Détail par Projet</h3>
+                    <div class="flex space-x-2">
+                        <button class="export-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                            </svg>
+                            PDF
+                        </button>
+                        <button class="export-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                            </svg>
+                            Excel
+                        </button>
+                        <button class="export-btn">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                            </svg>
+                            PowerPoint
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Projet</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Client</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Temps Total</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Coût (FCFA)</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Statut</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="py-3 px-4 font-medium">Campagne MOOV Q1</td>
+                                <td class="py-3 px-4">MOOV AFRICA</td>
+                                <td class="py-3 px-4">156h 30m</td>
+                                <td class="py-3 px-4 font-semibold">1,250,000</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Terminé</span>
+                                </td>
+                                <td class="py-3 px-4 font-semibold text-green-600">+23%</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="py-3 px-4 font-medium">Identité BOA Digital</td>
+                                <td class="py-3 px-4">BANK OF AFRICA</td>
+                                <td class="py-3 px-4">89h 15m</td>
+                                <td class="py-3 px-4 font-semibold">780,000</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">En cours</span>
+                                </td>
+                                <td class="py-3 px-4 font-semibold text-green-600">+18%</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="py-3 px-4 font-medium">Animation SUNU</td>
+                                <td class="py-3 px-4">SUNU BURKINA</td>
+                                <td class="py-3 px-4">67h 45m</td>
+                                <td class="py-3 px-4 font-semibold">540,000</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Terminé</span>
+                                </td>
+                                <td class="py-3 px-4 font-semibold text-green-600">+15%</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="py-3 px-4 font-medium">Logo ROXGOLD Premium</td>
+                                <td class="py-3 px-4">ROXGOLD</td>
+                                <td class="py-3 px-4">43h 20m</td>
+                                <td class="py-3 px-4 font-semibold">390,000</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Révision</span>
+                                </td>
+                                <td class="py-3 px-4 font-semibold text-green-600">+12%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analyses et tendances -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Top performers -->
+                <div class="card p-6 fade-in">
+                    <h3 class="urial-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Top Performers</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">PO</div>
+                                <span class="font-medium">Paul OUEDRAOGO</span>
+                            </div>
+                            <span class="text-green-600 font-semibold">94%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">FY</div>
+                                <span class="font-medium">Fortune YANOGO</span>
+                            </div>
+                            <span class="text-green-600 font-semibold">87%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">LK</div>
+                                <span class="font-medium">Linda KABORÉ</span>
+                            </div>
+                            <span class="text-green-600 font-semibold">83%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients les plus rentables -->
+                <div class="card p-6 fade-in">
+                    <h3 class="urial-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Clients Rentables</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">MOOV AFRICA</span>
+                                <span class="text-sm font-medium">890,000 FCFA</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">BANK OF AFRICA</span>
+                                <span class="text-sm font-medium">670,000 FCFA</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">SUNU BURKINA</span>
+                                <span class="text-sm font-medium">540,000 FCFA</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 52%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prévisions -->
+                <div class="card p-6 fade-in">
+                    <h3 class="urial-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Prévisions</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            <div>
+                                <p class="font-medium">CA Février</p>
+                                <p class="text-sm text-gray-600">+15% prévisionnel</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Nouveaux Projets</p>
+                                <p class="text-sm text-gray-600">8 prospects qualifiés</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Charge Équipe</p>
+                                <p class="text-sm text-gray-600">Optimale jusqu'à Mars</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="card p-6 fade-in">
+                <h3 class="urial-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Actions Rapides</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button class="btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                        </svg>
+                        Rapport Complet
+                    </button>
+                    <button class="btn-secondary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v14a2 2 0 002 2z"/>
+                        </svg>
+                        Planifier Envoi
+                    </button>
+                    <button class="btn-secondary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+                        </svg>
+                        Configurer
+                    </button>
+                    <button class="btn-secondary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                        </svg>
+                        Partager
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Configuration des graphiques
+        Chart.defaults.font.family = 'Open Sans';
+        Chart.defaults.color = '#1A4278';
+
+        // Graphique évolution CA
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                datasets: [{
+                    label: 'CA (FCFA)',
+                    data: [1200000, 1450000, 1380000, 1620000, 1890000, 2450000],
+                    borderColor: '#3475BB',
+                    backgroundColor: 'rgba(52, 117, 187, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Graphique performance par membre
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Paul O.', 'Fortune Y.', 'Linda K.', 'Bientama P.', 'Florita K.'],
+                datasets: [{
+                    label: 'Performance (%)',
+                    data: [94, 87, 83, 81, 79],
+                    backgroundColor: [
+                        '#93C954',
+                        '#3475BB',
+                        '#37B6E9',
+                        '#162C54',
+                        '#F68C1F'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Interactions
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Simulation mise à jour temps réel
+        setInterval(() => {
+            const metrics = document.querySelectorAll('.stat-card h3');
+            metrics.forEach(metric => {
+                if (metric.textContent.includes(',')) {
+                    const current = parseInt(metric.textContent.replace(/,/g, ''));
+                    const variation = Math.floor(Math.random() * 10000) - 5000;
+                    const newValue = current + variation;
+                    metric.textContent = newValue.toLocaleString();
+                }
+            });
+        }, 30000);
+    </script>
+</body>
+</html>
