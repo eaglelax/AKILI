@@ -33,7 +33,6 @@ function Splash() {
       className="min-h-screen relative flex items-center justify-center p-4" 
       style={{ backgroundColor: '#162C54' }}
     >
-      
       {/* Pattern subtil - même que la page de connexion */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-5"
@@ -45,7 +44,6 @@ function Splash() {
           backgroundSize: '40px 40px'
         }}
       />
-      
       <div className="text-center relative z-10">
         {/* Logo principal qui tourne */}
         <div className="mb-12 flex justify-center">
@@ -66,9 +64,7 @@ function Splash() {
         
         {/* Titre */}
         <div className="mb-8 animate-in fade-in duration-500 delay-300">
-          <h1 className="text-4xl font-bold mb-4 text-white jofe-font">
-            Jo'Fé Digital
-          </h1>
+          <h1 className="text-4xl font-bold mb-4 text-white jofe-font">jofé+</h1>
           <p className="text-xl text-blue-200 font-medium">
             Système de Gestion d'Équipe
           </p>
@@ -125,7 +121,6 @@ function Splash() {
           </p>
         </div>
       </div>
-      
       {/* Styles CSS pour l'animation */}
       <style>{`
         .logo-container {
