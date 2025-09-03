@@ -22,6 +22,7 @@ import Projects from "@/pages/projects";
 import ProjectCreate from "@/pages/project-create";
 import ProjectDetail from "@/pages/project-detail";
 import Gantt from "@/pages/gantt";
+import ProjectTemplates from "@/pages/project-templates";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/projects/create" component={ProjectCreate} />
       <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/gantt" component={Gantt} />
+      <Route path="/project-templates" component={ProjectTemplates} />
       
       {/* Route 404 */}
       <Route component={NotFound} />
