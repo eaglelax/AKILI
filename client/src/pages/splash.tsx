@@ -33,16 +33,6 @@ function Splash() {
       className="min-h-screen relative flex items-center justify-center p-4" 
       style={{ backgroundColor: '#162C54' }}
     >
-      {/* Logo en filigrane - même que la page de connexion */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-8"
-        style={{
-          backgroundImage: `url(${logoImage})`,
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundSize: '90vh 90vh'
-        }}
-      />
       
       {/* Pattern subtil - même que la page de connexion */}
       <div 
