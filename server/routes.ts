@@ -51,9 +51,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check password (jofe2024 for members, different for admins)
-      const isValidPassword = member.isAdmin ? 
-        password === process.env.ADMIN_PASSWORD : 
-        password === 'jofe2024';
+      let isValidPassword = false;
+      
+      if (member.isAdmin) {
+        // Mots de passe spécifiques pour chaque admin
+        if (member.username === 'serge.assale') {
+          isValidPassword = password === 'JeSuisMoi';
+        } else if (member.username === 'enos.gouba') {
+          isValidPassword = password === process.env.ADMIN_PASSWORD;
+        }
+      } else {
+        // Mot de passe standard pour les membres
+        isValidPassword = password === 'jofe2024';
+      }
 
       if (!isValidPassword) {
         return res.status(401).json({ message: "Mot de passe incorrect" });
