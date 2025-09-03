@@ -32,6 +32,8 @@ import {
   Bar
 } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+import TopNavBar from "@/components/TopNavBar";
+import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 // Données pour les graphiques
 const revenueEvolutionData = [
@@ -287,61 +289,38 @@ export default function Reports() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo et titre */}
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 relative">
-                <div className="absolute w-3 h-3 border-2 border-[#162C54] rounded-full top-0 left-3.5"></div>
-                <div className="absolute w-3 h-3 border-2 border-[#3475BB] rounded-full top-3 left-1"></div>
-                <div className="absolute w-3 h-3 border-2 border-[#37B6E9] rounded-full top-3 right-1"></div>
-              </div>
+    <div className="min-h-screen bg-[var(--jofe-white)]">
+      <TopNavBar />
+      <div className="ml-72">
+        <AdminFloatingMenu />
+        
+        <div className="w-full overflow-auto">
+          {/* Header */}
+          <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h1 className="text-xl font-bold text-[#162C54]">Jo'Fé Digital</h1>
-                <p className="text-sm text-gray-500">Rapports Détaillés</p>
+                <h1 className="text-2xl font-bold text-[var(--jofe-blue-deep)] jofe-font">
+                  Rapports Détaillés
+                </h1>
+                <p className="text-[var(--jofe-blue-medium)] mt-1">
+                  Analyses complètes et exportation de données
+                </p>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <button 
+                  className="px-4 py-2 bg-[var(--jofe-blue-medium)] text-white rounded-lg hover:bg-[var(--jofe-blue-deep)] transition-colors flex items-center space-x-2"
+                  data-testid="button-refresh"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Exporter</span>
+                </button>
               </div>
             </div>
+          </header>
 
-            {/* Navigation rapide */}
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <LayoutDashboard className="w-5 h-5" />
-                Dashboard
-              </Link>
-              <Link href="/tasks" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <Clock className="w-5 h-5" />
-                Tâches
-              </Link>
-              <Link href="/reports" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#37B6E9] text-white">
-                <FileBarChart className="w-5 h-5" />
-                Rapports
-              </Link>
-              <Link href="/analytics" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <BarChart3 className="w-5 h-5" />
-                Analytics
-              </Link>
-            </nav>
-
-            {/* Actions utilisateur */}
-            <div className="flex items-center space-x-4">
-              <button 
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                data-testid="button-refresh"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-r from-[#3475BB] to-[#37B6E9] rounded-full flex items-center justify-center text-white text-sm font-medium">
-                SA
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex">
+          <main className="p-6">
+            <div className="flex">
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 min-h-screen hidden lg:block">
           <div className="p-6">
@@ -370,7 +349,7 @@ export default function Reports() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <div className="flex-1 p-6">
           {/* Filtres et contrôles */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6 animate-in fade-in duration-500">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
@@ -678,8 +657,11 @@ export default function Reports() {
               </div>
               <ChevronRight className="w-5 h-5 text-[#3475BB] group-hover:translate-x-1 transition-transform" />
             </Link>
-          </div>
-        </main>
+            </div>
+        </div>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

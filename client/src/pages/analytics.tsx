@@ -28,6 +28,8 @@ import {
   Bar
 } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+import TopNavBar from "@/components/TopNavBar";
+import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 // Données pour les graphiques
 const revenueData = [
@@ -234,37 +236,27 @@ export default function Analytics() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between py-4">
-            <div></div>
-            
-            <nav className="flex items-center gap-6">
-              <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <LayoutDashboard className="w-5 h-5" />
-                Dashboard
-              </Link>
-              <Link href="/tasks" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <Clock className="w-5 h-5" />
-                Tâches
-              </Link>
-              <Link href="/analytics" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#37B6E9] text-white">
-                <BarChart3 className="w-5 h-5" />
-                Analytics
-              </Link>
-              <Link href="/team" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
-                <Users className="w-5 h-5" />
-                Équipe
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[var(--jofe-white)]">
+      <TopNavBar />
+      <div className="ml-72">
+        <AdminFloatingMenu />
+        
+        <div className="w-full overflow-auto">
+          {/* Header */}
+          <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-[var(--jofe-blue-deep)] jofe-font">
+                  Dashboard Analytics
+                </h1>
+                <p className="text-[var(--jofe-blue-medium)] mt-1">
+                  Vue d'ensemble des performances de l'équipe Jo'Fé Digital
+                </p>
+              </div>
+            </div>
+          </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+          <main className="p-4 md:p-6">
         {/* Page Header */}
         <div className="mb-8 animate-in fade-in duration-500">
           <h1 className="text-4xl font-bold text-[#162C54] mb-2">Analytics Dashboard</h1>
@@ -539,7 +531,9 @@ export default function Analytics() {
             <ChevronRight className="w-5 h-5 text-[#3475BB] group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-      </main>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }

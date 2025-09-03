@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import Sidebar from "@/components/Sidebar";
+import TopNavBar from "@/components/TopNavBar";
+import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Search, 
@@ -260,13 +261,12 @@ export default function Team() {
   };
 
   return (
-    <div className="flex h-screen bg-[var(--jofe-white)]">
-      <Sidebar />
-      
-      <div className="flex-1 overflow-auto md:ml-64 ml-0">
-        {/* Mobile Header Spacer */}
-        <div className="h-16 md:hidden"></div>
+    <div className="min-h-screen bg-[var(--jofe-white)]">
+      <TopNavBar />
+      <div className="ml-72">
+        <AdminFloatingMenu />
         
+        <div className="w-full overflow-auto">
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -686,6 +686,7 @@ export default function Team() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

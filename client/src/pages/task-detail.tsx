@@ -182,11 +182,10 @@ export default function TaskDetail() {
   return (
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
-      
-      {/* Menu flottant admin */}
-      <AdminFloatingMenu />
-      
-      <div className="w-full overflow-auto">
+      <div className="ml-72">
+        <AdminFloatingMenu />
+        
+        <div className="w-full overflow-auto">
         
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
@@ -520,6 +519,7 @@ export default function TaskDetail() {
             </div>
           </div>
         </main>
+        </div>
       </div>
     </div>
   );
