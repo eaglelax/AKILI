@@ -1,65 +1,64 @@
 import { sql } from 'drizzle-orm';
 import {
   index,
-  jsonb,
-  pgTable,
+  json,
+  mysqlTable,
   timestamp,
   varchar,
   text,
-  integer,
+  int,
   boolean,
   decimal,
-  uuid,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Session storage table (mandatory for Replit Auth)
-export const sessions = pgTable(
+export const sessions = mysqlTable(
   "sessions",
   {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
+    sid: varchar("sid", { length: 255 }).primaryKey(),
+    sess: json("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
 // User storage table (mandatory for Replit Auth)
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  email: varchar("email", { length: 255 }).unique(),
+  firstName: varchar("first_name", { length: 100 }),
+  lastName: varchar("last_name", { length: 100 }),
+  profileImageUrl: varchar("profile_image_url", { length: 500 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Jo'Fé Digital team members
-export const teamMembers = pgTable("team_members", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  role: varchar("role").notNull(),
-  username: varchar("username").notNull().unique(),
+export const teamMembers = mysqlTable("team_members", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 100 }).notNull(),
+  username: varchar("username", { length: 50 }).notNull().unique(),
   isAdmin: boolean("is_admin").default(false),
   hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }).default('5000'),
-  skills: text("skills").array(),
-  status: varchar("status").default('offline'), // online, offline, busy, away
-  avatar: varchar("avatar"),
+  skills: json("skills"), // JSON array instead of PostgreSQL array
+  status: varchar("status", { length: 20 }).default('offline'), // online, offline, busy, away
+  avatar: varchar("avatar", { length: 10 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Clients
-export const clients = pgTable("clients", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  type: varchar("type"), // sector/industry
-  contactPerson: varchar("contact_person"),
-  email: varchar("email"),
-  phone: varchar("phone"),
+export const clients = mysqlTable("clients", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: varchar("type", { length: 100 }), // sector/industry
+  contactPerson: varchar("contact_person", { length: 255 }),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
   address: text("address"),
   monthlyBudget: decimal("monthly_budget", { precision: 12, scale: 2 }),
   contractEndDate: timestamp("contract_end_date"),
@@ -71,35 +70,35 @@ export const clients = pgTable("clients", {
 });
 
 // Projects
-export const projects = pgTable("projects", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
+export const projects = mysqlTable("projects", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  clientId: varchar("client_id").references(() => clients.id),
-  status: varchar("status").default('planning'), // planning, active, paused, completed, cancelled
-  priority: varchar("priority").default('moyenne'), // basse, moyenne, haute, urgente
+  clientId: varchar("client_id", { length: 36 }).references(() => clients.id),
+  status: varchar("status", { length: 20 }).default('planning'), // planning, active, paused, completed, cancelled
+  priority: varchar("priority", { length: 20 }).default('moyenne'), // basse, moyenne, haute, urgente
   budget: decimal("budget", { precision: 12, scale: 2 }),
   actualCost: decimal("actual_cost", { precision: 12, scale: 2 }).default('0'),
-  progress: integer("progress").default(0), // 0-100
+  progress: int("progress").default(0), // 0-100
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
   deadline: timestamp("deadline"),
-  createdBy: varchar("created_by").references(() => teamMembers.id),
+  createdBy: varchar("created_by", { length: 36 }).references(() => teamMembers.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Tasks
-export const tasks = pgTable("tasks", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
+export const tasks = mysqlTable("tasks", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  projectId: varchar("project_id").references(() => projects.id),
-  clientId: varchar("client_id").references(() => clients.id),
-  assignedTo: varchar("assigned_to").references(() => teamMembers.id),
-  status: varchar("status").default('en_attente'), // en_attente, en_cours, en_pause, termine, annule
-  priority: varchar("priority").default('moyenne'), // basse, moyenne, haute, urgente
-  progress: integer("progress").default(0), // 0-100
+  projectId: varchar("project_id", { length: 36 }).references(() => projects.id),
+  clientId: varchar("client_id", { length: 36 }).references(() => clients.id),
+  assignedTo: varchar("assigned_to", { length: 36 }).references(() => teamMembers.id),
+  status: varchar("status", { length: 20 }).default('en_attente'), // en_attente, en_cours, en_pause, termine, annule
+  priority: varchar("priority", { length: 20 }).default('moyenne'), // basse, moyenne, haute, urgente
+  progress: int("progress").default(0), // 0-100
   estimatedHours: decimal("estimated_hours", { precision: 8, scale: 2 }),
   actualHours: decimal("actual_hours", { precision: 8, scale: 2 }).default('0'),
   hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
@@ -107,67 +106,67 @@ export const tasks = pgTable("tasks", {
   deadline: timestamp("deadline"),
   isTimerActive: boolean("is_timer_active").default(false),
   timerStartedAt: timestamp("timer_started_at"),
-  totalTimeSpent: integer("total_time_spent").default(0), // in seconds
-  createdBy: varchar("created_by").references(() => teamMembers.id),
+  totalTimeSpent: int("total_time_spent").default(0), // in seconds
+  createdBy: varchar("created_by", { length: 36 }).references(() => teamMembers.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Time tracking entries
-export const timeEntries = pgTable("time_entries", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  taskId: varchar("task_id").references(() => tasks.id),
-  memberId: varchar("member_id").references(() => teamMembers.id),
+export const timeEntries = mysqlTable("time_entries", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  taskId: varchar("task_id", { length: 36 }).references(() => tasks.id),
+  memberId: varchar("member_id", { length: 36 }).references(() => teamMembers.id),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time"),
-  duration: integer("duration").default(0), // in seconds
+  duration: int("duration").default(0), // in seconds
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Chat messages
-export const chatMessages = pgTable("chat_messages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const chatMessages = mysqlTable("chat_messages", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   content: text("content").notNull(),
-  senderId: varchar("sender_id").references(() => teamMembers.id),
-  channelId: varchar("channel_id").notNull(), // general, project-specific, etc.
-  messageType: varchar("message_type").default('text'), // text, file, system
-  fileUrl: varchar("file_url"),
-  mentions: text("mentions").array(), // @username mentions
+  senderId: varchar("sender_id", { length: 36 }).references(() => teamMembers.id),
+  channelId: varchar("channel_id", { length: 36 }).notNull(), // general, project-specific, etc.
+  messageType: varchar("message_type", { length: 20 }).default('text'), // text, file, system
+  fileUrl: varchar("file_url", { length: 500 }),
+  mentions: json("mentions"), // JSON array for @username mentions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Chat channels
-export const chatChannels = pgTable("chat_channels", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  type: varchar("type").default('project'), // general, project, direct
-  projectId: varchar("project_id").references(() => projects.id),
+export const chatChannels = mysqlTable("chat_channels", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: varchar("type", { length: 20 }).default('project'), // general, project, direct
+  projectId: varchar("project_id", { length: 36 }).references(() => projects.id),
   isPrivate: boolean("is_private").default(false),
-  members: text("members").array(), // array of member IDs
-  createdBy: varchar("created_by").references(() => teamMembers.id),
+  members: json("members"), // JSON array of member IDs
+  createdBy: varchar("created_by", { length: 36 }).references(() => teamMembers.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Notifications
-export const notifications = pgTable("notifications", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  recipientId: varchar("recipient_id").references(() => teamMembers.id),
-  title: varchar("title").notNull(),
+export const notifications = mysqlTable("notifications", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  recipientId: varchar("recipient_id", { length: 36 }).references(() => teamMembers.id),
+  title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  type: varchar("type").notNull(), // task_assigned, deadline_approaching, mention, etc.
+  type: varchar("type", { length: 50 }).notNull(), // task_assigned, deadline_approaching, mention, etc.
   isRead: boolean("is_read").default(false),
-  relatedId: varchar("related_id"), // ID of related task/project/etc
+  relatedId: varchar("related_id", { length: 36 }), // ID of related task/project/etc
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Performance metrics
-export const performanceMetrics = pgTable("performance_metrics", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  memberId: varchar("member_id").references(() => teamMembers.id),
-  month: integer("month").notNull(),
-  year: integer("year").notNull(),
-  tasksCompleted: integer("tasks_completed").default(0),
+export const performanceMetrics = mysqlTable("performance_metrics", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  memberId: varchar("member_id", { length: 36 }).references(() => teamMembers.id),
+  month: int("month").notNull(),
+  year: int("year").notNull(),
+  tasksCompleted: int("tasks_completed").default(0),
   totalHours: decimal("total_hours", { precision: 8, scale: 2 }).default('0'),
   revenue: decimal("revenue", { precision: 12, scale: 2 }).default('0'),
   performanceScore: decimal("performance_score", { precision: 5, scale: 2 }).default('0'), // 0-100
