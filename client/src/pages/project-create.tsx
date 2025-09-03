@@ -642,7 +642,7 @@ export default function ProjectCreate() {
               {steps.map((step, index) => {
                 const Icon = step.icon;
                 return (
-                <React.Fragment key={step.id}>
+                <div key={step.id} className="flex items-center">
                   <div 
                     className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md ${
                       currentStep === step.id 
@@ -681,7 +681,7 @@ export default function ProjectCreate() {
                       />
                     </div>
                   )}
-                </React.Fragment>
+                </div>
               )})}
             </div>
             
