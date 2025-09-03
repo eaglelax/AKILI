@@ -130,6 +130,23 @@ export function useWebSocket() {
         queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
         break;
 
+      case 'dashboard_update':
+      case 'auto_dashboard_update':
+        // Update dashboard data in cache with fresh data
+        if (message.data?.dashboardStats) {
+          queryClient.setQueryData(['/api/analytics/dashboard'], message.data.dashboardStats);
+        }
+        if (message.data?.teamStats) {
+          queryClient.setQueryData(['/api/analytics/team'], message.data.teamStats);
+        }
+        console.log('Dashboard data updated automatically');
+        break;
+
+      case 'team_update':
+        // Update team stats cache with fresh data
+        queryClient.setQueryData(['/api/analytics/team'], message.data);
+        break;
+
       case 'heartbeat':
         // Update connected users info
         console.log('Connected users:', message.data.connectedUsers);

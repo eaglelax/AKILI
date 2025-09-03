@@ -77,6 +77,37 @@ export function setupWebSocket(server: Server) {
             });
             break;
 
+          case 'request_dashboard_update':
+            // Send fresh dashboard data to requesting client
+            try {
+              const dashboardStats = await storage.getDashboardStats();
+              const teamStats = await storage.getTeamStats();
+              
+              ws.send(JSON.stringify({
+                type: 'dashboard_update',
+                data: { dashboardStats, teamStats },
+                timestamp: Date.now(),
+              }));
+            } catch (error) {
+              console.error('Error sending dashboard update:', error);
+            }
+            break;
+
+          case 'request_team_update':
+            // Send fresh team data to requesting client
+            try {
+              const teamStats = await storage.getTeamStats();
+              
+              ws.send(JSON.stringify({
+                type: 'team_update',
+                data: teamStats,
+                timestamp: Date.now(),
+              }));
+            } catch (error) {
+              console.error('Error sending team update:', error);
+            }
+            break;
+
           case 'timer_stopped':
             // Broadcast timer stop
             broadcast({
@@ -150,12 +181,28 @@ export function setupWebSocket(server: Server) {
     });
   }
 
-  // Send periodic updates to keep connections alive
+  // Send periodic dashboard updates every 30 seconds
+  setInterval(async () => {
+    try {
+      const dashboardStats = await storage.getDashboardStats();
+      const teamStats = await storage.getTeamStats();
+      
+      broadcast({
+        type: 'auto_dashboard_update',
+        data: { dashboardStats, teamStats },
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error sending periodic updates:', error);
+    }
+  }, 30000); // Every 30 seconds
+
+  // Send heartbeat to keep connections alive
   setInterval(() => {
     broadcast({
       type: 'heartbeat',
       data: { connectedUsers: Array.from(connectedUsers.keys()) },
       timestamp: Date.now(),
     });
-  }, 30000); // Every 30 seconds
+  }, 60000); // Every 60 seconds
 }
