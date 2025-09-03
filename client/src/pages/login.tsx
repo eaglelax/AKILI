@@ -88,12 +88,12 @@ export default function Login() {
     <div className="min-h-screen relative flex items-center justify-center p-4" style={{ backgroundColor: '#162C54' }}>
       {/* Logo en filigrane */}
       <div 
-        className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-10"
+        className="fixed inset-0 pointer-events-none opacity-8"
         style={{
           backgroundImage: `url(${logoImage})`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          backgroundSize: '300px 300px'
+          backgroundSize: '90vh 90vh'
         }}
       />
       
