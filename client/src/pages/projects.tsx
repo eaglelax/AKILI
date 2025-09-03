@@ -208,10 +208,12 @@ function Projects() {
               </div>
             </div>
             
-            <Button className="bg-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-deep)] text-white flex items-center space-x-2" data-testid="button-new-project">
-              <Plus className="w-5 h-5" />
-              <span>Nouveau Projet</span>
-            </Button>
+            <Link href="/projects/create">
+              <Button className="bg-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-deep)] text-white flex items-center space-x-2" data-testid="button-new-project">
+                <Plus className="w-5 h-5" />
+                <span>Nouveau Projet</span>
+              </Button>
+            </Link>
           </div>
         </header>
 
