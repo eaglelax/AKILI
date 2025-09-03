@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ Digital - Vue détaillée projet</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+            --jofe-white: #FFFFFF;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+        }
+        
+        body { 
+            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .nav-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(55, 182, 233, 0.1);
+        }
+        
+        .nav-item.active {
+            background-color: #37B6E9;
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-badge {
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .status-pause {
+            background-color: #F68C1F;
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: #93C954;
+            color: white;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .btn-primary {
+            background-color: #F68C1F;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e67e22;
+        }
+        
+        .timeline-item {
+            border-left: 2px solid #e5e7eb;
+            padding-left: 1rem;
+            margin-left: 0.5rem;
+            padding-bottom: 1rem;
+        }
+        
+        .timeline-item:last-child {
+            border-left: none;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #37B6E9;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #37B6E9;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation supérieure -->
+    <nav class="bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo et navigation -->
+                <div class="flex items-center space-x-1">
+                    <div class="nav-item active px-4 py-2 rounded-lg flex flex-col items-center">
+                        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Dashboard</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Tâches</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Temps</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Analytics</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <span class="text-xs font-medium">Projets</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Équipe</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <span class="text-xs font-medium">Clients</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Chat</span>
+                    </div>
+                    
+                    <div class="nav-item px-4 py-2 rounded-lg flex flex-col items-center text-gray-600">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span class="text-xs font-medium">Permissions</span>
+                    </div>
+                </div>
+                
+                <!-- Actions utilisateur -->
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-12"/>
+                        </svg>
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        SA
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Breadcrumb et header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                    <a href="#" class="hover:text-blue-500">Projets</a>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <span class="text-gray-900">Campagne MOOV AFRICA Q1 2024</span>
+                </nav>
+                <h1 class="text-2xl font-bold text-gray-900">Campagne MOOV AFRICA Q1 2024</h1>
+                <p class="text-gray-600 mt-1">Campagne publicitaire multicanal pour le lancement des nouveaux forfaits</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="status-badge status-active">En cours</span>
+                <button class="btn-primary">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Nouvelle Tâche
+                </button>
+            </div>
+        </div>
+
+        <!-- KPIs du projet -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="kpi-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">+15%</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">8 500 000</div>
+                <div class="text-sm text-gray-600">Budget Total (FCFA)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-orange-100 rounded-lg">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">68%</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">5 780 000</div>
+                <div class="text-sm text-gray-600">Coût Actuel (FCFA)</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">+12%</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">75%</div>
+                <div class="text-sm text-gray-600">Progression</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">-3j</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">5</div>
+                <div class="text-sm text-gray-600">Jours Restants</div>
+            </div>
+        </div>
+
+        <!-- Contenu principal en 2 colonnes -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Colonne principale -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Progression visuelle -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Progression du Projet</h3>
+                        <select class="text-sm border-gray-300 rounded-lg">
+                            <option>Cette semaine</option>
+                            <option>Ce mois</option>
+                            <option>Trimestre</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-8">
+                        <div class="relative">
+                            <canvas id="progressChart" width="120" height="120"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-gray-900">75%</div>
+                                    <div class="text-xs text-gray-600">Terminé</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Tâches terminées</span>
+                                <span class="text-sm font-medium">12/16</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Budget utilisé</span>
+                                <span class="text-sm font-medium">5,78M / 8,5M FCFA</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-orange-500 h-2 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des tâches -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Tâches du Projet</h3>
+                        <div class="flex items-center space-x-2">
+                            <select class="text-sm border-gray-300 rounded-lg">
+                                <option>Toutes les tâches</option>
+                                <option>En cours</option>
+                                <option>Terminées</option>
+                                <option>En retard</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-2 h-8 bg-green-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Création des visuels principaux</h4>
+                                    <span class="status-badge status-completed">Terminée</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Paul Junior OUEDRAOGO
+                                    <span class="mx-2">•</span>
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    24h 30min
+                                    <span class="mx-2">•</span>
+                                    <span class="text-green-600 font-medium">196 000 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                            <div class="w-2 h-8 bg-blue-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Production vidéo spots TV</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="status-badge status-active">En cours</span>
+                                        <div class="text-sm font-medium text-blue-600">02:15:43</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Fortune YANOGO
+                                    <span class="mx-2">•</span>
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    18h 45min
+                                    <span class="mx-2">•</span>
+                                    <span class="text-blue-600 font-medium">187 500 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-2 h-8 bg-orange-500 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Stratégie médias sociaux</h4>
+                                    <span class="status-badge status-pause">En pause</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Florita KABORÉ
+                                    <span class="mx-2">•</span>
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    12h 20min
+                                    <span class="mx-2">•</span>
+                                    <span class="text-orange-600 font-medium">92 500 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-2 h-8 bg-gray-400 rounded-full mr-4"></div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Rédaction des copies publicitaires</h4>
+                                    <span class="text-sm text-gray-500">Non assignée</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-5 5h4m-6 0a1 1 0 01-1-1V5a1 1 0 011-1h2a1 1 0 011 1v1"/>
+                                    </svg>
+                                    Estimation: 16h
+                                    <span class="mx-2">•</span>
+                                    <span class="text-gray-500">Budget: 136 000 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline des activités -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Timeline des Activités</h3>
+                    <div class="space-y-4">
+                        <div class="relative timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="ml-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Validation finale des visuels</h4>
+                                    <span class="text-sm text-gray-500">Il y a 2h</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Les visuels principaux ont été validés par le client MOOV AFRICA</p>
+                                <div class="flex items-center text-xs text-gray-500 mt-2">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Serge ASSALÉ
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative timeline-item">
+                            <div class="timeline-dot" style="background-color: #F68C1F; box-shadow: 0 0 0 2px #F68C1F;"></div>
+                            <div class="ml-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Début production vidéo</h4>
+                                    <span class="text-sm text-gray-500">Il y a 4h</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Fortune YANOGO a commencé le tournage des spots TV</p>
+                                <div class="flex items-center text-xs text-gray-500 mt-2">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Fortune YANOGO
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative timeline-item">
+                            <div class="timeline-dot" style="background-color: #93C954; box-shadow: 0 0 0 2px #93C954;"></div>
+                            <div class="ml-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Livraison des maquettes</h4>
+                                    <span class="text-sm text-gray-500">Hier</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Paul Junior a livré toutes les maquettes des supports print</p>
+                                <div class="flex items-center text-xs text-gray-500 mt-2">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Paul Junior OUEDRAOGO
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne latérale -->
+            <div class="space-y-6">
+                <!-- Informations du projet -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations Projet</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Client</label>
+                            <div class="flex items-center mt-1">
+                                <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
+                                    M
+                                </div>
+                                <span class="font-medium">MOOV AFRICA</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Date de début</label>
+                            <p class="text-sm text-gray-900 mt-1">15 janvier 2024</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Date de fin</label>
+                            <p class="text-sm text-gray-900 mt-1">28 janvier 2024</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Priorité</label>
+                            <span class="inline-block mt-1 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Haute</span>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Chef de projet</label>
+                            <div class="flex items-center mt-1">
+                                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2">
+                                    SA
+                                </div>
+                                <span class="text-sm">Serge ASSALÉ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Équipe assignée -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Équipe Assignée</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-3">
+                                    SA
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Serge ASSALÉ</p>
+                                    <p class="text-xs text-gray-600">Directeur Création</p>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-3">
+                                    PO
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Paul Junior OUEDRAOGO</p>
+                                    <p class="text-xs text-gray-600">Graphiste Photomonteur</p>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-3">
+                                    FY
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Fortune YANOGO</p>
+                                    <p class="text-xs text-gray-600">Photographe/Vidéaste</p>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-3">
+                                    FK
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Florita KABORÉ</p>
+                                    <p class="text-xs text-gray-600">Médias Sociaux</p>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        </div>
+
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50">
+                            + Ajouter un membre
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fichiers partagés -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Fichiers Partagés</h3>
+                        <button class="text-blue-600 hover:text-blue-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">Brief_MOOV_Q1_2024.pdf</p>
+                                <p class="text-xs text-gray-500">2.3 MB • Il y a 3 jours</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">Visuels_principaux_v3.zip</p>
+                                <p class="text-xs text-gray-500">15.7 MB • Il y a 1 jour</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">Planning_production.xlsx</p>
+                                <p class="text-xs text-gray-500">890 KB • Il y a 2 heures</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Graphique de progression circulaire
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#37B6E9', '#E5E7EB'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Simulation des timers en temps réel
+        setInterval(() => {
+            const timer = document.querySelector('.text-blue-600');
+            if (timer && timer.textContent.includes(':')) {
+                let time = timer.textContent.split(':');
+                let hours = parseInt(time[0]);
+                let minutes = parseInt(time[1]);
+                let seconds = parseInt(time[2]);
+                
+                seconds++;
+                if (seconds >= 60) {
+                    seconds = 0;
+                    minutes++;
+                    if (minutes >= 60) {
+                        minutes = 0;
+                        hours++;
+                    }
+                }
+                
+                timer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

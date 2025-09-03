@@ -207,9 +207,10 @@ function ProjectCreate() {
   return (
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
-      <AdminFloatingMenu />
-      
-      <div className="w-full overflow-auto">
+      <div className="ml-72">
+        <AdminFloatingMenu />
+        
+        <div className="w-full overflow-auto">
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -573,6 +574,7 @@ function ProjectCreate() {
           </div>
 
         </main>
+        </div>
       </div>
     </div>
   );

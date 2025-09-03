@@ -272,6 +272,7 @@ export default function Tasks() {
       {/* Sidebar */}
       <TopNavBar />
       
+      <div className="ml-72">
       {/* Menu flottant admin */}
       <AdminFloatingMenu />
       
@@ -700,6 +701,7 @@ export default function Tasks() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
