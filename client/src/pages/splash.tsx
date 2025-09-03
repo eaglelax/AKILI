@@ -115,7 +115,7 @@ function Splash() {
         )}
         
         {/* Version info */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 pb-1">
           <p className="text-blue-300/60 text-xs">
             Version 1.0.0 - Burkina Faso
           </p>
