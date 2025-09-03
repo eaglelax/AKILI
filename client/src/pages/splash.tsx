@@ -66,7 +66,7 @@ function Splash() {
         <div className="mb-8 animate-in fade-in duration-500 delay-300">
           <h1 className="text-4xl font-bold mb-4 text-white jofe-font">jofé+</h1>
           <p className="text-xl text-blue-200 font-medium">
-            Système de Gestion d'Équipe
+            Système de gestion d'équipe
           </p>
         </div>
         
