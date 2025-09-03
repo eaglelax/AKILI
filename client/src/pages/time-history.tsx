@@ -292,10 +292,8 @@ export default function TimeHistory() {
               <Link href="/tasks" className="p-2 hover:bg-[var(--jofe-gray)] rounded-lg transition-colors">
                 <ArrowLeft className="w-5 h-5 text-[var(--jofe-blue-medium)]" />
               </Link>
-              <div className="jofe-logo"></div>
               <div>
-                <h1 className="text-xl font-bold text-[var(--jofe-blue-deep)] jofe-font">JoFé+</h1>
-                <p className="text-sm text-[var(--jofe-blue-medium)]">Historique des Temps</p>
+                <h1 className="text-xl font-bold text-[var(--jofe-blue-deep)] jofe-font">Historique des Temps</h1>
               </div>
             </div>
 

@@ -42,7 +42,7 @@ interface Task {
   createdAt: string;
 }
 
-// Données réelles du template HTML JoFé+ authentique
+// Données réelles du template HTML authentique
 const REAL_TASKS: Task[] = [
   {
     id: "task_moov_africa",
@@ -281,7 +281,6 @@ export default function Tasks() {
         <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-4">
-              <span className="text-2xl">📋</span>
               <h1 className="text-2xl font-bold text-[#162C54]">Gestion des Tâches</h1>
             </div>
             
