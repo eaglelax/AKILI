@@ -14,6 +14,7 @@ import TaskDetail from "@/pages/task-detail";
 import TimeHistory from "@/pages/time-history";
 import Permissions from "@/pages/permissions";
 import Analytics from "@/pages/analytics";
+import Reports from "@/pages/reports";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/time-history" component={TimeHistory} />
       <Route path="/permissions" component={Permissions} />
       <Route path="/analytics" component={Analytics} />
+      <Route path="/reports" component={Reports} />
       
       {/* Route 404 */}
       <Route component={NotFound} />
