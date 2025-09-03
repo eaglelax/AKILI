@@ -83,7 +83,7 @@ Preferred communication style: Simple, everyday language.
 - Page 12 - ROI et rentabilité par client/projet ✅
 
 ### 📋 GESTION DE PROJETS
-- Page 13 - Liste des projets actifs/terminés
+- Page 13 - Liste des projets actifs/terminés ✅
 - Page 14 - Création/édition de projet
 - Page 15 - Vue détaillée d'un projet
 - Page 16 - Diagramme de Gantt interactif
