@@ -84,7 +84,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white relative flex items-center justify-center p-4">
+    <div className="min-h-screen relative flex items-center justify-center p-4" style={{ backgroundColor: '#162C54' }}>
       {/* Background Pattern */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-5"
