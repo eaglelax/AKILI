@@ -239,15 +239,7 @@ export default function Analytics() {
       <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              {/* Logo JoFé+ */}
-              <div className="w-10 h-10 relative">
-                <div className="absolute w-3 h-3 border-2 border-[#162C54] rounded-full top-0 left-3.5"></div>
-                <div className="absolute w-3 h-3 border-2 border-[#3475BB] rounded-full top-3 left-1"></div>
-                <div className="absolute w-3 h-3 border-2 border-[#37B6E9] rounded-full top-3 right-1"></div>
-              </div>
-              <div className="text-2xl font-bold text-[#162C54]">JoFé+</div>
-            </div>
+            <div></div>
             
             <nav className="flex items-center gap-6">
               <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[#3475BB] hover:bg-gray-100 transition-all">
