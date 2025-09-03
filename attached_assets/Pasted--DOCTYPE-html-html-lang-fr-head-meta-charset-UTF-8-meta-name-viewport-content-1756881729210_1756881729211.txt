@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Création/Édition de Projet</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HeroIcons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <style>
+        /* Variables CSS JoFé+ */
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray-pearl: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+        }
+        
+        /* Reset et base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .inter-font {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Logo JoFé+ avec 3 anneaux */
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Navigation sidebar */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        /* Stepper styles */
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-2xl);
+            position: relative;
+        }
+        
+        .stepper::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: var(--jofe-gray-pearl);
+            z-index: 1;
+        }
+        
+        .stepper-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            min-width: 120px;
+        }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .step-number.active {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .step-number.completed {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+        }
+        
+        .step-number.inactive {
+            background: var(--jofe-gray-pearl);
+            color: var(--jofe-blue-medium);
+        }
+        
+        .step-title {
+            font-weight: 500;
+            color: var(--jofe-blue-deep);
+            text-align: center;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--jofe-blue-deep);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: var(--jofe-white);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 0 0 3px rgba(55, 182, 233, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: var(--jofe-white);
+            cursor: pointer;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.2s ease;
+            background: var(--jofe-white);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray-pearl);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(52, 117, 187, 0.05);
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+        }
+        
+        .btn-success:hover {
+            background: #7FB544;
+            transform: translateY(-1px);
+        }
+        
+        .btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+        }
+        
+        .btn-disabled {
+            background: var(--jofe-gray-pearl);
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+        }
+        
+        /* Team member cards */
+        .team-member {
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .team-member:hover {
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 4px 8px rgba(55, 182, 233, 0.1);
+        }
+        
+        .team-member.selected {
+            border-color: var(--jofe-blue-light);
+            background: rgba(55, 182, 233, 0.05);
+        }
+        
+        /* Templates */
+        .template-card {
+            border: 1px solid var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .template-card:hover {
+            border-color: var(--jofe-blue-light);
+            transform: translateY(-2px);
+        }
+        
+        .template-card.selected {
+            border-color: var(--jofe-blue-light);
+            background: rgba(55, 182, 233, 0.05);
+        }
+        
+        /* Progress bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--jofe-gray-pearl);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--jofe-blue-light);
+            transition: width 0.3s ease;
+        }
+        
+        /* File upload */
+        .file-upload {
+            border: 2px dashed var(--jofe-gray-pearl);
+            border-radius: 8px;
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--jofe-blue-light);
+            background: rgba(55, 182, 233, 0.02);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: 8px;
+            color: var(--jofe-white);
+            font-weight: 500;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success {
+            background: var(--jofe-green);
+        }
+        
+        .notification.error {
+            background: #EF4444;
+        }
+        
+        .notification.warning {
+            background: var(--jofe-orange);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .stepper {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+            
+            .stepper::before {
+                display: none;
+            }
+            
+            .stepper-step {
+                flex-direction: row;
+                text-align: left;
+            }
+            
+            .step-number {
+                margin-right: var(--spacing-md);
+                margin-bottom: 0;
+                min-width: 48px;
+            }
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideInUp 0.3s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--jofe-gray-pearl);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--jofe-blue-light);
+            border-radius: 3px;
+        }
+        
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+        }
+        
+        /* Step content */
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        /* Budget calculator */
+        .budget-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--jofe-gray-pearl);
+        }
+        
+        .budget-total {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--jofe-blue-deep);
+            padding-top: var(--spacing-md);
+        }
+        
+        /* Priority badges */
+        .priority-low {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .priority-medium {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .priority-high {
+            background: #EF4444;
+            color: var(--jofe-white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="inter-font text-xl font-bold" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);" id="currentUserName">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="inter-font text-2xl font-bold" style="color: var(--jofe-blue-deep);">Création/Édition de Projet</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Configurez votre nouveau projet créatif</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Templates Button -->
+                    <button id="templatesBtn" class="btn btn-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z"></path>
+                        </svg>
+                        Templates
+                    </button>
+                    
+                    <!-- Save Draft -->
+                    <button id="saveDraftBtn" class="btn btn-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        Brouillon
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6">
+            <!-- Stepper -->
+            <div class="stepper fade-in">
+                <div class="stepper-step">
+                    <div class="step-number active" id="step1Number">1</div>
+                    <div class="step-title">Informations Générales</div>
+                </div>
+                <div class="stepper-step">
+                    <div class="step-number inactive" id="step2Number">2</div>
+                    <div class="step-title">Équipe & Ressources</div>
+                </div>
+                <div class="stepper-step">
+                    <div class="step-number inactive" id="step3Number">3</div>
+                    <div class="step-title">Budget & Planning</div>
+                </div>
+                <div class="stepper-step">
+                    <div class="step-number inactive" id="step4Number">4</div>
+                    <div class="step-title">Configuration Avancée</div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="card slide-in">
+                <form id="projectForm">
+                    <!-- Step 1: Informations Générales -->
+                    <div class="step-content active" id="step1">
+                        <h3 class="inter-font text-xl font-semibold mb-6" style="color: var(--jofe-blue-deep);">
+                            Informations Générales du Projet
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label">Nom du Projet *</label>
+                                <input type="text" id="projectName" class="form-input" 
+                                       placeholder="Ex: Campagne MOOV AFRICA Q1 2024" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Client *</label>
+                                <select id="projectClient" class="form-select" required>
+                                    <option value="">Sélectionnez un client</option>
+                                    <option value="MOOV AFRICA">MOOV AFRICA</option>
+                                    <option value="BANK OF AFRICA">BANK OF AFRICA</option>
+                                    <option value="SUNU BURKINA">SUNU BURKINA</option>
+                                    <option value="ROXGOLD">ROXGOLD</option>
+                                    <option value="VINCENT & ASSOCIES">VINCENT & ASSOCIES</option>
+                                    <option value="PNUD BF">PNUD BF</option>
+                                    <option value="ANSSI">ANSSI</option>
+                                    <option value="BABALI EAU">BABALI EAU</option>
+                                    <option value="DAFANI">DAFANI</option>
+                                    <option value="BABALI BOISSONS">BABALI BOISSONS</option>
+                                    <option value="LAAFI NANDA">LAAFI NANDA</option>
+                                    <option value="AFRICA PERFORMANCE GROUPE">AFRICA PERFORMANCE GROUPE</option>
+                                    <option value="BAR-RESTAU LE TRAPEZE">BAR-RESTAU LE TRAPEZE</option>
+                                    <option value="UAB ASSURANCES">UAB ASSURANCES</option>
+                                    <option value="CNPB">CNPB</option>
+                                    <option value="FIDELIS FINANCE BURKINA">FIDELIS FINANCE BURKINA</option>
+                                    <option value="SUNU ASSURANCES IARD MALI">SUNU ASSURANCES IARD MALI</option>
+                                    <option value="SONAR GROUPE">SONAR GROUPE</option>
+                                    <option value="ORYX BURKINA">ORYX BURKINA</option>
+                                    <option value="BADF">BADF</option>
+                                    <option value="FOREVER">FOREVER</option>
+                                    <option value="FROID SOLUTIONS">FROID SOLUTIONS</option>
+                                    <option value="KSC GROUP">KSC GROUP</option>
+                                    <option value="MORISOL">MORISOL</option>
+                                    <option value="SPH">SPH</option>
+                                    <option value="LORETTA">LORETTA</option>
+                                    <option value="NELSON SOLAR">NELSON SOLAR</option>
+                                    <option value="AGENCE ZACA">AGENCE ZACA</option>
+                                    <option value="ANEREE">ANEREE</option>
+                                    <option value="JO'FE DIGITAL">JO'FE DIGITAL</option>
+                                    <option value="J'PAY">J'PAY</option>
+                                    <option value="JOFFRES">JOFFRES</option>
+                                    <option value="LOUDA">LOUDA</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Type de Projet *</label>
+                                <select id="projectType" class="form-select" required>
+                                    <option value="">Sélectionnez un type</option>
+                                    <option value="campagne-pub">Campagne Publicitaire</option>
+                                    <option value="branding">Identité Visuelle / Branding</option>
+                                    <option value="site-web">Site Web / Digital</option>
+                                    <option value="motion-design">Motion Design / Animation</option>
+                                    <option value="photographie">Photographie / Shooting</option>
+                                    <option value="print">Supports Print</option>
+                                    <option value="social-media">Gestion Médias Sociaux</option>
+                                    <option value="video">Production Vidéo</option>
+                                    <option value="packaging">Packaging</option>
+                                    <option value="event">Communication Événementielle</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Priorité *</label>
+                                <select id="projectPriority" class="form-select" required>
+                                    <option value="">Sélectionnez la priorité</option>
+                                    <option value="low">Basse</option>
+                                    <option value="medium">Moyenne</option>
+                                    <option value="high">Haute</option>
+                                    <option value="urgent">Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Description du Projet</label>
+                            <textarea id="projectDescription" class="form-textarea" 
+                                      placeholder="Décrivez les objectifs, le contexte et les attentes du client..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Objectifs Spécifiques</label>
+                            <textarea id="projectObjectives" class="form-textarea" 
+                                      placeholder="Listez les objectifs mesurables du projet..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Équipe & Ressources -->
+                    <div class="step-content" id="step2">
+                        <h3 class="inter-font text-xl font-semibold mb-6" style="color: var(--jofe-blue-deep);">
+                            Assignation de l'Équipe
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Membres Disponibles</h4>
+                                <div class="space-y-3 max-h-96 overflow-y-auto">
+                                    <div class="team-member" data-member="serge-assale" data-rate="15000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                                                    <span class="text-white font-semibold">SA</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Serge ASSALÉ</p>
+                                                    <p class="text-sm text-gray-600">Directeur Création & Marketing</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">15 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Stratégie, Direction</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="enos-gouba" data-rate="12000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-medium);">
+                                                    <span class="text-white font-semibold">EG</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Enos GOUBA</p>
+                                                    <p class="text-sm text-gray-600">Coordinateur Production</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">12 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Coordination, Planning</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="paul-ouedraogo" data-rate="8000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-green);">
+                                                    <span class="text-white font-semibold">PO</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Paul Junior OUEDRAOGO</p>
+                                                    <p class="text-sm text-gray-600">Graphiste Photomonteur</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">8 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Photomontage, Graphisme</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="fortune-yanogo" data-rate="10000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-orange);">
+                                                    <span class="text-white font-semibold">FY</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Fortune YANOGO</p>
+                                                    <p class="text-sm text-gray-600">Photographe/Vidéaste</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">10 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Photo, Vidéo</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="bientama-pare" data-rate="9000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-deep);">
+                                                    <span class="text-white font-semibold">BP</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Bientama PARÉ</p>
+                                                    <p class="text-sm text-gray-600">Motion Designer</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">9 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Animation, Motion</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="issa-cisse" data-rate="6000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #6B7280;">
+                                                    <span class="text-white font-semibold">IC</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Issa CISSE</p>
+                                                    <p class="text-sm text-gray-600">Graphiste Junior</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">6 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Graphisme, Support</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="florita-kabore" data-rate="7500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #EC4899;">
+                                                    <span class="text-white font-semibold">FK</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Florita KABORÉ</p>
+                                                    <p class="text-sm text-gray-600">Responsable Médias Sociaux</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">7 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Social Media, Digital</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="nebie-webou" data-rate="8500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                                                    <span class="text-white font-semibold">NW</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Nebié WEBOU</p>
+                                                    <p class="text-sm text-gray-600">Chef de Pub/Concepteur Rédacteur</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">8 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Rédaction, Pub</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="djamilatou-guiguemde" data-rate="4500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #10B981;">
+                                                    <span class="text-white font-semibold">DG</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Djamilatou GUIGUEMDE</p>
+                                                    <p class="text-sm text-gray-600">Chef de Pub Stagiaire</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">4 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Junior, Support</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="jean-sampabao" data-rate="7000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-orange);">
+                                                    <span class="text-white font-semibold">JS</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Jean-Jacques SAMPABAO</p>
+                                                    <p class="text-sm text-gray-600">Directeur Artistique Junior</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">7 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Direction Artistique</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="latif-ouedraogo" data-rate="8500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-medium);">
+                                                    <span class="text-white font-semibold">LO</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Abdoul Latif OUEDRAOGO</p>
+                                                    <p class="text-sm text-gray-600">Designer UI/UX</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">8 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">UI/UX, Digital</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="linda-kabore" data-rate="9500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #8B5CF6;">
+                                                    <span class="text-white font-semibold">LK</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Linda KABORÉ</p>
+                                                    <p class="text-sm text-gray-600">Conceptrice Rédactrice Lead</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">9 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Rédaction Lead</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="maryse-bombiri" data-rate="7000">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #F59E0B;">
+                                                    <span class="text-white font-semibold">MB</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Maryse BOMBIRI</p>
+                                                    <p class="text-sm text-gray-600">Community Manager</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">7 000 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Community, E-reputation</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-member" data-member="faridatou-barry" data-rate="7500">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #EF4444;">
+                                                    <span class="text-white font-semibold">FB</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">Faridatou BARRY</p>
+                                                    <p class="text-sm text-gray-600">Chef de Pub/CM</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-semibold">7 500 FCFA/h</p>
+                                                <p class="text-xs text-gray-500">Pub, Community</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Équipe Assignée</h4>
+                                <div id="assignedTeam" class="space-y-3 min-h-32 p-4 border-2 border-dashed border-gray-200 rounded-lg">
+                                    <p class="text-gray-500 text-center">Cliquez sur les membres à gauche pour les assigner au projet</p>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h5 class="font-medium mb-3">Estimation des coûts équipe</h5>
+                                    <div id="teamCostEstimate" class="bg-gray-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Coût horaire moyen: <span id="avgHourlyRate">0 FCFA/h</span></p>
+                                        <p class="text-sm text-gray-600">Membres assignés: <span id="teamMemberCount">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Budget & Planning -->
+                    <div class="step-content" id="step3">
+                        <h3 class="inter-font text-xl font-semibold mb-6" style="color: var(--jofe-blue-deep);">
+                            Budget et Planning
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Budget Section -->
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Configuration Budget</h4>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Budget Total Client (FCFA)</label>
+                                    <input type="number" id="totalBudget" class="form-input" 
+                                           placeholder="Ex: 2500000" min="0">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Durée Estimée (heures)</label>
+                                    <input type="number" id="estimatedHours" class="form-input" 
+                                           placeholder="Ex: 120" min="1">
+                                </div>
+                                
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium mb-3">Calcul Prévisionnel</h5>
+                                    <div class="space-y-2">
+                                        <div class="budget-item">
+                                            <span>Coût équipe estimé:</span>
+                                            <span id="teamEstimatedCost">0 FCFA</span>
+                                        </div>
+                                        <div class="budget-item">
+                                            <span>Marge bénéficiaire:</span>
+                                            <span id="profitMargin">0 FCFA</span>
+                                        </div>
+                                        <div class="budget-item">
+                                            <span>Taux de marge:</span>
+                                            <span id="marginRate">0%</span>
+                                        </div>
+                                    </div>
+                                    <div class="budget-total">
+                                        Total projet: <span id="projectTotal">0 FCFA</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Planning Section -->
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Planning Projet</h4>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Date de Début</label>
+                                    <input type="date" id="startDate" class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Date de Fin Prévue</label>
+                                    <input type="date" id="endDate" class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Jalons Importants</label>
+                                    <div id="milestones" class="space-y-2">
+                                        <div class="flex gap-2">
+                                            <input type="text" class="form-input flex-1" placeholder="Nom du jalon">
+                                            <input type="date" class="form-input">
+                                            <button type="button" class="btn btn-secondary" onclick="removeMilestone(this)">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="addMilestone" class="btn btn-secondary mt-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        Ajouter un jalon
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Configuration Avancée -->
+                    <div class="step-content" id="step4">
+                        <h3 class="inter-font text-xl font-semibold mb-6" style="color: var(--jofe-blue-deep);">
+                            Configuration Avancée
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Workflow Section -->
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Workflow d'Approbation</h4>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Étapes de Validation</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox" checked>
+                                            <span>Brief client validé</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox" checked>
+                                            <span>Concept créatif approuvé</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox" checked>
+                                            <span>Validation interne DA</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox">
+                                            <span>Présentation client</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox">
+                                            <span>Révisions client</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" class="form-checkbox" checked>
+                                            <span>Livraison finale</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Responsable Validation</label>
+                                    <select class="form-select">
+                                        <option>Serge ASSALÉ</option>
+                                        <option>Enos GOUBA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Files Section -->
+                            <div>
+                                <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Documents Projet</h4>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Brief Client</label>
+                                    <div class="file-upload" onclick="document.getElementById('briefUpload').click()">
+                                        <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600">Cliquez pour uploader le brief</p>
+                                        <input type="file" id="briefUpload" class="hidden" accept=".pdf,.doc,.docx">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Références Visuelles</label>
+                                    <div class="file-upload" onclick="document.getElementById('referencesUpload').click()">
+                                        <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600">Images, moodboards, références</p>
+                                        <input type="file" id="referencesUpload" class="hidden" accept="image/*" multiple>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Autres Documents</label>
+                                    <div class="file-upload" onclick="document.getElementById('otherFilesUpload').click()">
+                                        <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600">Contrats, spécifications, etc.</p>
+                                        <input type="file" id="otherFilesUpload" class="hidden" multiple>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Project Summary -->
+                        <div class="mt-8">
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-medium);">Résumé du Projet</h4>
+                            <div class="card bg-gray-50">
+                                <div id="projectSummary" class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span>Nom:</span>
+                                        <span id="summaryName">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Client:</span>
+                                        <span id="summaryClient">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Type:</span>
+                                        <span id="summaryType">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Priorité:</span>
+                                        <span id="summaryPriority">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Équipe:</span>
+                                        <span id="summaryTeam">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Budget:</span>
+                                        <span id="summaryBudget">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Durée:</span>
+                                        <span id="summaryDuration">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                    <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Précédent
+                    </button>
+                    
+                    <div class="flex gap-3">
+                        <button type="button" id="nextBtn" class="btn btn-primary">
+                            Suivant
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                        
+                        <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Créer le Projet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Templates Modal -->
+    <div id="templatesModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="inter-font text-xl font-semibold" style="color: var(--jofe-blue-deep);">Templates de Projets</h3>
+                <button id="closeTemplatesModal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="template-card" data-template="campaign-moov">
+                    <svg class="w-8 h-8 mx-auto mb-2" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                    </svg>
+                    <h4 class="font-semibold">Campagne MOOV</h4>
+                    <p class="text-sm text-gray-600">Template pour campagnes télécom</p>
+                </div>
+                
+                <div class="template-card" data-template="branding-bank">
+                    <svg class="w-8 h-8 mx-auto mb-2" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <h4 class="font-semibold">Branding Bancaire</h4>
+                    <p class="text-sm text-gray-600">Template pour identités bancaires</p>
+                </div>
+                
+                <div class="template-card" data-template="digital-sunu">
+                    <svg class="w-8 h-8 mx-auto mb-2" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    <h4 class="font-semibold">Digital SUNU</h4>
+                    <p class="text-sm text-gray-600">Template pour projets digitaux assurance</p>
+                </div>
+                
+                <div class="template-card" data-template="corporate">
+                    <svg class="w-8 h-8 mx-auto mb-2" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <h4 class="font-semibold">Corporate</h4>
+                    <p class="text-sm text-gray-600">Template pour communication corporate</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancelTemplate" class="btn btn-secondary">Annuler</button>
+                <button id="applyTemplate" class="btn btn-primary">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <script>
+        // Application state
+        let currentStep = 1;
+        let selectedTemplate = null;
+        let assignedTeamMembers = [];
+        let formData = {};
+
+        // DOM Elements
+        const steps = ['step1', 'step2', 'step3', 'step4'];
+        const stepNumbers = ['step1Number', 'step2Number', 'step3Number', 'step4Number'];
+
+        // Templates data
+        const templates = {
+            'campaign-moov': {
+                name: 'Campagne MOOV AFRICA Q1 2024',
+                client: 'MOOV AFRICA',
+                type: 'campagne-pub',
+                priority: 'high',
+                description: 'Campagne publicitaire multi-support pour MOOV AFRICA avec focus sur les nouvelles offres data.',
+                objectives: 'Augmenter la notoriété des offres data, générer des leads qualifiés, renforcer l\'image de marque.',
+                budget: 3500000,
+                hours: 150,
+                team: ['serge-assale', 'paul-ouedraogo', 'fortune-yanogo', 'florita-kabore']
+            },
+            'branding-bank': {
+                name: 'Identité Visuelle BANK OF AFRICA',
+                client: 'BANK OF AFRICA',
+                type: 'branding',
+                priority: 'medium',
+                description: 'Refonte complète de l\'identité visuelle avec déclinaisons print et digital.',
+                objectives: 'Moderniser l\'image de marque, créer une cohérence visuelle, développer le design system.',
+                budget: 4200000,
+                hours: 200,
+                team: ['serge-assale', 'jean-sampabao', 'latif-ouedraogo', 'linda-kabore']
+            },
+            'digital-sunu': {
+                name: 'Stratégie Digitale SUNU BURKINA',
+                client: 'SUNU BURKINA',
+                type: 'social-media',
+                priority: 'medium',
+                description: 'Gestion complète des réseaux sociaux et création de contenus digitaux.',
+                objectives: 'Développer la présence digitale, engager la communauté, générer des prospects.',
+                budget: 2800000,
+                hours: 120,
+                team: ['florita-kabore', 'maryse-bombiri', 'bientama-pare', 'issa-cisse']
+            },
+            'corporate': {
+                name: 'Communication Corporate',
+                client: 'ROXGOLD',
+                type: 'print',
+                priority: 'low',
+                description: 'Supports de communication corporate pour événements et relations publiques.',
+                objectives: 'Renforcer l\'image corporate, communiquer sur les valeurs, supports événementiels.',
+                budget: 1800000,
+                hours: 80,
+                team: ['linda-kabore', 'nebie-webou', 'paul-ouedraogo']
+            }
+        };
+
+        // Team members data
+        const teamMembers = {
+            'serge-assale': { name: 'Serge ASSALÉ', role: 'Directeur Création & Marketing', rate: 15000 },
+            'enos-gouba': { name: 'Enos GOUBA', role: 'Coordinateur Production', rate: 12000 },
+            'paul-ouedraogo': { name: 'Paul Junior OUEDRAOGO', role: 'Graphiste Photomonteur', rate: 8000 },
+            'fortune-yanogo': { name: 'Fortune YANOGO', role: 'Photographe/Vidéaste', rate: 10000 },
+            'bientama-pare': { name: 'Bientama PARÉ', role: 'Motion Designer', rate: 9000 },
+            'issa-cisse': { name: 'Issa CISSE', role: 'Graphiste Junior', rate: 6000 },
+            'florita-kabore': { name: 'Florita KABORÉ', role: 'Responsable Médias Sociaux', rate: 7500 },
+            'nebie-webou': { name: 'Nebié WEBOU', role: 'Chef de Pub/Concepteur Rédacteur', rate: 8500 },
+            'djamilatou-guiguemde': { name: 'Djamilatou GUIGUEMDE', role: 'Chef de Pub Stagiaire', rate: 4500 },
+            'jean-sampabao': { name: 'Jean-Jacques SAMPABAO', role: 'Directeur Artistique Junior', rate: 7000 },
+            'latif-ouedraogo': { name: 'Abdoul Latif OUEDRAOGO', role: 'Designer UI/UX', rate: 8500 },
+            'linda-kabore': { name: 'Linda KABORÉ', role: 'Conceptrice Rédactrice Lead', rate: 9500 },
+            'maryse-bombiri': { name: 'Maryse BOMBIRI', role: 'Community Manager', rate: 7000 },
+            'faridatou-barry': { name: 'Faridatou BARRY', role: 'Chef de Pub/CM', rate: 7500 }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            loadDraftFromStorage();
+            updateProjectSummary();
+        });
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn?.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mobileOverlay.classList.toggle('hidden');
+            });
+
+            mobileOverlay?.addEventListener('click', () => {
+                sidebar.classList.add('hidden');
+                mobileOverlay.classList.add('hidden');
+            });
+
+            // Navigation buttons
+            document.getElementById('nextBtn').addEventListener('click', nextStep);
+            document.getElementById('prevBtn').addEventListener('click', prevStep);
+            document.getElementById('submitBtn').addEventListener('click', submitProject);
+
+            // Templates
+            document.getElementById('templatesBtn').addEventListener('click', openTemplatesModal);
+            document.getElementById('closeTemplatesModal').addEventListener('click', closeTemplatesModal);
+            document.getElementById('cancelTemplate').addEventListener('click', closeTemplatesModal);
+            document.getElementById('applyTemplate').addEventListener('click', applySelectedTemplate);
+
+            // Template cards
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.addEventListener('click', () => selectTemplate(card.dataset.template));
+            });
+
+            // Team member selection
+            document.querySelectorAll('.team-member').forEach(member => {
+                member.addEventListener('click', () => toggleTeamMember(member));
+            });
+
+            // Form inputs with real-time updates
+            const inputs = ['projectName', 'projectClient', 'projectType', 'projectPriority', 'totalBudget', 'estimatedHours'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        updateProjectSummary();
+                        calculateBudget();
+                        saveDraftToStorage();
+                    });
+                }
+            });
+
+            // Milestones
+            document.getElementById('addMilestone').addEventListener('click', addMilestone);
+
+            // Auto-save
+            setInterval(saveDraftToStorage, 30000); // Save every 30 seconds
+
+            // Draft save button
+            document.getElementById('saveDraftBtn').addEventListener('click', () => {
+                saveDraftToStorage();
+                showNotification('Brouillon sauvegardé avec succès', 'success');
+            });
+        }
+
+        // Step Navigation
+        function nextStep() {
+            if (validateCurrentStep()) {
+                if (currentStep < 4) {
+                    currentStep++;
+                    updateStepDisplay();
+                    saveDraftToStorage();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            // Hide all steps
+            steps.forEach(step => {
+                document.getElementById(step).classList.remove('active');
+            });
+
+            // Show current step
+            document.getElementById(steps[currentStep - 1]).classList.add('active');
+
+            // Update step numbers
+            stepNumbers.forEach((stepId, index) => {
+                const stepElement = document.getElementById(stepId);
+                stepElement.classList.remove('active', 'completed', 'inactive');
+                
+                if (index + 1 < currentStep) {
+                    stepElement.classList.add('completed');
+                    stepElement.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+                } else if (index + 1 === currentStep) {
+                    stepElement.classList.add('active');
+                    stepElement.textContent = index + 1;
+                } else {
+                    stepElement.classList.add('inactive');
+                    stepElement.textContent = index + 1;
+                }
+            });
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'flex' : 'none';
+            document.getElementById('nextBtn').style.display = currentStep < 4 ? 'flex' : 'none';
+            document.getElementById('submitBtn').style.display = currentStep === 4 ? 'flex' : 'none';
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    const name = document.getElementById('projectName').value;
+                    const client = document.getElementById('projectClient').value;
+                    const type = document.getElementById('projectType').value;
+                    const priority = document.getElementById('projectPriority').value;
+
+                    if (!name || !client || !type || !priority) {
+                        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+                        return false;
+                    }
+                    break;
+                
+                case 2:
+                    if (assignedTeamMembers.length === 0) {
+                        showNotification('Veuillez assigner au moins un membre à l\'équipe', 'error');
+                        return false;
+                    }
+                    break;
+                
+                case 3:
+                    const budget = document.getElementById('totalBudget').value;
+                    const hours = document.getElementById('estimatedHours').value;
+                    
+                    if (!budget || !hours || budget <= 0 || hours <= 0) {
+                        showNotification('Veuillez renseigner un budget et une durée valides', 'error');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        // Templates
+        function openTemplatesModal() {
+            document.getElementById('templatesModal').style.display = 'flex';
+        }
+
+        function closeTemplatesModal() {
+            document.getElementById('templatesModal').style.display = 'none';
+            selectedTemplate = null;
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        function selectTemplate(templateId) {
+            selectedTemplate = templateId;
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-template="${templateId}"]`).classList.add('selected');
+        }
+
+        function applySelectedTemplate() {
+            if (!selectedTemplate) {
+                showNotification('Veuillez sélectionner un template', 'warning');
+                return;
+            }
+
+            const template = templates[selectedTemplate];
+            
+            // Apply template data
+            document.getElementById('projectName').value = template.name;
+            document.getElementById('projectClient').value = template.client;
+            document.getElementById('projectType').value = template.type;
+            document.getElementById('projectPriority').value = template.priority;
+            document.getElementById('projectDescription').value = template.description;
+            document.getElementById('projectObjectives').value = template.objectives;
+            document.getElementById('totalBudget').value = template.budget;
+            document.getElementById('estimatedHours').value = template.hours;
+
+            // Apply team
+            assignedTeamMembers = [];
+            template.team.forEach(memberId => {
+                const memberElement = document.querySelector(`[data-member="${memberId}"]`);
+                if (memberElement) {
+                    toggleTeamMember(memberElement);
+                }
+            });
+
+            closeTemplatesModal();
+            updateProjectSummary();
+            calculateBudget();
+            showNotification('Template appliqué avec succès', 'success');
+        }
+
+        // Team Management
+        function toggleTeamMember(memberElement) {
+            const memberId = memberElement.dataset.member;
+            const memberRate = parseInt(memberElement.dataset.rate);
+            
+            if (memberElement.classList.contains('selected')) {
+                // Remove member
+                memberElement.classList.remove('selected');
+                assignedTeamMembers = assignedTeamMembers.filter(m => m.id !== memberId);
+            } else {
+                // Add member
+                memberElement.classList.add('selected');
+                assignedTeamMembers.push({
+                    id: memberId,
+                    name: teamMembers[memberId].name,
+                    role: teamMembers[memberId].role,
+                    rate: memberRate
+                });
+            }
+            
+            updateAssignedTeamDisplay();
+            calculateBudget();
+        }
+
+        function updateAssignedTeamDisplay() {
+            const container = document.getElementById('assignedTeam');
+            
+            if (assignedTeamMembers.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">Cliquez sur les membres à gauche pour les assigner au projet</p>';
+            } else {
+                container.innerHTML = assignedTeamMembers.map(member => `
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <div>
+                            <p class="font-medium">${member.name}</p>
+                            <p class="text-sm text-gray-600">${member.role}</p>
+                        </div>
+                        <p class="font-semibold">${member.rate.toLocaleString()} FCFA/h</p>
+                    </div>
+                `).join('');
+            }
+            
+            // Update team cost estimate
+            const avgRate = assignedTeamMembers.length > 0 
+                ? Math.round(assignedTeamMembers.reduce((sum, m) => sum + m.rate, 0) / assignedTeamMembers.length)
+                : 0;
+            
+            document.getElementById('avgHourlyRate').textContent = avgRate.toLocaleString() + ' FCFA/h';
+            document.getElementById('teamMemberCount').textContent = assignedTeamMembers.length;
+        }
+
+        // Budget Calculations
+        function calculateBudget() {
+            const totalBudget = parseInt(document.getElementById('totalBudget').value) || 0;
+            const estimatedHours = parseInt(document.getElementById('estimatedHours').value) || 0;
+            
+            let teamCost = 0;
+            if (assignedTeamMembers.length > 0 && estimatedHours > 0) {
+                const avgRate = assignedTeamMembers.reduce((sum, m) => sum + m.rate, 0) / assignedTeamMembers.length;
+                teamCost = Math.round(avgRate * estimatedHours);
+            }
+            
+            const profit = totalBudget - teamCost;
+            const marginRate = totalBudget > 0 ? Math.round((profit / totalBudget) * 100) : 0;
+            
+            document.getElementById('teamEstimatedCost').textContent = teamCost.toLocaleString() + ' FCFA';
+            document.getElementById('profitMargin').textContent = profit.toLocaleString() + ' FCFA';
+            document.getElementById('marginRate').textContent = marginRate + '%';
+            document.getElementById('projectTotal').textContent = totalBudget.toLocaleString() + ' FCFA';
+        }
+
+        // Milestones
+        function addMilestone() {
+            const container = document.getElementById('milestones');
+            const milestoneHtml = `
+                <div class="flex gap-2">
+                    <input type="text" class="form-input flex-1" placeholder="Nom du jalon">
+                    <input type="date" class="form-input">
+                    <button type="button" class="btn btn-secondary" onclick="removeMilestone(this)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', milestoneHtml);
+        }
+
+        function removeMilestone(button) {
+            button.closest('.flex').remove();
+        }
+
+        // Project Summary
+        function updateProjectSummary() {
+            const name = document.getElementById('projectName').value || '-';
+            const client = document.getElementById('projectClient').value || '-';
+            const type = document.getElementById('projectType').value || '-';
+            const priority = document.getElementById('projectPriority').value || '-';
+            const budget = document.getElementById('totalBudget').value;
+            const hours = document.getElementById('estimatedHours').value;
+            
+            document.getElementById('summaryName').textContent = name;
+            document.getElementById('summaryClient').textContent = client;
+            document.getElementById('summaryType').textContent = getProjectTypeLabel(type);
+            document.getElementById('summaryPriority').innerHTML = getPriorityBadge(priority);
+            document.getElementById('summaryTeam').textContent = assignedTeamMembers.length + ' membre(s)';
+            document.getElementById('summaryBudget').textContent = budget ? parseInt(budget).toLocaleString() + ' FCFA' : '-';
+            document.getElementById('summaryDuration').textContent = hours ? hours + ' heures' : '-';
+        }
+
+        function getProjectTypeLabel(type) {
+            const types = {
+                'campagne-pub': 'Campagne Publicitaire',
+                'branding': 'Identité Visuelle / Branding',
+                'site-web': 'Site Web / Digital',
+                'motion-design': 'Motion Design / Animation',
+                'photographie': 'Photographie / Shooting',
+                'print': 'Supports Print',
+                'social-media': 'Gestion Médias Sociaux',
+                'video': 'Production Vidéo',
+                'packaging': 'Packaging',
+                'event': 'Communication Événementielle'
+            };
+            return types[type] || type;
+        }
+
+        function getPriorityBadge(priority) {
+            const badges = {
+                'low': '<span class="priority-low">Basse</span>',
+                'medium': '<span class="priority-medium">Moyenne</span>',
+                'high': '<span class="priority-high">Haute</span>',
+                'urgent': '<span class="priority-high">Urgente</span>'
+            };
+            return badges[priority] || '-';
+        }
+
+        // Storage
+        function saveDraftToStorage() {
+            const formData = {
+                currentStep,
+                assignedTeamMembers,
+                formValues: {
+                    projectName: document.getElementById('projectName').value,
+                    projectClient: document.getElementById('projectClient').value,
+                    projectType: document.getElementById('projectType').value,
+                    projectPriority: document.getElementById('projectPriority').value,
+                    projectDescription: document.getElementById('projectDescription').value,
+                    projectObjectives: document.getElementById('projectObjectives').value,
+                    totalBudget: document.getElementById('totalBudget').value,
+                    estimatedHours: document.getElementById('estimatedHours').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value
+                }
+            };
+            
+            localStorage.setItem('jofePlus_projectDraft', JSON.stringify(formData));
+        }
+
+        function loadDraftFromStorage() {
+            const draft = localStorage.getItem('jofePlus_projectDraft');
+            if (draft) {
+                try {
+                    const data = JSON.parse(draft);
+                    
+                    // Restore form values
+                    Object.keys(data.formValues).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            element.value = data.formValues[key] || '';
+                        }
+                    });
+                    
+                    // Restore team members
+                    if (data.assignedTeamMembers) {
+                        data.assignedTeamMembers.forEach(member => {
+                            const memberElement = document.querySelector(`[data-member="${member.id}"]`);
+                            if (memberElement) {
+                                memberElement.classList.add('selected');
+                            }
+                        });
+                        assignedTeamMembers = data.assignedTeamMembers;
+                        updateAssignedTeamDisplay();
+                    }
+                    
+                    // Restore current step
+                    if (data.currentStep) {
+                        currentStep = data.currentStep;
+                        updateStepDisplay();
+                    }
+                    
+                    calculateBudget();
+                    updateProjectSummary();
+                    
+                } catch (e) {
+                    console.error('Error loading draft:', e);
+                }
+            }
+        }
+
+        // Submit Project
+        function submitProject(e) {
+            e.preventDefault();
+            
+            if (!validateCurrentStep()) {
+                return;
+            }
+            
+            // Collect all form data
+            const projectData = {
+                name: document.getElementById('projectName').value,
+                client: document.getElementById('projectClient').value,
+                type: document.getElementById('projectType').value,
+                priority: document.getElementById('projectPriority').value,
+                description: document.getElementById('projectDescription').value,
+                objectives: document.getElementById('projectObjectives').value,
+                team: assignedTeamMembers,
+                budget: parseInt(document.getElementById('totalBudget').value),
+                estimatedHours: parseInt(document.getElementById('estimatedHours').value),
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                createdAt: new Date().toISOString(),
+                createdBy: document.getElementById('currentUserName').textContent
+            };
+            
+            // Save to localStorage (in real app, this would be sent to server)
+            const existingProjects = JSON.parse(localStorage.getItem('jofePlus_projects') || '[]');
+            projectData.id = 'proj_' + Date.now();
+            existingProjects.push(projectData);
+            localStorage.setItem('jofePlus_projects', JSON.stringify(existingProjects));
+            
+            // Clear draft
+            localStorage.removeItem('jofePlus_projectDraft');
+            
+            showNotification('Projet créé avec succès !', 'success');
+            
+            // Redirect or reset form
+            setTimeout(() => {
+                if (confirm('Voulez-vous créer un autre projet ?')) {
+                    location.reload();
+                } else {
+                    // Redirect to projects list
+                    window.history.back();
+                }
+            }, 2000);
+        }
+
+        // Notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Auto-update dates
+        document.getElementById('startDate').addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            const estimatedHours = parseInt(document.getElementById('estimatedHours').value) || 40;
+            const workingDaysNeeded = Math.ceil(estimatedHours / 8); // 8 hours per day
+            
+            if (startDate) {
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + workingDaysNeeded + 2); // Add buffer
+                document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            }
+        });
+
+        // Initialize current date
+        document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+
+        console.log('JoFé+ Project Creation Page initialized');
+    </script>
+</body>
+</html>

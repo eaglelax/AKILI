@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Campagne MOOV AFRICA - Vue Détaillée</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .inter-font {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .project-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+        
+        .project-card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--jofe-blue-light);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .progress-bar {
+            background: var(--jofe-gray);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: var(--jofe-blue-light);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-fill.success {
+            background: var(--jofe-green);
+        }
+        
+        .progress-fill.warning {
+            background: var(--jofe-orange);
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-in-progress {
+            background: rgba(55, 182, 233, 0.1);
+            color: var(--jofe-blue-light);
+        }
+        
+        .status-completed {
+            background: rgba(147, 201, 84, 0.1);
+            color: var(--jofe-green);
+        }
+        
+        .status-pending {
+            background: rgba(246, 140, 31, 0.1);
+            color: var(--jofe-orange);
+        }
+        
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--jofe-gray);
+            margin-bottom: 24px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            color: var(--jofe-blue-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-button:hover {
+            color: var(--jofe-blue-deep);
+        }
+        
+        .tab-button.active {
+            color: var(--jofe-blue-light);
+            border-bottom-color: var(--jofe-blue-light);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--jofe-gray);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 70px;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--jofe-white);
+            border: 3px solid var(--jofe-blue-light);
+            z-index: 1;
+        }
+        
+        .timeline-marker.completed {
+            background: var(--jofe-green);
+            border-color: var(--jofe-green);
+        }
+        
+        .timeline-content {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .team-member:hover {
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--jofe-blue-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--jofe-white);
+            font-weight: 600;
+        }
+        
+        .task-item {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .task-item:hover {
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 4px 8px rgba(55, 182, 233, 0.1);
+        }
+        
+        .timer-display {
+            font-family: 'Inter', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--jofe-blue-medium);
+        }
+        
+        .timer-active {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .file-item:hover {
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(55, 182, 233, 0.02);
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            font-family: 'Open Sans', sans-serif;
+            transition: border-color 0.2s ease;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+        
+        .kpi-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--jofe-blue-deep);
+            margin-bottom: 8px;
+        }
+        
+        .kpi-label {
+            color: var(--jofe-blue-medium);
+            font-size: 14px;
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .project-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .project-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .timeline-item {
+                padding-left: 50px;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-marker {
+                left: 10px;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chart-container {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            padding: 24px;
+            height: 400px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg" style="background: var(--jofe-blue-light); color: white;">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="inter-font text-xl" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Projets
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Project Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-6">
+            <div class="project-header flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-4 mb-4">
+                        <h1 class="inter-font text-3xl font-bold" style="color: var(--jofe-blue-deep);">Campagne MOOV AFRICA</h1>
+                        <span class="status-badge status-in-progress">En Cours</span>
+                    </div>
+                    <p class="text-lg" style="color: var(--jofe-blue-medium); margin-bottom: 16px;">Nouvelle Identité Visuelle - Communication 360°</p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Progression du projet</span>
+                            <span class="text-sm font-medium" style="color: var(--jofe-blue-light);">65%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPIs Row -->
+                    <div class="grid-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" style="color: var(--jofe-blue-deep);">8,500,000</div>
+                            <div class="text-sm" style="color: var(--jofe-blue-medium);">Budget (FCFA)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" style="color: var(--jofe-blue-deep);">42</div>
+                            <div class="text-sm" style="color: var(--jofe-blue-medium);">Jours restants</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" style="color: var(--jofe-blue-deep);">7</div>
+                            <div class="text-sm" style="color: var(--jofe-blue-medium);">Membres actifs</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" style="color: var(--jofe-green);">12/12</div>
+                            <div class="text-sm" style="color: var(--jofe-blue-medium);">Tâches</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-actions flex gap-3">
+                    <button class="btn-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                        </svg>
+                        Éditer
+                    </button>
+                    <button class="btn-secondary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        Dupliquer
+                    </button>
+                    <button class="btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Exporter
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6">
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="overview">Vue d'ensemble</button>
+                <button class="tab-button" data-tab="timeline">Timeline</button>
+                <button class="tab-button" data-tab="team">Équipe</button>
+                <button class="tab-button" data-tab="tasks">Tâches</button>
+                <button class="tab-button" data-tab="budget">Budget</button>
+                <button class="tab-button" data-tab="files">Fichiers</button>
+                <button class="tab-button" data-tab="collaboration">Collaboration</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active fade-in">
+                <div class="grid-2 mb-8">
+                    <!-- Performance Chart -->
+                    <div class="chart-container">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Performance du Projet</h3>
+                        <canvas id="performanceChart" style="height: 300px;"></canvas>
+                    </div>
+                    
+                    <!-- Team Workload -->
+                    <div class="chart-container">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Charge de Travail Équipe</h3>
+                        <canvas id="workloadChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="project-card">
+                    <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Activité Récente</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                            <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                            <div class="flex-1">
+                                <p class="font-medium" style="color: var(--jofe-blue-deep);">Logo principal validé par le client</p>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium);">Paul Junior OUEDRAOGO - Il y a 2 heures</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                            <div class="w-2 h-2 rounded-full" style="background: var(--jofe-blue-light);"></div>
+                            <div class="flex-1">
+                                <p class="font-medium" style="color: var(--jofe-blue-deep);">Shooting produits terminé</p>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium);">Fortune YANOGO - Il y a 4 heures</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                            <div class="w-2 h-2 rounded-full" style="background: var(--jofe-blue-light);"></div>
+                            <div class="flex-1">
+                                <p class="font-medium" style="color: var(--jofe-blue-deep);">Animation motion design en cours</p>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium);">Bientama PARÉ - Il y a 6 heures</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Tab -->
+            <div id="timeline" class="tab-content">
+                <div class="project-card">
+                    <h3 class="inter-font text-lg font-semibold mb-6" style="color: var(--jofe-blue-deep);">Chronologie du Projet</h3>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker completed"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Brief client validé</h4>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Réception et validation du brief complet de MOOV AFRICA</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">15 Nov 2024 - Serge ASSALÉ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker completed"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Recherche créative</h4>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Moodboard et directions artistiques</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">18 Nov 2024 - Linda KABORÉ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker completed"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Création logo</h4>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Développement et déclinaisons du logo principal</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">22 Nov 2024 - Paul Junior OUEDRAOGO</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Motion design</h4>
+                                    <span class="text-sm" style="color: var(--jofe-blue-light);">En cours</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Animation logo et éléments graphiques</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">25 Nov 2024 - Bientama PARÉ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Campagne digitale</h4>
+                                    <span class="text-sm" style="color: var(--jofe-orange);">À venir</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Création supports digitaux et réseaux sociaux</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">30 Nov 2024 - Florita KABORÉ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold" style="color: var(--jofe-blue-deep);">Livraison finale</h4>
+                                    <span class="text-sm" style="color: var(--jofe-orange);">À venir</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Remise de tous les livrables et fichiers sources</p>
+                                <p class="text-xs" style="color: var(--jofe-blue-medium);">05 Déc 2024 - Serge ASSALÉ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Tab -->
+            <div id="team" class="tab-content">
+                <div class="grid-2">
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Équipe Assignée</h3>
+                        
+                        <div class="team-member">
+                            <div class="avatar">SA</div>
+                            <div class="flex-1">
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</div>
+                                <div class="text-sm" style="color: var(--jofe-blue-medium);">Directeur Création - Chef de projet</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">15,000 FCFA/h</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold" style="color: var(--jofe-green);">Disponible</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">32h cette semaine</div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="avatar">PO</div>
+                            <div class="flex-1">
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">Paul Junior OUEDRAOGO</div>
+                                <div class="text-sm" style="color: var(--jofe-blue-medium);">Graphiste Photomonteur</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">8,000 FCFA/h</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold" style="color: var(--jofe-blue-light);">Actif</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">28h cette semaine</div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="avatar">FY</div>
+                            <div class="flex-1">
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">Fortune YANOGO</div>
+                                <div class="text-sm" style="color: var(--jofe-blue-medium);">Photographe/Vidéaste</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">10,000 FCFA/h</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold" style="color: var(--jofe-green);">Disponible</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">24h cette semaine</div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="avatar">BP</div>
+                            <div class="flex-1">
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">Bientama PARÉ</div>
+                                <div class="text-sm" style="color: var(--jofe-blue-medium);">Motion Designer</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">9,000 FCFA/h</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold" style="color: var(--jofe-orange);">Occupé</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">35h cette semaine</div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="avatar">LK</div>
+                            <div class="flex-1">
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">Linda KABORÉ</div>
+                                <div class="text-sm" style="color: var(--jofe-blue-medium);">Conceptrice Rédactrice Lead</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">9,500 FCFA/h</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold" style="color: var(--jofe-green);">Disponible</div>
+                                <div class="text-xs" style="color: var(--jofe-blue-medium);">20h cette semaine</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Compétences Équipe</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Direction Artistique</span>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Expert</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill success" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Photomontage</span>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Expert</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill success" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Motion Design</span>
+                                    <span class="text-sm" style="color: var(--jofe-blue-light);">Avancé</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Photographie</span>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Expert</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill success" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Rédaction Créative</span>
+                                    <span class="text-sm" style="color: var(--jofe-green);">Expert</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill success" style="width: 88%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <div class="project-card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="inter-font text-lg font-semibold" style="color: var(--jofe-blue-deep);">Tâches du Projet</h3>
+                        <button class="btn-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Nouvelle Tâche
+                        </button>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div>
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-green);">Tâches Terminées (7)</h4>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Recherche références</h5>
+                                    <span class="status-badge status-completed">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Linda KABORÉ - Moodboard et inspirations</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm timer-display">04:30:00</span>
+                                    <span class="text-sm font-medium" style="color: var(--jofe-green);">427,500 FCFA</span>
+                                </div>
+                            </div>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Création logo principal</h5>
+                                    <span class="status-badge status-completed">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Paul Junior OUEDRAOGO - Logo et déclinaisons</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm timer-display">12:45:30</span>
+                                    <span class="text-sm font-medium" style="color: var(--jofe-green);">1,020,000 FCFA</span>
+                                </div>
+                            </div>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Shooting produits</h5>
+                                    <span class="status-badge status-completed">Terminé</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Fortune YANOGO - Photos produits MOOV</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm timer-display">08:15:20</span>
+                                    <span class="text-sm font-medium" style="color: var(--jofe-green);">825,333 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-light);">Tâches En Cours (3)</h4>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Animation logo</h5>
+                                    <span class="status-badge status-in-progress">En cours</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Bientama PARÉ - Motion design logo</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm timer-display timer-active" id="activeTimer1">06:23:45</span>
+                                    <div class="flex gap-2">
+                                        <button class="btn-warning">Pause</button>
+                                        <button class="btn-success">Stop</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Charte graphique</h5>
+                                    <span class="status-badge status-in-progress">En cours</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Paul Junior OUEDRAOGO - Guidelines d'usage</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm timer-display">03:12:18</span>
+                                    <div class="flex gap-2">
+                                        <button class="btn-primary">Play</button>
+                                        <button class="btn-success">Stop</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold mb-4 mt-6" style="color: var(--jofe-orange);">Tâches En Attente (2)</h4>
+                            
+                            <div class="task-item">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h5 class="font-medium" style="color: var(--jofe-blue-deep);">Campagne réseaux sociaux</h5>
+                                    <span class="status-badge status-pending">En attente</span>
+                                </div>
+                                <p class="text-sm" style="color: var(--jofe-blue-medium); margin-bottom: 8px;">Florita KABORÉ - Posts et stories</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm" style="color: var(--jofe-blue-medium);">Assigné à: Florita KABORÉ</span>
+                                    <button class="btn-primary">Démarrer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Tab -->
+            <div id="budget" class="tab-content">
+                <div class="grid-2">
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Budget Prévisionnel</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-4 border rounded-lg">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Budget Total</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">Alloué par MOOV AFRICA</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold" style="color: var(--jofe-blue-deep);">8,500,000 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border rounded-lg">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Coût Réalisé</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">Tâches terminées</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold" style="color: var(--jofe-green);">5,520,000 FCFA</div>
+                                    <div class="text-sm" style="color: var(--jofe-green);">65% du budget</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border rounded-lg">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Budget Restant</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">Disponible</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold" style="color: var(--jofe-blue-light);">2,980,000 FCFA</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">35% restant</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-deep);">Répartition par Membre</h4>
+                            <canvas id="budgetChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Détail des Coûts</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">32h × 15,000 FCFA</div>
+                                </div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">480,000 FCFA</div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Paul Junior OUEDRAOGO</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">127h × 8,000 FCFA</div>
+                                </div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">1,016,000 FCFA</div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Fortune YANOGO</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">82h × 10,000 FCFA</div>
+                                </div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">820,000 FCFA</div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Bientama PARÉ</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">95h × 9,000 FCFA</div>
+                                </div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">855,000 FCFA</div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div>
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Linda KABORÉ</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">45h × 9,500 FCFA</div>
+                                </div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">427,500 FCFA</div>
+                            </div>
+                            
+                            <div class="border-t pt-3 mt-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="font-semibold" style="color: var(--jofe-blue-deep);">Total Coûts Équipe</div>
+                                    <div class="text-lg font-bold" style="color: var(--jofe-green);">3,598,500 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div class="font-medium" style="color: var(--jofe-blue-deep);">Autres frais (matériel, etc.)</div>
+                                <div class="font-semibold" style="color: var(--jofe-blue-deep);">1,921,500 FCFA</div>
+                            </div>
+                            
+                            <div class="border-t pt-3 mt-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="font-bold text-lg" style="color: var(--jofe-blue-deep);">TOTAL RÉALISÉ</div>
+                                    <div class="text-xl font-bold" style="color: var(--jofe-green);">5,520,000 FCFA</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Tab -->
+            <div id="files" class="tab-content">
+                <div class="project-card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="inter-font text-lg font-semibold" style="color: var(--jofe-blue-deep);">Fichiers du Projet</h3>
+                        <button class="btn-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Uploader
+                        </button>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div>
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-deep);">Documents Client</h4>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(246, 140, 31, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Brief_MOOV_AFRICA_2024.pdf</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">2.4 MB - Ajouté le 15 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(246, 140, 31, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Charte_Existante_MOOV.pdf</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">5.8 MB - Ajouté le 15 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(55, 182, 233, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10l2 16H5l2-16zM9 9v6m6-6v6"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">References_Visuelles.zip</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">28.5 MB - Ajouté le 16 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold mb-4" style="color: var(--jofe-blue-deep);">Créations & Livrables</h4>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Logo_MOOV_Final.ai</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">15.2 MB - Ajouté le 22 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Declinaisons_Logo.zip</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">42.7 MB - Ajouté le 22 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(55, 182, 233, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-blue-light);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Animation_Logo_WIP.mp4</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">125.3 MB - En cours</div>
+                                </div>
+                                <button class="btn-warning">Aperçu</button>
+                            </div>
+                            
+                            <div class="file-item">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(147, 201, 84, 0.1);">
+                                    <svg class="w-5 h-5" style="color: var(--jofe-green);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium" style="color: var(--jofe-blue-deep);">Photos_Produits_HD.zip</div>
+                                    <div class="text-sm" style="color: var(--jofe-blue-medium);">89.4 MB - Ajouté le 20 Nov 2024</div>
+                                </div>
+                                <button class="btn-secondary">Télécharger</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collaboration Tab -->
+            <div id="collaboration" class="tab-content">
+                <div class="grid-2">
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Discussion Projet</h3>
+                        
+                        <div class="space-y-4 mb-6" style="max-height: 400px; overflow-y: auto;">
+                            <div class="comment-item">
+                                <div class="avatar">SA</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium" style="color: var(--jofe-blue-deep);">Serge ASSALÉ</span>
+                                        <span class="text-xs" style="color: var(--jofe-blue-medium);">Il y a 2 heures</span>
+                                    </div>
+                                    <p class="text-sm" style="color: var(--jofe-black);">Excellent travail sur le logo ! Le client MOOV AFRICA a validé la proposition. @Paul Junior OUEDRAOGO peux-tu préparer les déclinaisons pour demain ?</p>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-item">
+                                <div class="avatar">PO</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium" style="color: var(--jofe-blue-deep);">Paul Junior OUEDRAOGO</span>
+                                        <span class="text-xs" style="color: var(--jofe-blue-medium);">Il y a 1 heure</span>
+                                    </div>
+                                    <p class="text-sm" style="color: var(--jofe-black);">@Serge ASSALÉ Parfait ! J'ai déjà commencé les déclinaisons. Je peux livrer demain matin. Faut-il inclure les versions monochrome ?</p>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-item">
+                                <div class="avatar">BP</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium" style="color: var(--jofe-blue-deep);">Bientama PARÉ</span>
+                                        <span class="text-xs" style="color: var(--jofe-blue-medium);">Il y a 30 min</span>
+                                    </div>
+                                    <p class="text-sm" style="color: var(--jofe-black);">L'animation du logo avance bien ! J'aurai une première version prête ce soir. @Fortune YANOGO les photos que tu as prises s'intègrent parfaitement ! 🎥</p>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-item">
+                                <div class="avatar">FY</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium" style="color: var(--jofe-blue-deep);">Fortune YANOGO</span>
+                                        <span class="text-xs" style="color: var(--jofe-blue-medium);">Il y a 15 min</span>
+                                    </div>
+                                    <p class="text-sm" style="color: var(--jofe-black);">@Bientama PARÉ Merci ! Si tu as besoin d'angles supplémentaires, je peux refaire une session photo. Le client était très satisfait du shooting.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <div class="avatar">SA</div>
+                            <div class="flex-1">
+                                <textarea class="comment-input" rows="3" placeholder="Tapez votre message... (utilisez @nom pour mentionner)"></textarea>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="text-xs" style="color: var(--jofe-blue-medium);">Markdown supporté</div>
+                                    <button class="btn-primary">Envoyer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h3 class="inter-font text-lg font-semibold mb-4" style="color: var(--jofe-blue-deep);">Historique des Modifications</h3>
+                        
+                        <div class="space-y-3" style="max-height: 500px; overflow-y: auto;">
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Logo principal validé</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Paul Junior OUEDRAOGO - Il y a 2 heures</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-blue-light);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Upload photos produits</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Fortune YANOGO - Il y a 4 heures</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-blue-light);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Début animation logo</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Bientama PARÉ - Il y a 6 heures</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Shooting produits terminé</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Fortune YANOGO - Hier 16:30</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Création logo terminée</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Paul Junior OUEDRAOGO - Hier 14:20</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Recherche créative terminée</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Linda KABORÉ - 18 Nov 2024</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(147, 201, 84, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-green);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Brief client validé</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Serge ASSALÉ - 15 Nov 2024</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                                <div class="w-2 h-2 rounded-full" style="background: var(--jofe-blue-light);"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" style="color: var(--jofe-blue-deep);">Projet créé</p>
+                                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Serge ASSALÉ - 14 Nov 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="notificationMessage">Action effectuée avec succès</span>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        mobileMenuBtn?.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            mobileOverlay.classList.toggle('hidden');
+        });
+
+        mobileOverlay?.addEventListener('click', () => {
+            sidebar.classList.add('hidden');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(targetTab)?.classList.add('active');
+            });
+        });
+
+        // Timer functionality
+        let activeTimers = {
+            activeTimer1: { start: Date.now() - (6 * 3600 + 23 * 60 + 45) * 1000, running: true }
+        };
+
+        function updateTimers() {
+            Object.keys(activeTimers).forEach(id => {
+                const timer = activeTimers[id];
+                const element = document.getElementById(id);
+                if (timer.running && element) {
+                    const elapsed = Date.now() - timer.start;
+                    const hours = Math.floor(elapsed / 3600000);
+                    const minutes = Math.floor((elapsed % 3600000) / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    
+                    element.textContent = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            });
+        }
+
+        setInterval(updateTimers, 1000);
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const toast = document.getElementById('notificationToast');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            if (toast && messageEl) {
+                messageEl.textContent = message;
+                
+                // Set color based on type
+                if (type === 'success') {
+                    toast.style.background = 'var(--jofe-green)';
+                } else if (type === 'warning') {
+                    toast.style.background = 'var(--jofe-orange)';
+                } else if (type === 'error') {
+                    toast.style.background = '#EF4444';
+                }
+                
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Charts initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                new Chart(performanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                        datasets: [{
+                            label: 'Progression (%)',
+                            data: [10, 25, 45, 55, 65, 85],
+                            borderColor: '#37B6E9',
+                            backgroundColor: 'rgba(55, 182, 233, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#37B6E9',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Workload Chart
+            const workloadCtx = document.getElementById('workloadChart');
+            if (workloadCtx) {
+                new Chart(workloadCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Serge ASSALÉ', 'Paul Junior OUEDRAOGO', 'Fortune YANOGO', 'Bientama PARÉ', 'Linda KABORÉ'],
+                        datasets: [{
+                            data: [32, 127, 82, 95, 45],
+                            backgroundColor: ['#162C54', '#1A4278', '#3475BB', '#37B6E9', '#93C954'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Budget Chart
+            const budgetCtx = document.getElementById('budgetChart');
+            if (budgetCtx) {
+                new Chart(budgetCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Serge ASSALÉ', 'Paul Junior OUEDRAOGO', 'Fortune YANOGO', 'Bientama PARÉ', 'Linda KABORÉ'],
+                        datasets: [{
+                            label: 'Coût (FCFA)',
+                            data: [480000, 1016000, 820000, 855000, 427500],
+                            backgroundColor: '#37B6E9',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' FCFA';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn-primary, .btn-secondary, .btn-success, .btn-warning').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const action = this.textContent.trim();
+                
+                if (action.includes('Pause')) {
+                    showNotification('Timer mis en pause', 'warning');
+                } else if (action.includes('Stop')) {
+                    showNotification('Timer arrêté', 'success');
+                } else if (action.includes('Play') || action.includes('Démarrer')) {
+                    showNotification('Timer démarré', 'success');
+                } else if (action.includes('Télécharger')) {
+                    showNotification('Téléchargement démarré', 'success');
+                } else if (action.includes('Uploader')) {
+                    showNotification('Sélectionnez un fichier à uploader', 'info');
+                } else {
+                    showNotification(`Action "${action}" effectuée`, 'success');
+                }
+            });
+        });
+
+        // Comment functionality
+        const commentInput = document.querySelector('.comment-input');
+        if (commentInput) {
+            commentInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    if (this.value.trim()) {
+                        showNotification('Commentaire ajouté', 'success');
+                        this.value = '';
+                    }
+                }
+            });
+        }
+
+        // Auto-save functionality simulation
+        let autoSaveInterval = setInterval(() => {
+            // Simulate auto-save
+            console.log('Auto-save effectué');
+        }, 30000); // Every 30 seconds
+
+        // Initialize page
+        console.log('JoFé+ Project Detail View initialized');
+        showNotification('Page projet chargée avec succès', 'success');
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // Simulate project progress update
+            const progressFill = document.querySelector('.progress-fill');
+            if (progressFill && Math.random() > 0.95) {
+                const currentWidth = parseInt(progressFill.style.width) || 65;
+                if (currentWidth < 100) {
+                    progressFill.style.width = (currentWidth + 1) + '%';
+                    showNotification('Progression mise à jour', 'success');
+                }
+            }
+        }, 10000); // Every 10 seconds
+    </script>
+</body>
+</html>
