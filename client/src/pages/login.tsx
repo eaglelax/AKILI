@@ -109,10 +109,10 @@ export default function Login() {
         }}
       />
       
-      <div className="w-full max-w-md animate-in fade-in duration-300">
+      <div className="w-full max-w-md animate-in fade-in duration-300 relative z-10">
         {/* Header */}
         <div className="text-center mb-8 animate-in slide-in-from-bottom duration-200">
-          <h1 className="text-2xl font-bold mb-2 text-[#162C54]">
+          <h1 className="text-2xl font-bold mb-2 text-white">
             Connexion Sécurisée
           </h1>
         </div>
