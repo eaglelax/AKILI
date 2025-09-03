@@ -306,7 +306,7 @@ export default function TimeHistory() {
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-sm font-medium text-[var(--jofe-blue-deep)]">
-                  {(user as any)?.name || 'Serge ASSALÉ'}
+                  {(user as any)?.name || 'Utilisateur'}
                 </span>
               </div>
             </div>
