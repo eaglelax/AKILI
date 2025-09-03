@@ -139,7 +139,7 @@ export default function TopNavBar() {
   return (
     <>
       {/* Main Navigation Sidebar - Left Side */}
-      <nav className="fixed left-0 top-0 h-full w-72 bg-white border-r border-gray-200 z-40 shadow-lg flex flex-col">
+      <nav className="hidden lg:block fixed left-0 top-0 h-full w-72 bg-white border-r border-gray-200 z-40 shadow-lg flex flex-col">
         
         {/* Header with User Info */}
         <div className="p-6 border-b border-gray-200">

@@ -55,7 +55,7 @@ export default function Dashboard() {
       <TopNavBar />
       
       {/* Main Content */}
-      <div className="ml-72 w-auto">        
+      <div className="lg:ml-72 w-auto">        
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap gap-4">

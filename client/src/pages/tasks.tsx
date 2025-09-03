@@ -272,7 +272,7 @@ export default function Tasks() {
       {/* Sidebar */}
       <TopNavBar />
       
-      <div className="ml-72">
+      <div className="lg:ml-72">
       {/* Menu flottant admin */}
       <AdminFloatingMenu />
       

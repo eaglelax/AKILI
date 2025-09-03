@@ -373,7 +373,7 @@ export default function AdminFloatingMenu() {
         }}
         className={`
           admin-menu-toggle fixed z-[60] 
-          w-12 h-20 rounded-r-full shadow-lg transition-all duration-300
+          w-10 h-10 rounded-full shadow-lg transition-all duration-300
           flex items-center justify-center
           ${isOpen 
             ? 'bg-red-500 hover:bg-red-600' 
@@ -384,9 +384,9 @@ export default function AdminFloatingMenu() {
         data-testid="button-admin-menu-toggle"
       >
         {isOpen ? (
-          <EyeOff className="w-5 h-5 text-white" />
+          <EyeOff className="w-4 h-4 text-white" />
         ) : (
-          <Settings2 className="w-5 h-5 text-white" />
+          <Settings2 className="w-4 h-4 text-white" />
         )}
       </button>
 
@@ -401,7 +401,7 @@ export default function AdminFloatingMenu() {
       {/* Menu Panel */}
       <div 
         style={{ 
-          left: `${Math.max(16, position.x + 60)}px`, 
+          left: `${Math.max(16, position.x + 50)}px`, 
           top: `${Math.max(16, position.y - 50)}px` 
         }}
         className={`

@@ -178,7 +178,7 @@ function RoiProfitability() {
   return (
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
-      <div className="ml-72">
+      <div className="lg:ml-72">
         <AdminFloatingMenu />
         
         <div className="w-full overflow-auto">
