@@ -21,7 +21,6 @@ import {
   Video
 } from 'lucide-react';
 import TopNavBar from '@/components/TopNavBar';
-import AdminFloatingMenu from '@/components/AdminFloatingMenu';
 import { Link } from 'wouter';
 
 // Données simulées pour les projets
@@ -190,7 +189,6 @@ function Projects() {
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
       <div className="lg:ml-72">
-        <AdminFloatingMenu />
         
         <div className="w-full overflow-auto">
         {/* Header */}

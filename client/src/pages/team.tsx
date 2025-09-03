@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Search, 
@@ -264,7 +263,6 @@ export default function Team() {
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
       <div className="lg:ml-72">
-        <AdminFloatingMenu />
         
         <div className="w-full overflow-auto">
         {/* Header */}

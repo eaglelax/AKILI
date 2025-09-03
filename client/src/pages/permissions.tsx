@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { 
   Shield,
   Users,
@@ -352,10 +351,8 @@ export default function Permissions() {
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
       
-      {/* Menu flottant admin */}
-      <AdminFloatingMenu />
-      
-      <div className="w-full overflow-auto">
+      <div className="lg:ml-72">
+        <div className="w-full overflow-auto">
         
         {/* Header */}
         <header className="bg-[var(--jofe-white)] border-b border-[var(--jofe-gray)] px-4 md:px-6 py-4">
@@ -666,6 +663,7 @@ export default function Permissions() {
             </div>
           </div>
         </main>
+        </div>
       </div>
     </div>
   );

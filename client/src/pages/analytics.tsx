@@ -29,7 +29,6 @@ import {
 } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 // Données pour les graphiques
 const revenueData = [
@@ -239,7 +238,6 @@ export default function Analytics() {
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
       <div className="lg:ml-72">
-        <AdminFloatingMenu />
         
         <div className="w-full overflow-auto">
           {/* Header */}

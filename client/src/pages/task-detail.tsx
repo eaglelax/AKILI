@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { 
   Calendar,
   User,
@@ -183,7 +182,6 @@ export default function TaskDetail() {
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
       <div className="lg:ml-72">
-        <AdminFloatingMenu />
         
         <div className="w-full overflow-auto">
         

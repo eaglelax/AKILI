@@ -19,7 +19,6 @@ import {
   DollarSign
 } from "lucide-react";
 import TopNavBar from "@/components/TopNavBar";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -273,8 +272,6 @@ export default function Tasks() {
       <TopNavBar />
       
       <div className="lg:ml-72">
-      {/* Menu flottant admin */}
-      <AdminFloatingMenu />
       
       <div className="w-full overflow-auto">
         

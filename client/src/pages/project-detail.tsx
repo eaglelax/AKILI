@@ -1,6 +1,5 @@
 import React from 'react';
 import TopNavBar from '@/components/TopNavBar';
-import AdminFloatingMenu from '@/components/AdminFloatingMenu';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -175,8 +174,7 @@ function ProjectDetail() {
   return (
     <div className="min-h-screen bg-[var(--jofe-white)]">
       <TopNavBar />
-      <div className="ml-72">
-        <AdminFloatingMenu />
+      <div className="lg:ml-72">
         
         <div className="w-full overflow-auto">
           {/* Header avec breadcrumb */}
