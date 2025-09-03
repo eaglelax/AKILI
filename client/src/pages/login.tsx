@@ -11,8 +11,8 @@ import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
 import logoImage from "@assets/1_1756859322480.png";
 
 const adminMembers = [
-  { value: "serge.assale", label: "Serge ASSALÉ - Directeur Création & Marketing" },
-  { value: "enos.gouba", label: "Enos GOUBA - Coordinateur Production" },
+  { value: "serge.assale", label: "Directeur Création & Marketing" },
+  { value: "enos.gouba", label: "Coordinateur Production" },
 ];
 
 const creativeTeam = [

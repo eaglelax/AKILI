@@ -71,7 +71,7 @@ export default function Permissions() {
     return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
   };
 
-  // Mock data - données réelles du template JoFé+
+  // Mock data - données réelles du template
   const permissionStats: PermissionStats = {
     totalAdmins: 2,
     totalMembers: 12,
@@ -83,7 +83,7 @@ export default function Permissions() {
     // Administrateurs (2)
     {
       id: "serge_assale",
-      name: "Serge ASSALÉ",
+      name: "Directeur Création",
       role: "Directeur Création & Marketing",
       isAdmin: true,
       hourlyRate: 15000,
@@ -367,7 +367,7 @@ export default function Permissions() {
                 <div className="jofe-ring absolute w-5 h-5 border-2 rounded-full border-[var(--jofe-blue-light)] bottom-0 right-0 animate-bounce" style={{animationDelay: "1s"}}></div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-[var(--jofe-blue-deep)] jofe-font">JoFé+</h1>
+                <h1 className="text-2xl font-bold text-[var(--jofe-blue-deep)] jofe-font">Permissions</h1>
                 <p className="text-sm text-[var(--jofe-blue-medium)]">Configuration des Permissions</p>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function Permissions() {
               <div className="flex items-center space-x-2">
                 <User className="w-8 h-8 text-[var(--jofe-blue-medium)]" />
                 <span className="font-medium text-[var(--jofe-blue-deep)]">
-                  {(user as any)?.name || 'Serge ASSALÉ'}
+                  {(user as any)?.name || 'Utilisateur'}
                 </span>
                 <span className="status-badge inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[var(--jofe-orange)] bg-opacity-20 text-[var(--jofe-orange)] uppercase">
                   ADMIN
@@ -396,7 +396,7 @@ export default function Permissions() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1 className="jofe-font text-3xl text-[var(--jofe-blue-deep)] mb-2">Configuration des Permissions de Chronométrage</h1>
-                <p className="text-[var(--jofe-blue-medium)] text-lg">Gérez les droits d'accès et les permissions pour le système de chronométrage JoFé+</p>
+                <p className="text-[var(--jofe-blue-medium)] text-lg">Gérez les droits d'accès et les permissions pour le système de chronométrage</p>
               </div>
               <Button 
                 className="jofe-btn bg-gradient-to-r from-[var(--jofe-blue-light)] to-[var(--jofe-blue-medium)] text-white px-6 py-3 hover:from-[var(--jofe-blue-medium)] hover:to-[var(--jofe-blue-deep)] transition-all transform hover:-translate-y-0.5"

@@ -25,12 +25,12 @@ interface TeamMember {
   avatar: string;
 }
 
-// Données complètes des 14 membres JoFé+ du template HTML authentique
+// Données complètes des 14 membres du template HTML authentique
 const TEAM_MEMBERS: TeamMember[] = [
   // Administrateurs (2)
   {
     id: "serge_assale",
-    name: "Serge ASSALÉ",
+    name: "Directeur Création",
     role: "Directeur Création & Marketing",
     email: "serge.assale@jofeplus.bf",
     rate: 15000,
@@ -278,7 +278,7 @@ export default function Team() {
                 Gestion des Profils Utilisateurs
               </h1>
               <p className="text-sm md:text-base text-gray-600 hidden sm:block">
-                Gérez les membres de votre équipe JoFé+ et leurs permissions
+                Gérez les membres de votre équipe et leurs permissions
               </p>
             </div>
             

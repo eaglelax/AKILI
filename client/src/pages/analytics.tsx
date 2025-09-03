@@ -268,7 +268,7 @@ export default function Analytics() {
         {/* Page Header */}
         <div className="mb-8 animate-in fade-in duration-500">
           <h1 className="text-4xl font-bold text-[#162C54] mb-2">Analytics Dashboard</h1>
-          <p className="text-xl text-[#3475BB]">Vue d'ensemble des performances et métriques clés de JoFé+</p>
+          <p className="text-xl text-[#3475BB]">Vue d'ensemble des performances et métriques clés</p>
         </div>
 
         {/* KPI Cards */}

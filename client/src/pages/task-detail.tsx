@@ -123,7 +123,7 @@ export default function TaskDetail() {
   const comments: Comment[] = [
     {
       id: "1",
-      author: "Serge ASSALÉ",
+      author: "Directeur Création",
       content: "Excellent travail sur les premières maquettes ! La direction artistique correspond parfaitement au brief MOOV. Peux-tu ajuster les couleurs pour qu'elles soient plus vibrantes ?",
       timestamp: "Il y a 2h"
     },
@@ -197,7 +197,7 @@ export default function TaskDetail() {
               </Link>
               <div className="jofe-logo"></div>
               <div>
-                <h1 className="text-xl font-bold text-[var(--jofe-blue-deep)] jofe-font">JoFé+</h1>
+                <h1 className="text-xl font-bold text-[var(--jofe-blue-deep)] jofe-font">Suivi Tâches</h1>
                 <p className="text-sm text-[var(--jofe-blue-medium)]">Détail de la Tâche</p>
               </div>
             </div>
