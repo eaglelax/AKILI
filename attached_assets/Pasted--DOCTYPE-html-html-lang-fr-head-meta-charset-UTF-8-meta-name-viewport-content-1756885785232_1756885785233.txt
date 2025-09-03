@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoFé+ - Gestion des Dépendances</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Vis.js for network visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --jofe-blue-deep: #162C54;
+            --jofe-blue-night: #1A4278;
+            --jofe-blue-medium: #3475BB;
+            --jofe-blue-light: #37B6E9;
+            --jofe-black: #000000;
+            --jofe-gray: #EBECED;
+            --jofe-white: #FFFFFF;
+            --jofe-green: #93C954;
+            --jofe-orange: #F68C1F;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--jofe-white);
+            color: var(--jofe-black);
+            line-height: 1.6;
+        }
+        
+        .urial-font {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .jofe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .jofe-rings {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            animation: rotate 8s linear infinite;
+        }
+        
+        .ring-1 {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 10px;
+            border-color: var(--jofe-blue-deep);
+        }
+        
+        .ring-2 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            left: 0;
+            border-color: var(--jofe-blue-medium);
+        }
+        
+        .ring-3 {
+            width: 20px;
+            height: 20px;
+            top: 15px;
+            right: 0;
+            border-color: var(--jofe-blue-light);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--jofe-blue-medium);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-link:hover {
+            background-color: rgba(52, 117, 187, 0.05);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .sidebar-link.active {
+            background-color: var(--jofe-blue-light);
+            color: var(--jofe-white);
+        }
+        
+        .card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(22, 44, 84, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--jofe-blue-medium);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            border: 1px solid var(--jofe-gray);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--jofe-blue-light);
+            color: var(--jofe-blue-deep);
+        }
+        
+        .btn-success {
+            background: var(--jofe-green);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-warning {
+            background: var(--jofe-orange);
+            color: var(--jofe-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .network-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 12px;
+            background: var(--jofe-white);
+        }
+        
+        .dependency-node {
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid var(--jofe-blue-light);
+            background: var(--jofe-white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .dependency-node.critical {
+            border-left-color: var(--jofe-orange);
+            background: rgba(246, 140, 31, 0.05);
+        }
+        
+        .dependency-node.conflict {
+            border-left-color: #EF4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .dependency-node.completed {
+            border-left-color: var(--jofe-green);
+            background: rgba(147, 201, 84, 0.05);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--jofe-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--jofe-green);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-fill.warning {
+            background: var(--jofe-orange);
+        }
+        
+        .progress-fill.critical {
+            background: #EF4444;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--jofe-blue-deep);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--jofe-blue-medium);
+            margin-top: 4px;
+        }
+        
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--jofe-gray);
+            border-radius: 6px;
+            background: var(--jofe-white);
+            color: var(--jofe-blue-medium);
+            font-size: 14px;
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+        
+        .notification-toast.success {
+            background: var(--jofe-green);
+        }
+        
+        .notification-toast.warning {
+            background: var(--jofe-orange);
+        }
+        
+        .notification-toast.error {
+            background: #EF4444;
+        }
+        
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--jofe-white);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1px;
+            background: var(--jofe-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .matrix-cell {
+            background: var(--jofe-white);
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .matrix-cell.header {
+            background: var(--jofe-blue-light);
+            color: var(--jofe-white);
+            font-weight: 600;
+        }
+        
+        .matrix-cell.dependency {
+            background: rgba(55, 182, 233, 0.1);
+            cursor: pointer;
+        }
+        
+        .matrix-cell.critical {
+            background: rgba(246, 140, 31, 0.2);
+        }
+        
+        .conflict-panel {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .conflict-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+        }
+        
+        .conflict-item:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .toolbar {
+                flex-wrap: wrap;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .task-card {
+            background: var(--jofe-white);
+            border: 1px solid var(--jofe-gray);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px 0;
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+        
+        .task-card:hover {
+            border-color: var(--jofe-blue-light);
+            box-shadow: 0 4px 12px rgba(55, 182, 233, 0.15);
+        }
+        
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+        
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed var(--jofe-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--jofe-blue-medium);
+            transition: all 0.2s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: var(--jofe-blue-light);
+            background: rgba(55, 182, 233, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50 md:hidden">
+        <button id="mobileMenuBtn" class="p-2 rounded-lg bg-blue-500 text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="desktop-sidebar fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40">
+        <div class="p-6">
+            <!-- Logo JoFé+ -->
+            <div class="jofe-logo mb-8">
+                <div class="jofe-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <div>
+                    <h1 class="urial-font text-xl" style="color: var(--jofe-blue-deep);">jofé<span style="color: var(--jofe-blue-light);">+</span></h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Digital Excellence</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    </svg>
+                    Tableau de Bord
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Chronométrage
+                </a>
+                
+                <a href="#" class="sidebar-link active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Dépendances
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Équipe
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                    </svg>
+                    Clients
+                </a>
+                
+                <a href="#" class="sidebar-link">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- User Info -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="flex items-center gap-3 p-3 rounded-lg" style="background: rgba(55, 182, 233, 0.05);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--jofe-blue-light);">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" style="color: var(--jofe-blue-deep);" id="currentUserName">Serge ASSALÉ</p>
+                    <p class="text-xs" style="color: var(--jofe-blue-medium);">Directeur Création</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-64">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="urial-font text-2xl" style="color: var(--jofe-blue-deep);">Gestion des Dépendances</h1>
+                    <p class="text-sm" style="color: var(--jofe-blue-medium);">Visualisation et optimisation des interdépendances de projets</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.405-3.405A9.001 9.001 0 0012 2C6.477 2 2 6.477 2 12a9.001 9.001 0 003.405 6.595L2 22l5-1z"></path>
+                        </svg>
+                        <div class="w-2 h-2 bg-red-500 rounded-full absolute top-1 right-1 pulse"></div>
+                    </button>
+                    
+                    <button class="p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-6 h-6" style="color: var(--jofe-blue-medium);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="p-6 space-y-6">
+            <!-- Statistics -->
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTasks">156</div>
+                    <div class="stat-label">Tâches Interconnectées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeDependencies">89</div>
+                    <div class="stat-label">Dépendances Actives</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value text-red-500" id="conflicts">12</div>
+                    <div class="stat-label">Conflits Détectés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="criticalPaths">4</div>
+                    <div class="stat-label">Chemins Critiques</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="teamLoad">67%</div>
+                    <div class="stat-label">Charge d'Équipe</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar fade-in">
+                <button class="btn-primary" onclick="showNetworkView()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Vue Réseau
+                </button>
+                
+                <button class="btn-secondary" onclick="showMatrixView()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    Vue Matrice
+                </button>
+                
+                <select class="filter-select" id="projectFilter">
+                    <option value="all">Tous les projets</option>
+                    <option value="moov">Campagne MOOV AFRICA</option>
+                    <option value="boa">Rebranding BANK OF AFRICA</option>
+                    <option value="sunu">Site Web SUNU BURKINA</option>
+                    <option value="roxgold">Logo ROXGOLD</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">Tous les statuts</option>
+                    <option value="critical">Chemin critique</option>
+                    <option value="conflict">Conflits</option>
+                    <option value="completed">Terminé</option>
+                    <option value="progress">En cours</option>
+                </select>
+                
+                <button class="btn-secondary" onclick="optimizeDependencies()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Optimiser
+                </button>
+                
+                <button class="btn-secondary" onclick="exportDependencies()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Exporter
+                </button>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Network Visualization -->
+                <div class="lg:col-span-3">
+                    <div class="card fade-in">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="urial-font text-lg" style="color: var(--jofe-blue-deep);">Diagramme de Dépendances</h3>
+                            <div class="flex gap-2">
+                                <button class="btn-secondary text-sm" onclick="toggleCriticalPath()">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                    Chemin Critique
+                                </button>
+                                <button class="btn-secondary text-sm" onclick="resetLayout()">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Réinitialiser
+                                </button>
+                            </div>
+                        </div>
+                        <div id="networkContainer" class="network-container"></div>
+                    </div>
+
+                    <!-- Matrix View (initially hidden) -->
+                    <div id="matrixView" class="card fade-in" style="display: none;">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="urial-font text-lg" style="color: var(--jofe-blue-deep);">Matrice des Dépendances</h3>
+                            <button class="btn-secondary text-sm" onclick="exportMatrix()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Exporter Matrice
+                            </button>
+                        </div>
+                        <div id="matrixGrid" class="matrix-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Right Panel -->
+                <div class="space-y-6">
+                    <!-- Conflicts Panel -->
+                    <div class="card fade-in">
+                        <h4 class="urial-font text-lg mb-4" style="color: var(--jofe-blue-deep);">Conflits Détectés</h4>
+                        <div id="conflictsPanel">
+                            <div class="conflict-panel">
+                                <div class="conflict-item">
+                                    <div>
+                                        <div class="font-medium text-red-600">Cycle détecté</div>
+                                        <div class="text-sm text-gray-600">MOOV AFRICA: Tâche A → B → C → A</div>
+                                    </div>
+                                    <button class="btn-warning text-xs" onclick="resolveConflict('cycle1')">Résoudre</button>
+                                </div>
+                                <div class="conflict-item">
+                                    <div>
+                                        <div class="font-medium text-red-600">Surcharge ressource</div>
+                                        <div class="text-sm text-gray-600">Paul Junior: 150% charge sem. 12</div>
+                                    </div>
+                                    <button class="btn-warning text-xs" onclick="resolveConflict('overload1')">Résoudre</button>
+                                </div>
+                                <div class="conflict-item">
+                                    <div>
+                                        <div class="font-medium text-red-600">Date impossible</div>
+                                        <div class="text-sm text-gray-600">BOA: Livraison avant production</div>
+                                    </div>
+                                    <button class="btn-warning text-xs" onclick="resolveConflict('date1')">Résoudre</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Critical Path -->
+                    <div class="card fade-in">
+                        <h4 class="urial-font text-lg mb-4" style="color: var(--jofe-blue-deep);">Chemin Critique</h4>
+                        <div class="space-y-3">
+                            <div class="dependency-node critical">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Stratégie MOOV</span>
+                                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Critique</span>
+                                </div>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill warning" style="width: 75%"></div>
+                                </div>
+                                <div class="text-sm text-gray-600">Paul Junior • 3 jours restants</div>
+                            </div>
+                            
+                            <div class="dependency-node critical">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Production Créative</span>
+                                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Critique</span>
+                                </div>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                                <div class="text-sm text-gray-600">Fortune • 7 jours restants</div>
+                            </div>
+                            
+                            <div class="dependency-node critical">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Validation Client</span>
+                                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Critique</span>
+                                </div>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill critical" style="width: 10%"></div>
+                                </div>
+                                <div class="text-sm text-gray-600">Client MOOV • 2 jours retard</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card fade-in">
+                        <h4 class="urial-font text-lg mb-4" style="color: var(--jofe-blue-deep);">Actions Rapides</h4>
+                        <div class="space-y-3">
+                            <button class="btn-primary w-full" onclick="createDependency()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Nouvelle Dépendance
+                            </button>
+                            
+                            <button class="btn-secondary w-full" onclick="simulateDelay()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Simuler Retard
+                            </button>
+                            
+                            <button class="btn-secondary w-full" onclick="generateReport()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Rapport Détaillé
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Team Load -->
+                    <div class="card fade-in">
+                        <h4 class="urial-font text-lg mb-4" style="color: var(--jofe-blue-deep);">Charge Équipe</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Paul Junior</span>
+                                    <span class="text-sm font-medium">85%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill warning" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Fortune YANOGO</span>
+                                    <span class="text-sm font-medium">72%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Bientama PARÉ</span>
+                                    <span class="text-sm font-medium">90%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill critical" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Issa CISSE</span>
+                                    <span class="text-sm font-medium">45%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Modals -->
+    <div id="dependencyModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="urial-font text-xl" style="color: var(--jofe-blue-deep);">Créer une Dépendance</h3>
+                <button onclick="closeDependencyModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Tâche source</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option>Stratégie Créative - MOOV AFRICA</option>
+                        <option>Production Visuelle - MOOV AFRICA</option>
+                        <option>Audit Marque - BANK OF AFRICA</option>
+                        <option>Architecture Site - SUNU BURKINA</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Tâche dépendante</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option>Production Visuelle - MOOV AFRICA</option>
+                        <option>Validation Client - MOOV AFRICA</option>
+                        <option>Concepts Créatifs - BANK OF AFRICA</option>
+                        <option>Développement Frontend - SUNU BURKINA</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Type de dépendance</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option>Fin-à-Début (Séquentielle)</option>
+                        <option>Début-à-Début (Parallèle)</option>
+                        <option>Fin-à-Fin (Synchronisée)</option>
+                        <option>Début-à-Fin (Rare)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Délai (jours)</label>
+                    <input type="number" value="0" class="w-full p-3 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="btn-primary flex-1">Créer Dépendance</button>
+                    <button type="button" onclick="closeDependencyModal()" class="btn-secondary">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="notificationMessage">Action réalisée avec succès</span>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let network = null;
+        let nodes = null;
+        let edges = null;
+        let showCriticalOnly = false;
+        let currentView = 'network';
+
+        // Sample data for JoFé+ projects
+        const projectData = {
+            nodes: [
+                // MOOV AFRICA Project
+                {id: 1, label: 'Brief Client\nMOOV', group: 'moov', level: 1, status: 'completed', project: 'MOOV AFRICA', member: 'Linda KABORÉ'},
+                {id: 2, label: 'Stratégie\nCréative', group: 'moov', level: 2, status: 'progress', project: 'MOOV AFRICA', member: 'Serge ASSALÉ', critical: true},
+                {id: 3, label: 'Concepts\nVisuels', group: 'moov', level: 3, status: 'progress', project: 'MOOV AFRICA', member: 'Paul Junior OUEDRAOGO', critical: true},
+                {id: 4, label: 'Production\nPhoto', group: 'moov', level: 4, status: 'pending', project: 'MOOV AFRICA', member: 'Fortune YANOGO', critical: true},
+                {id: 5, label: 'Motion\nDesign', group: 'moov', level: 4, status: 'pending', project: 'MOOV AFRICA', member: 'Bientama PARÉ'},
+                {id: 6, label: 'Validation\nClient', group: 'moov', level: 5, status: 'pending', project: 'MOOV AFRICA', member: 'Client MOOV', critical: true},
+                
+                // BANK OF AFRICA Project
+                {id: 7, label: 'Audit\nMarque', group: 'boa', level: 1, status: 'completed', project: 'BANK OF AFRICA', member: 'Linda KABORÉ'},
+                {id: 8, label: 'Benchmark\nConcurrence', group: 'boa', level: 2, status: 'completed', project: 'BANK OF AFRICA', member: 'Nebié WEBOU'},
+                {id: 9, label: 'Pistes\nCréatives', group: 'boa', level: 3, status: 'progress', project: 'BANK OF AFRICA', member: 'Jean-Jacques SAMPABAO'},
+                {id: 10, label: 'Déclinaisons\nLogo', group: 'boa', level: 4, status: 'pending', project: 'BANK OF AFRICA', member: 'Paul Junior OUEDRAOGO'},
+                
+                // SUNU BURKINA Project
+                {id: 11, label: 'Architecture\nSite', group: 'sunu', level: 1, status: 'progress', project: 'SUNU BURKINA', member: 'Abdoul Latif OUEDRAOGO'},
+                {id: 12, label: 'Maquettes\nUX/UI', group: 'sunu', level: 2, status: 'pending', project: 'SUNU BURKINA', member: 'Abdoul Latif OUEDRAOGO'},
+                {id: 13, label: 'Développement\nFrontend', group: 'sunu', level: 3, status: 'pending', project: 'SUNU BURKINA', member: 'Développeur Externe'},
+                {id: 14, label: 'Tests\nUtilisateur', group: 'sunu', level: 4, status: 'pending', project: 'SUNU BURKINA', member: 'Équipe Qualité'},
+                
+                // ROXGOLD Project
+                {id: 15, label: 'Brief\nROXGOLD', group: 'roxgold', level: 1, status: 'completed', project: 'ROXGOLD', member: 'Florita KABORÉ'},
+                {id: 16, label: 'Concepts\nLogo', group: 'roxgold', level: 2, status: 'progress', project: 'ROXGOLD', member: 'Issa CISSE'},
+            ],
+            edges: [
+                // MOOV AFRICA dependencies
+                {from: 1, to: 2, type: 'finish-start', delay: 0, critical: true},
+                {from: 2, to: 3, type: 'finish-start', delay: 1, critical: true},
+                {from: 3, to: 4, type: 'finish-start', delay: 0, critical: true},
+                {from: 3, to: 5, type: 'start-start', delay: 2},
+                {from: 4, to: 6, type: 'finish-start', delay: 0, critical: true},
+                {from: 5, to: 6, type: 'finish-start', delay: 0},
+                
+                // BANK OF AFRICA dependencies
+                {from: 7, to: 8, type: 'finish-start', delay: 0},
+                {from: 8, to: 9, type: 'finish-start', delay: 1},
+                {from: 9, to: 10, type: 'finish-start', delay: 0},
+                
+                // SUNU BURKINA dependencies
+                {from: 11, to: 12, type: 'finish-start', delay: 0},
+                {from: 12, to: 13, type: 'finish-start', delay: 1},
+                {from: 13, to: 14, type: 'finish-start', delay: 0},
+                
+                // ROXGOLD dependencies
+                {from: 15, to: 16, type: 'finish-start', delay: 0},
+                
+                // Cross-project resource dependencies
+                {from: 4, to: 10, type: 'resource', delay: 0, resource: 'Paul Junior OUEDRAOGO'}
+            ]
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNetwork();
+            initializeEventListeners();
+            updateStatistics();
+            startRealTimeUpdates();
+        });
+
+        function initializeNetwork() {
+            const container = document.getElementById('networkContainer');
+            
+            // Prepare data for vis.js
+            nodes = new vis.DataSet(projectData.nodes.map(node => ({
+                id: node.id,
+                label: node.label,
+                group: node.group,
+                color: getNodeColor(node),
+                font: {
+                    color: '#162C54',
+                    size: 12,
+                    face: 'Open Sans'
+                },
+                borderWidth: node.critical ? 3 : 1,
+                borderWidthSelected: 4,
+                chosen: true,
+                shadow: true,
+                title: getNodeTooltip(node)
+            })));
+
+            edges = new vis.DataSet(projectData.edges.map((edge, index) => ({
+                id: index,
+                from: edge.from,
+                to: edge.to,
+                arrows: 'to',
+                color: edge.critical ? '#F68C1F' : '#3475BB',
+                width: edge.critical ? 3 : 1,
+                dashes: edge.type === 'resource' ? [5, 5] : false,
+                title: getEdgeTooltip(edge)
+            })));
+
+            const data = { nodes: nodes, edges: edges };
+            
+            const options = {
+                groups: {
+                    moov: { color: { background: '#37B6E9', border: '#3475BB' } },
+                    boa: { color: { background: '#93C954', border: '#7BA441' } },
+                    sunu: { color: { background: '#F68C1F', border: '#E67A0A' } },
+                    roxgold: { color: { background: '#162C54', border: '#1A4278' } }
+                },
+                layout: {
+                    hierarchical: {
+                        enabled: true,
+                        levelSeparation: 150,
+                        nodeSpacing: 200,
+                        treeSpacing: 300,
+                        blockShifting: true,
+                        edgeMinimization: true,
+                        parentCentralization: true,
+                        direction: 'LR',
+                        sortMethod: 'directed'
+                    }
+                },
+                physics: {
+                    enabled: false
+                },
+                interaction: {
+                    dragNodes: true,
+                    dragView: true,
+                    zoomView: true,
+                    selectConnectedEdges: false
+                },
+                nodes: {
+                    shape: 'box',
+                    margin: 10,
+                    widthConstraint: { maximum: 120 },
+                    heightConstraint: { minimum: 60 }
+                },
+                edges: {
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'horizontal',
+                        roundness: 0.4
+                    }
+                }
+            };
+
+            network = new vis.Network(container, data, options);
+            
+            // Event listeners
+            network.on('selectNode', function(params) {
+                if (params.nodes.length > 0) {
+                    showNodeDetails(params.nodes[0]);
+                }
+            });
+
+            network.on('selectEdge', function(params) {
+                if (params.edges.length > 0) {
+                    showEdgeDetails(params.edges[0]);
+                }
+            });
+        }
+
+        function getNodeColor(node) {
+            if (node.status === 'completed') {
+                return { background: '#93C954', border: '#7BA441' };
+            } else if (node.status === 'progress') {
+                return { background: '#37B6E9', border: '#3475BB' };
+            } else if (node.critical) {
+                return { background: '#F68C1F', border: '#E67A0A' };
+            } else {
+                return { background: '#EBECED', border: '#D1D5DB' };
+            }
+        }
+
+        function getNodeTooltip(node) {
+            return `
+                <strong>${node.project}</strong><br>
+                Responsable: ${node.member}<br>
+                Statut: ${getStatusLabel(node.status)}<br>
+                ${node.critical ? '<strong>CHEMIN CRITIQUE</strong>' : ''}
+            `;
+        }
+
+        function getEdgeTooltip(edge) {
+            const typeLabels = {
+                'finish-start': 'Fin → Début',
+                'start-start': 'Début → Début',
+                'resource': 'Dépendance Ressource'
+            };
+            
+            return `
+                Type: ${typeLabels[edge.type] || edge.type}<br>
+                Délai: ${edge.delay} jour(s)<br>
+                ${edge.critical ? '<strong>CHEMIN CRITIQUE</strong>' : ''}
+                ${edge.resource ? `<br>Ressource: ${edge.resource}` : ''}
+            `;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'completed': 'Terminé',
+                'progress': 'En cours',
+                'pending': 'En attente',
+                'blocked': 'Bloqué'
+            };
+            return labels[status] || status;
+        }
+
+        function initializeEventListeners() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mobileOverlay.classList.toggle('hidden');
+            });
+
+            mobileOverlay.addEventListener('click', () => {
+                sidebar.classList.add('hidden');
+                mobileOverlay.classList.add('hidden');
+            });
+
+            // Filter events
+            document.getElementById('projectFilter').addEventListener('change', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        }
+
+        function showNetworkView() {
+            document.getElementById('networkContainer').parentElement.style.display = 'block';
+            document.getElementById('matrixView').style.display = 'none';
+            currentView = 'network';
+        }
+
+        function showMatrixView() {
+            document.getElementById('networkContainer').parentElement.style.display = 'none';
+            document.getElementById('matrixView').style.display = 'block';
+            generateMatrix();
+            currentView = 'matrix';
+        }
+
+        function generateMatrix() {
+            const matrixGrid = document.getElementById('matrixGrid');
+            const tasks = projectData.nodes;
+            
+            // Clear existing matrix
+            matrixGrid.innerHTML = '';
+            
+            // Create header row
+            const headerCell = document.createElement('div');
+            headerCell.className = 'matrix-cell header';
+            headerCell.textContent = 'Tâches';
+            matrixGrid.appendChild(headerCell);
+            
+            tasks.forEach(task => {
+                const cell = document.createElement('div');
+                cell.className = 'matrix-cell header';
+                cell.textContent = task.label.replace('\n', ' ');
+                cell.title = task.project + ' - ' + task.member;
+                matrixGrid.appendChild(cell);
+            });
+            
+            // Create matrix rows
+            tasks.forEach(taskRow => {
+                // Row header
+                const rowHeader = document.createElement('div');
+                rowHeader.className = 'matrix-cell header';
+                rowHeader.textContent = taskRow.label.replace('\n', ' ');
+                rowHeader.title = taskRow.project + ' - ' + taskRow.member;
+                matrixGrid.appendChild(rowHeader);
+                
+                // Matrix cells
+                tasks.forEach(taskCol => {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    
+                    const dependency = projectData.edges.find(
+                        edge => edge.from === taskRow.id && edge.to === taskCol.id
+                    );
+                    
+                    if (dependency) {
+                        cell.className += ' dependency';
+                        if (dependency.critical) {
+                            cell.className += ' critical';
+                        }
+                        cell.textContent = '●';
+                        cell.title = `Dépendance: ${dependency.type}\nDélai: ${dependency.delay} jour(s)`;
+                        cell.onclick = () => showDependencyDetails(dependency);
+                    } else if (taskRow.id === taskCol.id) {
+                        cell.style.background = '#f3f4f6';
+                        cell.textContent = '—';
+                    }
+                    
+                    matrixGrid.appendChild(cell);
+                });
+            });
+        }
+
+        function toggleCriticalPath() {
+            showCriticalOnly = !showCriticalOnly;
+            
+            if (showCriticalOnly) {
+                // Hide non-critical nodes and edges
+                const criticalNodes = projectData.nodes.filter(node => node.critical);
+                const criticalEdges = projectData.edges.filter(edge => edge.critical);
+                
+                nodes.clear();
+                edges.clear();
+                
+                nodes.add(criticalNodes.map(node => ({
+                    id: node.id,
+                    label: node.label,
+                    group: node.group,
+                    color: getNodeColor(node),
+                    font: { color: '#162C54', size: 12, face: 'Open Sans' },
+                    borderWidth: 3,
+                    shadow: true,
+                    title: getNodeTooltip(node)
+                })));
+                
+                edges.add(criticalEdges.map((edge, index) => ({
+                    id: index,
+                    from: edge.from,
+                    to: edge.to,
+                    arrows: 'to',
+                    color: '#F68C1F',
+                    width: 3,
+                    title: getEdgeTooltip(edge)
+                })));
+                
+                showNotification('Affichage du chemin critique uniquement', 'info');
+            } else {
+                // Show all nodes and edges
+                initializeNetwork();
+                showNotification('Affichage de toutes les dépendances', 'info');
+            }
+        }
+
+        function resetLayout() {
+            if (network) {
+                network.fit();
+                network.stabilize();
+                showNotification('Layout réinitialisé', 'success');
+            }
+        }
+
+        function applyFilters() {
+            const projectFilter = document.getElementById('projectFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filteredNodes = projectData.nodes;
+            let filteredEdges = projectData.edges;
+            
+            // Apply project filter
+            if (projectFilter !== 'all') {
+                const projectMap = {
+                    'moov': 'MOOV AFRICA',
+                    'boa': 'BANK OF AFRICA',
+                    'sunu': 'SUNU BURKINA',
+                    'roxgold': 'ROXGOLD'
+                };
+                
+                filteredNodes = filteredNodes.filter(node => 
+                    node.project === projectMap[projectFilter]
+                );
+                
+                const nodeIds = filteredNodes.map(node => node.id);
+                filteredEdges = filteredEdges.filter(edge => 
+                    nodeIds.includes(edge.from) && nodeIds.includes(edge.to)
+                );
+            }
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                if (statusFilter === 'critical') {
+                    filteredNodes = filteredNodes.filter(node => node.critical);
+                    filteredEdges = filteredEdges.filter(edge => edge.critical);
+                } else if (statusFilter === 'conflict') {
+                    // Show nodes with conflicts (simulated)
+                    filteredNodes = filteredNodes.filter(node => 
+                        node.id === 2 || node.id === 4 || node.id === 6
+                    );
+                } else {
+                    filteredNodes = filteredNodes.filter(node => node.status === statusFilter);
+                }
+                
+                const nodeIds = filteredNodes.map(node => node.id);
+                filteredEdges = filteredEdges.filter(edge => 
+                    nodeIds.includes(edge.from) && nodeIds.includes(edge.to)
+                );
+            }
+            
+            // Update network
+            nodes.clear();
+            edges.clear();
+            
+            nodes.add(filteredNodes.map(node => ({
+                id: node.id,
+                label: node.label,
+                group: node.group,
+                color: getNodeColor(node),
+                font: { color: '#162C54', size: 12, face: 'Open Sans' },
+                borderWidth: node.critical ? 3 : 1,
+                shadow: true,
+                title: getNodeTooltip(node)
+            })));
+            
+            edges.add(filteredEdges.map((edge, index) => ({
+                id: index,
+                from: edge.from,
+                to: edge.to,
+                arrows: 'to',
+                color: edge.critical ? '#F68C1F' : '#3475BB',
+                width: edge.critical ? 3 : 1,
+                dashes: edge.type === 'resource' ? [5, 5] : false,
+                title: getEdgeTooltip(edge)
+            })));
+            
+            showNotification('Filtres appliqués', 'success');
+        }
+
+        function optimizeDependencies() {
+            showNotification('Optimisation des dépendances en cours...', 'info');
+            
+            // Simulate optimization process
+            setTimeout(() => {
+                // Update conflicts count
+                document.getElementById('conflicts').textContent = '8';
+                
+                // Update team load
+                document.getElementById('teamLoad').textContent = '62%';
+                
+                showNotification('Optimisation terminée: 4 conflits résolus, charge réduite de 5%', 'success');
+            }, 2000);
+        }
+
+        function exportDependencies() {
+            const data = {
+                nodes: projectData.nodes,
+                edges: projectData.edges,
+                statistics: {
+                    totalTasks: 156,
+                    activeDependencies: 89,
+                    conflicts: 12,
+                    criticalPaths: 4,
+                    teamLoad: '67%'
+                },
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'jofe_dependencies_export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Export réalisé avec succès', 'success');
+        }
+
+        function createDependency() {
+            document.getElementById('dependencyModal').classList.add('show');
+        }
+
+        function closeDependencyModal() {
+            document.getElementById('dependencyModal').classList.remove('show');
+        }
+
+        function simulateDelay() {
+            showNotification('Simulation: Retard de 2 jours sur la validation client MOOV', 'warning');
+            
+            // Update critical path visualization
+            setTimeout(() => {
+                showNotification('Impact calculé: +3 jours sur le projet, budget +450,000 FCFA', 'error');
+            }, 1500);
+        }
+
+        function generateReport() {
+            showNotification('Génération du rapport détaillé...', 'info');
+            
+            setTimeout(() => {
+                const reportData = {
+                    title: 'Rapport de Dépendances JoFé+ Digital',
+                    date: new Date().toLocaleDateString('fr-FR'),
+                    summary: {
+                        totalProjects: 4,
+                        totalTasks: 156,
+                        dependencies: 89,
+                        conflicts: 12,
+                        criticalPaths: 4
+                    },
+                    criticalTasks: [
+                        'Stratégie Créative MOOV AFRICA',
+                        'Production Photo MOOV AFRICA',
+                        'Validation Client MOOV AFRICA'
+                    ],
+                    recommendations: [
+                        'Paralléliser la production photo et motion design',
+                        'Anticiper les validations client',
+                        'Réduire la charge de Paul Junior OUEDRAOGO'
+                    ]
+                };
+                
+                console.log('Rapport généré:', reportData);
+                showNotification('Rapport généré et téléchargé', 'success');
+            }, 2000);
+        }
+
+        function resolveConflict(conflictId) {
+            const resolutions = {
+                'cycle1': 'Cycle résolu: dépendance A→C supprimée',
+                'overload1': 'Surcharge résolue: tâches redistribuées à Issa CISSE',
+                'date1': 'Dates corrigées: production avancée de 3 jours'
+            };
+            
+            showNotification(resolutions[conflictId], 'success');
+            
+            // Update conflicts count
+            const currentConflicts = parseInt(document.getElementById('conflicts').textContent);
+            document.getElementById('conflicts').textContent = (currentConflicts - 1).toString();
+        }
+
+        function updateStatistics() {
+            // Update statistics with some variation
+            const stats = {
+                totalTasks: 156 + Math.floor(Math.random() * 10 - 5),
+                activeDependencies: 89 + Math.floor(Math.random() * 6 - 3),
+                conflicts: 12 + Math.floor(Math.random() * 4 - 2),
+                criticalPaths: 4,
+                teamLoad: (67 + Math.floor(Math.random() * 10 - 5)) + '%'
+            };
+            
+            Object.entries(stats).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+        }
+
+        function startRealTimeUpdates() {
+            // Simulate real-time updates every 30 seconds
+            setInterval(() => {
+                updateStatistics();
+                
+                // Occasionally show notifications
+                if (Math.random() < 0.3) {
+                    const notifications = [
+                        { message: 'Nouvelle tâche ajoutée au projet MOOV AFRICA', type: 'info' },
+                        { message: 'Validation client reçue pour BANK OF AFRICA', type: 'success' },
+                        { message: 'Retard détecté sur le projet SUNU BURKINA', type: 'warning' }
+                    ];
+                    
+                    const notification = notifications[Math.floor(Math.random() * notifications.length)];
+                    showNotification(notification.message, notification.type);
+                }
+            }, 30000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            messageElement.textContent = message;
+            toast.className = `notification-toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function showNodeDetails(nodeId) {
+            const node = projectData.nodes.find(n => n.id === nodeId);
+            if (node) {
+                const details = `
+                    Projet: ${node.project}
+                    Tâche: ${node.label.replace('\n', ' ')}
+                    Responsable: ${node.member}
+                    Statut: ${getStatusLabel(node.status)}
+                    ${node.critical ? 'CHEMIN CRITIQUE' : ''}
+                `;
+                showNotification(details, 'info');
+            }
+        }
+
+        function showEdgeDetails(edgeId) {
+            const edge = projectData.edges[edgeId];
+            if (edge) {
+                const fromNode = projectData.nodes.find(n => n.id === edge.from);
+                const toNode = projectData.nodes.find(n => n.id === edge.to);
+                
+                const details = `
+                    Dépendance: ${fromNode.label.replace('\n', ' ')} → ${toNode.label.replace('\n', ' ')}
+                    Type: ${edge.type}
+                    Délai: ${edge.delay} jour(s)
+                    ${edge.critical ? 'CHEMIN CRITIQUE' : ''}
+                `;
+                showNotification(details, 'info');
+            }
+        }
+
+        function showDependencyDetails(dependency) {
+            const details = `
+                Type: ${dependency.type}
+                Délai: ${dependency.delay} jour(s)
+                ${dependency.critical ? 'CHEMIN CRITIQUE' : ''}
+                ${dependency.resource ? 'Ressource: ' + dependency.resource : ''}
+            `;
+            showNotification(details, 'info');
+        }
+
+        function exportMatrix() {
+            showNotification('Export de la matrice en cours...', 'info');
+            
+            setTimeout(() => {
+                showNotification('Matrice exportée au format Excel', 'success');
+            }, 1500);
+        }
+
+        // Initialize drag and drop functionality
+        function initializeDragDrop() {
+            const taskCards = document.querySelectorAll('.task-card');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            taskCards.forEach(card => {
+                card.draggable = true;
+                
+                card.addEventListener('dragstart', function(e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', this.dataset.taskId);
+                });
+                
+                card.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+                
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    showNotification(`Tâche ${taskId} déplacée`, 'success');
+                });
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            initializeDragDrop();
+        });
+
+        // Handle form submission for dependency creation
+        document.addEventListener('submit', function(e) {
+            if (e.target.closest('#dependencyModal')) {
+                e.preventDefault();
+                
+                // Simulate dependency creation
+                showNotification('Nouvelle dépendance créée avec succès', 'success');
+                closeDependencyModal();
+                
+                // Update statistics
+                const currentDeps = parseInt(document.getElementById('activeDependencies').textContent);
+                document.getElementById('activeDependencies').textContent = (currentDeps + 1).toString();
+            }
+        });
+
+        console.log('JoFé+ Dependency Management System initialized');
+    </script>
+</body>
+</html>
