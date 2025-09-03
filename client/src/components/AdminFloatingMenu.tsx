@@ -305,6 +305,9 @@ export default function AdminFloatingMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [location] = useLocation();
+  const [position, setPosition] = useState({ x: 16, y: window.innerHeight / 2 - 40 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Générer les pages avec statuts automatiques
   const allPages = getAllPages();
@@ -325,19 +328,58 @@ export default function AdminFloatingMenu() {
   const totalPages = allPages.length;
   const progress = Math.round((createdPages / totalPages) * 100);
 
+  // Fonctions de drag & drop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const newX = Math.max(0, Math.min(window.innerWidth - 48, e.clientX - dragOffset.x));
+      const newY = Math.max(0, Math.min(window.innerHeight - 80, e.clientY - dragOffset.y));
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragOffset]);
+
   return (
     <div className="admin-floating-menu">
       {/* Bouton Flottant */}
       <button
         onClick={toggleMenu}
+        onMouseDown={handleMouseDown}
+        style={{ 
+          left: `${position.x}px`, 
+          top: `${position.y}px`,
+          cursor: isDragging ? 'grabbing' : 'grab'
+        }}
         className={`
-          admin-menu-toggle fixed top-1/2 left-4 z-[60] 
+          admin-menu-toggle fixed z-[60] 
           w-12 h-20 rounded-r-full shadow-lg transition-all duration-300
-          flex items-center justify-center transform -translate-y-1/2
+          flex items-center justify-center
           ${isOpen 
             ? 'bg-red-500 hover:bg-red-600' 
             : 'bg-[#162C54] hover:bg-[#1a2f5a]'
           }
+          ${isDragging ? 'scale-110' : ''}
         `}
         data-testid="button-admin-menu-toggle"
       >
@@ -357,12 +399,18 @@ export default function AdminFloatingMenu() {
       )}
 
       {/* Menu Panel */}
-      <div className={`
-        admin-menu-panel fixed top-16 left-4 z-[55]
-        w-80 h-[calc(100vh-5rem)] bg-white rounded-xl shadow-2xl border
-        transform transition-all duration-300 origin-top-left overflow-hidden flex flex-col
-        ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
-      `}>
+      <div 
+        style={{ 
+          left: `${Math.max(16, position.x + 60)}px`, 
+          top: `${Math.max(16, position.y - 50)}px` 
+        }}
+        className={`
+          admin-menu-panel fixed z-[55]
+          w-80 h-[calc(100vh-5rem)] bg-white rounded-xl shadow-2xl border
+          transform transition-all duration-300 origin-top-left overflow-hidden flex flex-col
+          ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}
+        `}
+      >
         {/* Header */}
         <div className="admin-menu-header p-4 bg-[#162C54] text-white flex-shrink-0">
           <div className="flex items-center gap-3 mb-3">
