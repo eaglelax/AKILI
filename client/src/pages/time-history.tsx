@@ -297,9 +297,7 @@ export default function TimeHistory() {
               </div>
             </div>
 
-            <button className="p-2 rounded-lg hover:bg-[var(--jofe-gray)] transition-colors">
-              <TrendingUp className="w-5 h-5 text-[var(--jofe-blue-medium)]" />
-            </button>
+            
           </div>
         </header>
 
