@@ -26,6 +26,8 @@ import ProjectTemplates from "@/pages/project-templates";
 import WorkflowApproval from "@/pages/workflow-approval";
 import DependencyManagement from "@/pages/dependency-management";
 import TeamOverview from "@/pages/team-overview";
+import UsersAdmin from "@/pages/users-admin";
+import Settings from "@/pages/settings";
 import AdminFloatingMenu from "@/components/AdminFloatingMenu";
 
 function Router() {
@@ -67,7 +69,9 @@ function Router() {
       <Route path="/workflow-approval" component={WorkflowApproval} />
       <Route path="/dependency-management" component={DependencyManagement} />
       <Route path="/team-overview" component={TeamOverview} />
-      
+      <Route path="/users-admin" component={UsersAdmin} />
+      <Route path="/settings" component={Settings} />
+
       {/* Route 404 */}
       <Route component={NotFound} />
     </Switch>

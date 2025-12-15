@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { apiRequest } from '@/lib/queryClient';
 import TopNavBar from '@/components/TopNavBar';
 
 // Styles CSS intégrés pour respecter le design JoFé+
@@ -384,7 +385,16 @@ export default function ProjectCreate() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>([]);
   const [milestones, setMilestones] = useState([{ name: '', date: '' }]);
-  
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{
+    id: string;
+    fileName: string;
+    originalName: string;
+    fileType: string;
+    mimeType: string;
+    fileSize: number;
+  }>>([]);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [projectData, setProjectData] = useState({
     name: '',
     client: '',
@@ -473,6 +483,125 @@ export default function ProjectCreate() {
     return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Fonction pour convertir un fichier en Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Fonction pour uploader un fichier
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Vérifier la taille du fichier (max 10 MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: 'Erreur',
+        description: 'Le fichier est trop volumineux (max 10 MB)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Vérifier le type de fichier
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/gif'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Erreur',
+        description: 'Type de fichier non autorisé. Formats acceptés: PDF, DOC, DOCX, JPG, PNG, GIF',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileData = await fileToBase64(file);
+
+      const response = await apiRequest('POST', '/api/projects/files/upload', {
+        fileName: file.name,
+        fileData: fileData,
+        fileType: 'brief',
+        mimeType: file.type,
+        description: 'Brief client',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUploadedFiles(prev => [...prev, data.data]);
+        toast({
+          title: 'Fichier uploadé',
+          description: `"${file.name}" a été ajouté avec succès`,
+        });
+      } else {
+        toast({
+          title: 'Erreur',
+          description: data.message || "Erreur lors de l'upload",
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur upload:', error);
+      toast({
+        title: 'Erreur',
+        description: "Erreur lors de l'upload du fichier",
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+      // Réinitialiser l'input file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Fonction pour supprimer un fichier uploadé
+  const handleRemoveFile = async (fileId: string) => {
+    try {
+      const response = await apiRequest('DELETE', `/api/projects/files/${fileId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+        toast({
+          title: 'Fichier supprimé',
+          description: 'Le fichier a été supprimé',
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur suppression:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la suppression du fichier',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const calculateBudget = () => {
     const teamCost = selectedTeamMembers.reduce((total, memberId) => {
       const member = teamMembers[memberId as keyof typeof teamMembers];
@@ -537,21 +666,78 @@ export default function ProjectCreate() {
     }
   };
 
-  const handleSubmit = () => {
-    const finalProject = {
-      ...projectData,
-      team: selectedTeamMembers,
-      milestones,
-      template: selectedTemplate,
-      budget: calculateBudget()
-    };
-    
-    console.log('Projet créé:', finalProject);
-    toast({
-      title: 'Projet créé avec succès!',
-      description: `"${projectData.name}" a été créé et assigné à l'équipe`,
-    });
-    setLocation('/projects');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!projectData.name || !projectData.client) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez remplir le nom du projet et sélectionner un client',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Mapper la priorité vers les valeurs acceptées par le backend
+      const priorityMap: Record<string, string> = {
+        'low': 'basse',
+        'medium': 'moyenne',
+        'high': 'haute',
+      };
+
+      // Appel API pour créer le projet dans MySQL
+      const response = await apiRequest('POST', '/api/projects', {
+        name: projectData.name,
+        description: projectData.description,
+        clientId: null, // Le client sera mappé côté serveur si nécessaire
+        status: 'planning',
+        priority: priorityMap[projectData.priority] || 'moyenne',
+        budget: String(projectData.totalBudget),
+        startDate: projectData.startDate || null,
+        endDate: projectData.endDate || null,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Associer les fichiers uploadés au projet créé
+        if (uploadedFiles.length > 0 && data.data?.id) {
+          for (const file of uploadedFiles) {
+            try {
+              await apiRequest('PUT', `/api/projects/files/${file.id}`, {
+                projectId: data.data.id,
+              });
+            } catch (err) {
+              console.error('Erreur association fichier:', err);
+            }
+          }
+        }
+
+        toast({
+          title: 'Projet créé avec succès!',
+          description: `"${projectData.name}" a été enregistré dans la base de données`,
+        });
+        setLocation('/projects');
+      } else {
+        toast({
+          title: 'Erreur',
+          description: data.message || 'Impossible de créer le projet',
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur création projet:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la création du projet',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const steps = [
@@ -1005,24 +1191,77 @@ export default function ProjectCreate() {
                 
                 <div>
                   <h4 className="font-semibold mb-4" style={{ color: 'var(--jofe-blue-medium)' }}>Documents Projet</h4>
-                  
+
                   <div className="space-y-4">
                     <div className="form-group">
                       <label className="form-label">Brief Client</label>
-                      <div className="file-upload" onClick={() => fileInputRef.current?.click()}>
-                        <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <p className="text-sm text-gray-600">Cliquez pour uploader le brief</p>
-                        <input 
+                      <div
+                        className={`file-upload ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
+                        onClick={() => !isUploading && fileInputRef.current?.click()}
+                      >
+                        {isUploading ? (
+                          <>
+                            <svg className="w-8 h-8 mx-auto mb-2 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p className="text-sm text-blue-500">Upload en cours...</p>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p className="text-sm text-gray-600">Cliquez pour uploader le brief</p>
+                            <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX, JPG, PNG (max 10MB)</p>
+                          </>
+                        )}
+                        <input
                           ref={fileInputRef}
-                          type="file" 
-                          className="hidden" 
-                          accept=".pdf,.doc,.docx"
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                          onChange={handleFileUpload}
+                          disabled={isUploading}
                           data-testid="input-file-brief"
                         />
                       </div>
                     </div>
+
+                    {/* Liste des fichiers uploadés */}
+                    {uploadedFiles.length > 0 && (
+                      <div className="mt-4">
+                        <label className="form-label mb-2">Fichiers uploadés ({uploadedFiles.length})</label>
+                        <div className="space-y-2">
+                          {uploadedFiles.map((file) => (
+                            <div
+                              key={file.id}
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <div className="flex items-center gap-3">
+                                <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-700">{file.originalName}</p>
+                                  <p className="text-xs text-gray-500">{formatFileSize(file.fileSize)}</p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFile(file.id)}
+                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                title="Supprimer"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1108,16 +1347,29 @@ export default function ProjectCreate() {
                   </svg>
                 </button>
               ) : (
-                <button 
-                  type="button" 
-                  className="btn btn-success"
+                <button
+                  type="button"
+                  className={`btn btn-success ${isSubmitting ? 'btn-disabled' : ''}`}
                   onClick={handleSubmit}
+                  disabled={isSubmitting}
                   data-testid="button-submit"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  Créer le Projet
+                  {isSubmitting ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Création en cours...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Créer le Projet
+                    </>
+                  )}
                 </button>
               )}
             </div>

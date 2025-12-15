@@ -1,55 +1,39 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
 import logoImage from "@assets/1_1756859322480.png";
 
-const adminMembers = [
-  { value: "serge.assale", label: "Directeur Création & Marketing" },
-  { value: "enos.gouba", label: "Coordinateur Production" },
-];
-
-const creativeTeam = [
-  { value: "paul.ouedraogo", label: "Paul Junior OUEDRAOGO - Graphiste Photomonteur" },
-  { value: "fortune.yanogo", label: "Fortune YANOGO - Photographe/Vidéaste" },
-  { value: "bientama.pare", label: "Bientama PARÉ - Motion Designer" },
-  { value: "issa.cisse", label: "Issa CISSE - Graphiste Junior" },
-  { value: "jean.sampabao", label: "Jean-Jacques SAMPABAO - Directeur Artistique Junior" },
-  { value: "latif.ouedraogo", label: "Abdoul Latif OUEDRAOGO - Designer UI/UX" },
-];
-
-const marketingTeam = [
-  { value: "florita.kabore", label: "Florita KABORÉ - Responsable Médias Sociaux" },
-  { value: "nebie.webou", label: "Nebié WEBOU - Chef de Pub/Concepteur Rédacteur" },
-  { value: "djamilatou.guiguemde", label: "Djamilatou GUIGUEMDE - Chef de Pub Stagiaire" },
-  { value: "linda.kabore", label: "Linda KABORÉ - Conceptrice Rédactrice Lead" },
-  { value: "maryse.bombiri", label: "Maryse BOMBIRI - Community Manager" },
-  { value: "faridatou.barry", label: "Faridatou BARRY - Chef de Pub/CM" },
-];
-
 export default function Login() {
-  const [selectedMember, setSelectedMember] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   const loginMutation = useMutation({
     mutationFn: async ({ username, password }: { username: string; password: string }) => {
-      const response = await apiRequest("POST", "/api/auth/team-login", { username, password });
+      const response = await apiRequest("POST", "/api/auth/login", { username, password });
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Connexion réussie",
-        description: `Bienvenue ${data.member.name}`,
-      });
-      window.location.href = "/dashboard";
+      if (data.success) {
+        toast({
+          title: "Connexion réussie",
+          description: `Bienvenue ${data.data.member.name}`,
+        });
+        window.location.href = "/dashboard";
+      } else {
+        toast({
+          title: "Erreur de connexion",
+          description: data.message || "Vérifiez vos identifiants",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -62,16 +46,16 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedMember) {
+
+    if (!username.trim()) {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner votre nom",
+        description: "Veuillez saisir votre nom d'utilisateur",
         variant: "destructive",
       });
       return;
     }
-    
+
     if (!password) {
       toast({
         title: "Erreur",
@@ -81,13 +65,13 @@ export default function Login() {
       return;
     }
 
-    loginMutation.mutate({ username: selectedMember, password });
+    loginMutation.mutate({ username: username.trim(), password });
   };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4" style={{ backgroundColor: '#162C54' }}>
       {/* Logo en filigrane */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none opacity-8"
         style={{
           backgroundImage: `url(${logoImage})`,
@@ -96,9 +80,9 @@ export default function Login() {
           backgroundSize: '90vh 90vh'
         }}
       />
-      
+
       {/* Pattern subtil */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none opacity-5"
         style={{
           backgroundImage: `
@@ -108,84 +92,45 @@ export default function Login() {
           backgroundSize: '40px 40px'
         }}
       />
-      
+
       <div className="w-full max-w-md animate-in fade-in duration-300 relative z-10">
         {/* Header */}
         <div className="text-center mb-8 animate-in slide-in-from-bottom duration-200">
           <h1 className="text-2xl font-bold mb-2 text-white">
             Connexion Sécurisée
           </h1>
+          <p className="text-sm text-blue-200">
+            Jo'Fé Digital - Espace Équipe
+          </p>
         </div>
-        
+
         {/* Login Form */}
-        <Card 
+        <Card
           className="rounded-2xl p-8 animate-in slide-in-from-bottom duration-300 delay-100"
-          style={{ 
+          style={{
             boxShadow: '0 10px 25px -5px rgba(22, 44, 84, 0.08), 0 4px 6px -2px rgba(22, 44, 84, 0.04)',
             border: '1px solid #E5E7EB'
           }}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* User Selection */}
+            {/* Username */}
             <div className="space-y-3">
               <Label className="flex items-center text-sm font-medium text-[#1A4278]">
                 <User className="w-5 h-5 mr-2" />
-                Sélectionnez votre profil
+                Nom d'utilisateur
               </Label>
-              <Select value={selectedMember} onValueChange={setSelectedMember}>
-                <SelectTrigger 
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-150"
-                  data-testid="select-member"
-                >
-                  <SelectValue placeholder="-- Choisir un membre de l'équipe --" />
-                </SelectTrigger>
-                <SelectContent>
-                  <div className="py-1">
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
-                      👑 Administrateurs
-                    </div>
-                    {adminMembers.map((member) => (
-                      <SelectItem 
-                        key={member.value} 
-                        value={member.value}
-                        className="hover:bg-[#EBECED]"
-                      >
-                        {member.label}
-                      </SelectItem>
-                    ))}
-                  </div>
-                  <div className="py-1">
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
-                      🎨 Équipe Créative
-                    </div>
-                    {creativeTeam.map((member) => (
-                      <SelectItem 
-                        key={member.value} 
-                        value={member.value}
-                        className="hover:bg-[#EBECED]"
-                      >
-                        {member.label}
-                      </SelectItem>
-                    ))}
-                  </div>
-                  <div className="py-1">
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50">
-                      📱 Communication & Marketing
-                    </div>
-                    {marketingTeam.map((member) => (
-                      <SelectItem 
-                        key={member.value} 
-                        value={member.value}
-                        className="hover:bg-[#EBECED]"
-                      >
-                        {member.label}
-                      </SelectItem>
-                    ))}
-                  </div>
-                </SelectContent>
-              </Select>
+              <Input
+                id="username"
+                type="text"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-150"
+                placeholder="ex: serge.assale"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                data-testid="input-username"
+              />
             </div>
-            
+
             {/* Password */}
             <div className="space-y-3">
               <Label className="flex items-center text-sm font-medium text-[#1A4278]">
@@ -200,6 +145,7 @@ export default function Login() {
                   placeholder="Saisissez votre mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   data-testid="input-password"
                 />
                 <button
@@ -211,10 +157,10 @@ export default function Login() {
                 </button>
               </div>
             </div>
-            
+
             {/* Submit Button */}
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full text-white py-3 px-6 rounded-xl font-medium focus:outline-none focus:ring-0 flex items-center justify-center transition-all duration-150 hover:transform hover:-translate-y-1"
               style={{
                 background: 'linear-gradient(135deg, #3475BB, #37B6E9)',
@@ -231,6 +177,11 @@ export default function Login() {
             </Button>
           </form>
         </Card>
+
+        {/* Footer hint */}
+        <p className="text-center text-xs text-blue-300 mt-6">
+          Contactez un administrateur si vous n'avez pas vos identifiants
+        </p>
       </div>
     </div>
   );

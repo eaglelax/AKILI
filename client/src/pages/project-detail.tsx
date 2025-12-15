@@ -1,769 +1,786 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'wouter';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
-import { Doughnut, Bar } from 'react-chartjs-2';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useLocation } from 'wouter';
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import TopNavBar from '@/components/TopNavBar';
+import {
+  ArrowLeft,
+  Edit,
+  Share2,
+  Clock,
+  Users,
+  CheckCircle,
+  Calendar,
+  Loader2,
+  FileText,
+  AlertCircle,
+  RefreshCw,
+  X,
+  Copy,
+  Mail,
+  Link as LinkIcon,
+  Check,
+  Trash2,
+  Download,
+  File,
+  UserPlus,
+  UserMinus
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  clientId: string | null;
+  status: string;
+  priority: string;
+  progress: number;
+  budget: string;
+  startDate: string | null;
+  endDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Client {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+}
+
+interface Task {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  priority: string;
+  progress: number;
+  assignedTo: string | null;
+  totalTimeSpent: number;
+  totalCost: number;
+  deadline: string | null;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  hourlyRate: string;
+}
+
+interface ProjectMember {
+  id: string;
+  memberId: string;
+  projectRole: string;
+  joinedAt: string;
+  member: TeamMember;
+}
 
 function ProjectDetail() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
+  const projectId = params.id;
+  const { toast } = useToast();
+  const { isAdmin } = useAuth();
+  const [, setLocation] = useLocation();
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [members, setMembers] = useState<TeamMember[]>([]); // Tous les membres de l'équipe
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]); // Membres du projet
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeTimers, setActiveTimers] = useState<Record<string, string>>({
-    'activeTimer1': '06:23:45'
+
+  // États pour les modales
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState('');
+  const [memberRole, setMemberRole] = useState('');
+
+  // État du formulaire d'édition
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    clientId: '',
+    status: 'planning',
+    priority: 'moyenne',
+    budget: '',
+    startDate: '',
+    endDate: '',
+    progress: 0,
   });
 
-  // Données du projet MOOV AFRICA
-  const projectData = {
-    id: "moov-africa-2024",
-    name: "Campagne MOOV AFRICA",
-    description: "Nouvelle Identité Visuelle - Communication 360°",
-    status: "En Cours",
-    progress: 65,
-    budget: 8500000,
-    spent: 5520000,
-    remaining: 2980000,
-    daysLeft: 42,
-    activeMembers: 7,
-    totalTasks: 12,
-    completedTasks: 12
-  };
+  // État pour les fichiers du projet
+  const [projectFiles, setProjectFiles] = useState<Array<{
+    id: string;
+    fileName: string;
+    originalName: string;
+    fileType: string;
+    mimeType: string;
+    fileSize: number;
+    description: string | null;
+    createdAt: string;
+  }>>([]);
 
-  // 14 membres d'équipe Jo'Fé Digital
-  const teamMembers = {
-    'serge': { name: 'Serge ASSALÉ', role: 'Directeur Création', initials: 'SA', color: '#162C54', rate: 15000 },
-    'enos': { name: 'Enos GOUBA', role: 'Directeur Général', initials: 'EG', color: '#3475BB', rate: 18000 },
-    'paul': { name: 'Paul Junior OUEDRAOGO', role: 'Graphiste Senior', initials: 'PO', color: '#37B6E9', rate: 8000 },
-    'fortune': { name: 'Fortune YANOGO', role: 'Photographe', initials: 'FY', color: '#93C954', rate: 10000 },
-    'bientama': { name: 'Bientama PARÉ', role: 'Motion Designer', initials: 'BP', color: '#F68C1F', rate: 9000 },
-    'linda': { name: 'Linda KABORÉ', role: 'Graphiste', initials: 'LK', color: '#162C54', rate: 9500 },
-    'florita': { name: 'Florita KABORÉ', role: 'Social Media Manager', initials: 'FK', color: '#3475BB', rate: 7500 }
-  };
+  // Charger les données du projet depuis MySQL
+  useEffect(() => {
+    if (projectId) {
+      loadProjectData();
+    }
+  }, [projectId]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-  };
+  // Mettre à jour le formulaire quand le projet change
+  useEffect(() => {
+    if (project) {
+      setEditForm({
+        name: project.name || '',
+        description: project.description || '',
+        clientId: project.clientId || '',
+        status: project.status || 'planning',
+        priority: project.priority || 'moyenne',
+        budget: project.budget || '',
+        startDate: project.startDate ? project.startDate.split('T')[0] : '',
+        endDate: project.endDate ? project.endDate.split('T')[0] : '',
+        progress: project.progress || 0,
+      });
+    }
+  }, [project]);
 
-  // Configuration du graphique budget
-  const budgetChartData = {
-    labels: ['Serge ASSALÉ', 'Paul OUEDRAOGO', 'Fortune YANOGO', 'Bientama PARÉ', 'Linda KABORÉ'],
-    datasets: [{
-      data: [480000, 1016000, 820000, 855000, 427500],
-      backgroundColor: ['#162C54', '#3475BB', '#37B6E9', '#93C954', '#F68C1F'],
-      borderWidth: 0
-    }]
-  };
+  const loadProjectData = async () => {
+    setLoading(true);
+    setError(null);
 
-  const budgetChartOptions = {
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-          font: {
-            family: 'Open Sans',
-            size: 12
+    try {
+      // Charger le projet
+      const projectRes = await fetch(`/api/projects/${projectId}`, { credentials: "include" });
+
+      if (projectRes.status === 401) {
+        toast({
+          title: "Session expirée",
+          description: "Veuillez vous reconnecter",
+          variant: "destructive",
+        });
+        setTimeout(() => { window.location.href = "/login"; }, 2000);
+        return;
+      }
+
+      if (projectRes.status === 404) {
+        setError("Projet non trouvé");
+        return;
+      }
+
+      const projectData = await projectRes.json();
+
+      if (projectData.success) {
+        setProject(projectData.data);
+
+        // Si le projet a un client, charger ses infos
+        if (projectData.data.clientId) {
+          const clientRes = await fetch(`/api/clients/${projectData.data.clientId}`, { credentials: "include" });
+          const clientData = await clientRes.json();
+          if (clientData.success) {
+            setClient(clientData.data);
           }
         }
+
+        // Charger tous les clients pour le formulaire d'édition
+        const clientsRes = await fetch(`/api/clients`, { credentials: "include" });
+        const clientsData = await clientsRes.json();
+        if (clientsData.success) {
+          setClients(clientsData.data || []);
+        }
+
+        // Charger les tâches du projet
+        const tasksRes = await fetch(`/api/tasks?project=${projectId}`, { credentials: "include" });
+        const tasksData = await tasksRes.json();
+        if (tasksData.success) {
+          setTasks(tasksData.data || []);
+        }
+
+        // Charger les membres de l'équipe (tous)
+        const membersRes = await fetch(`/api/users`, { credentials: "include" });
+        const membersData = await membersRes.json();
+        if (membersData.success) {
+          setMembers(membersData.data || []);
+        }
+
+        // Charger les membres du projet
+        const projectMembersRes = await fetch(`/api/projects/${projectId}/members`, { credentials: "include" });
+        const projectMembersData = await projectMembersRes.json();
+        if (projectMembersData.success) {
+          setProjectMembers(projectMembersData.data || []);
+        }
+
+        // Charger les fichiers du projet
+        const filesRes = await fetch(`/api/projects/${projectId}/files`, { credentials: "include" });
+        const filesData = await filesRes.json();
+        if (filesData.success) {
+          setProjectFiles(filesData.data || []);
+        }
+      } else {
+        setError(projectData.message || "Erreur lors du chargement du projet");
       }
-    },
-    maintainAspectRatio: false
-  };
-
-  // Timer actif qui s'incrémente
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTimers(prev => {
-        const newTimers = { ...prev };
-        Object.keys(newTimers).forEach(timerId => {
-          const [hours, minutes, seconds] = newTimers[timerId].split(':').map(Number);
-          let totalSeconds = hours * 3600 + minutes * 60 + seconds + 1;
-          
-          const newHours = Math.floor(totalSeconds / 3600);
-          const newMinutes = Math.floor((totalSeconds % 3600) / 60);
-          const newSecs = totalSeconds % 60;
-          
-          newTimers[timerId] = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(newSecs).padStart(2, '0')}`;
-        });
-        return newTimers;
+    } catch (err: any) {
+      console.error("Erreur chargement projet:", err);
+      setError("Impossible de charger le projet depuis la base de données");
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données du projet",
+        variant: "destructive",
       });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return (
-          <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '24px', color: 'var(--jofe-blue-deep)' }}>
-              Vue d'Ensemble du Projet
-            </h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>Métriques Clés</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                  <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>65%</div>
-                    <div style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px' }}>Progression</div>
-                  </div>
-                  <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--jofe-green)', marginBottom: '8px' }}>12/12</div>
-                    <div style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px' }}>Tâches</div>
-                  </div>
-                  <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>7</div>
-                    <div style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px' }}>Membres actifs</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>Équipe Assignée</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-                  {Object.entries(teamMembers).slice(0, 6).map(([id, member]) => (
-                    <div key={id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid var(--jofe-gray)', borderRadius: '8px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: member.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)', fontWeight: '600' }}>
-                        {member.initials}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)', fontSize: '14px' }}>{member.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>{member.role}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'timeline':
-        return (
-          <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '24px', color: 'var(--jofe-blue-deep)' }}>
-              Timeline du Projet
-            </h3>
-            
-            <div style={{ position: 'relative', padding: '20px 0' }}>
-              <div style={{ position: 'absolute', left: '30px', top: 0, bottom: 0, width: '2px', background: 'var(--jofe-gray)' }}></div>
-              
-              <div style={{ position: 'relative', paddingLeft: '70px', marginBottom: '30px' }}>
-                <div style={{ position: 'absolute', left: '20px', top: 0, width: '20px', height: '20px', borderRadius: '50%', background: 'var(--jofe-green)', border: '3px solid var(--jofe-green)', zIndex: 1 }}></div>
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>Phase de Recherche Terminée</h4>
-                  <p style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px', marginBottom: '8px' }}>Linda KABORÉ - Recherche références et moodboard</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>15 Nov 2024</span>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(147, 201, 84, 0.1)', color: 'var(--jofe-green)' }}>TERMINÉ</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ position: 'relative', paddingLeft: '70px', marginBottom: '30px' }}>
-                <div style={{ position: 'absolute', left: '20px', top: 0, width: '20px', height: '20px', borderRadius: '50%', background: 'var(--jofe-green)', border: '3px solid var(--jofe-green)', zIndex: 1 }}></div>
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>Création Logo Principal</h4>
-                  <p style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px', marginBottom: '8px' }}>Paul Junior OUEDRAOGO - Logo et déclinaisons</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>22 Nov 2024</span>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(147, 201, 84, 0.1)', color: 'var(--jofe-green)' }}>TERMINÉ</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ position: 'relative', paddingLeft: '70px', marginBottom: '30px' }}>
-                <div style={{ position: 'absolute', left: '20px', top: 0, width: '20px', height: '20px', borderRadius: '50%', background: 'var(--jofe-white)', border: '3px solid var(--jofe-blue-light)', zIndex: 1 }}></div>
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>Animation Logo - En Cours</h4>
-                  <p style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px', marginBottom: '8px' }}>Bientama PARÉ - Motion design logo</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>En cours</span>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(55, 182, 233, 0.1)', color: 'var(--jofe-blue-light)' }}>EN COURS</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ position: 'relative', paddingLeft: '70px', marginBottom: '30px' }}>
-                <div style={{ position: 'absolute', left: '20px', top: 0, width: '20px', height: '20px', borderRadius: '50%', background: 'var(--jofe-white)', border: '3px solid var(--jofe-blue-light)', zIndex: 1 }}></div>
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px' }}>
-                  <h4 style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)', marginBottom: '8px' }}>Campagne Réseaux Sociaux - À Venir</h4>
-                  <p style={{ color: 'var(--jofe-blue-medium)', fontSize: '14px', marginBottom: '8px' }}>Florita KABORÉ - Posts et stories</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>Prévu pour Décembre 2024</span>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(246, 140, 31, 0.1)', color: 'var(--jofe-orange)' }}>EN ATTENTE</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'tasks':
-        return (
-          <div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-green)' }}>Tâches Terminées (7)</h4>
-                
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Recherche références</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(147, 201, 84, 0.1)', color: 'var(--jofe-green)' }}>Terminé</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Linda KABORÉ - Moodboard et inspirations</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: '600', color: 'var(--jofe-blue-medium)' }}>04:30:00</span>
-                    <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--jofe-green)' }}>427,500 FCFA</span>
-                  </div>
-                </div>
-
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Création logo principal</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(147, 201, 84, 0.1)', color: 'var(--jofe-green)' }}>Terminé</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Paul Junior OUEDRAOGO - Logo et déclinaisons</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: '600', color: 'var(--jofe-blue-medium)' }}>12:45:30</span>
-                    <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--jofe-green)' }}>1,020,000 FCFA</span>
-                  </div>
-                </div>
-
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Shooting produits</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(147, 201, 84, 0.1)', color: 'var(--jofe-green)' }}>Terminé</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Fortune YANOGO - Photos produits MOOV</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: '600', color: 'var(--jofe-blue-medium)' }}>08:15:20</span>
-                    <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--jofe-green)' }}>825,333 FCFA</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-light)' }}>Tâches En Cours (3)</h4>
-                
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Animation logo</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(55, 182, 233, 0.1)', color: 'var(--jofe-blue-light)' }}>En cours</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Bientama PARÉ - Motion design logo</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '18px', fontFamily: 'Inter', fontWeight: '600', color: 'var(--jofe-blue-medium)', animation: 'pulse 2s ease-in-out infinite' }}>
-                      {activeTimers['activeTimer1']}
-                    </span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button style={{ background: 'var(--jofe-orange)', color: 'var(--jofe-white)', border: 'none', padding: '8px 12px', borderRadius: '4px', fontSize: '14px', cursor: 'pointer' }}>Pause</button>
-                      <button style={{ background: 'var(--jofe-green)', color: 'var(--jofe-white)', border: 'none', padding: '8px 12px', borderRadius: '4px', fontSize: '14px', cursor: 'pointer' }}>Stop</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Charte graphique</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(55, 182, 233, 0.1)', color: 'var(--jofe-blue-light)' }}>En cours</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Paul Junior OUEDRAOGO - Guidelines d'usage</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: '600', color: 'var(--jofe-blue-medium)' }}>03:12:18</span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button style={{ background: 'var(--jofe-blue-light)', color: 'var(--jofe-white)', border: 'none', padding: '8px 12px', borderRadius: '4px', fontSize: '14px', cursor: 'pointer' }}>Play</button>
-                      <button style={{ background: 'var(--jofe-green)', color: 'var(--jofe-white)', border: 'none', padding: '8px 12px', borderRadius: '4px', fontSize: '14px', cursor: 'pointer' }}>Stop</button>
-                    </div>
-                  </div>
-                </div>
-
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', marginTop: '24px', color: 'var(--jofe-orange)' }}>Tâches En Attente (2)</h4>
-                
-                <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '8px', padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h5 style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Campagne réseaux sociaux</h5>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: 'rgba(246, 140, 31, 0.1)', color: 'var(--jofe-orange)' }}>En attente</span>
-                  </div>
-                  <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', marginBottom: '8px' }}>Florita KABORÉ - Posts et stories</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Assigné à: Florita KABORÉ</span>
-                    <button style={{ background: 'var(--jofe-blue-light)', color: 'var(--jofe-white)', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}>Démarrer</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'budget':
-        return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-            <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>
-                Budget Prévisionnel
-              </h3>
-              
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px solid var(--jofe-gray)', borderRadius: '8px', marginBottom: '12px' }}>
-                  <div>
-                    <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Budget Total</div>
-                    <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Alloué par MOOV AFRICA</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--jofe-blue-deep)' }}>{formatCurrency(projectData.budget)}</div>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px solid var(--jofe-gray)', borderRadius: '8px', marginBottom: '12px' }}>
-                  <div>
-                    <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Coût Réalisé</div>
-                    <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Tâches terminées</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--jofe-green)' }}>{formatCurrency(projectData.spent)}</div>
-                    <div style={{ fontSize: '14px', color: 'var(--jofe-green)' }}>65% du budget</div>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px solid var(--jofe-gray)', borderRadius: '8px' }}>
-                  <div>
-                    <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Budget Restant</div>
-                    <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Disponible</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--jofe-blue-light)' }}>{formatCurrency(projectData.remaining)}</div>
-                    <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>35% restant</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>Répartition par Membre</h4>
-                <div style={{ height: '300px' }}>
-                  <Doughnut data={budgetChartData} options={budgetChartOptions} />
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>
-                Détail des Coûts
-              </h3>
-              
-              <div style={{ marginBottom: '16px' }}>
-                {[
-                  { name: 'Serge ASSALÉ', hours: 32, rate: 15000, total: 480000 },
-                  { name: 'Paul Junior OUEDRAOGO', hours: 127, rate: 8000, total: 1016000 },
-                  { name: 'Fortune YANOGO', hours: 82, rate: 10000, total: 820000 },
-                  { name: 'Bientama PARÉ', hours: 95, rate: 9000, total: 855000 },
-                  { name: 'Linda KABORÉ', hours: 45, rate: 9500, total: 427500 }
-                ].map((member, index) => (
-                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.05)', marginBottom: '8px' }}>
-                    <div>
-                      <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>{member.name}</div>
-                      <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>{member.hours}h × {formatCurrency(member.rate)}</div>
-                    </div>
-                    <div style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)' }}>{formatCurrency(member.total)}</div>
-                  </div>
-                ))}
-                
-                <div style={{ borderTop: '1px solid var(--jofe-gray)', paddingTop: '12px', marginTop: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <div style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)' }}>Total Coûts Équipe</div>
-                    <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--jofe-green)' }}>{formatCurrency(3598500)}</div>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Autres frais (matériel, etc.)</div>
-                  <div style={{ fontWeight: '600', color: 'var(--jofe-blue-deep)' }}>{formatCurrency(1921500)}</div>
-                </div>
-                
-                <div style={{ borderTop: '1px solid var(--jofe-gray)', paddingTop: '12px', marginTop: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: '700', fontSize: '18px', color: 'var(--jofe-blue-deep)' }}>TOTAL RÉALISÉ</div>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--jofe-green)' }}>{formatCurrency(projectData.spent)}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'files':
-        return (
-          <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', color: 'var(--jofe-blue-deep)' }}>
-                Fichiers du Projet
-              </h3>
-              <button style={{ background: 'var(--jofe-blue-light)', color: 'var(--jofe-white)', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                Uploader
-              </button>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>Documents Client</h4>
-                
-                {[
-                  { name: 'Brief_MOOV_AFRICA_2024.pdf', size: '2.4 MB', date: '15 Nov 2024', color: 'var(--jofe-orange)' },
-                  { name: 'Charte_Existante_MOOV.pdf', size: '5.8 MB', date: '15 Nov 2024', color: 'var(--jofe-orange)' },
-                  { name: 'References_Visuelles.zip', size: '28.5 MB', date: '16 Nov 2024', color: 'var(--jofe-blue-light)' }
-                ].map((file, index) => (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid var(--jofe-gray)', borderRadius: '8px', marginBottom: '8px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `rgba(${file.color === 'var(--jofe-orange)' ? '246, 140, 31' : '55, 182, 233'}, 0.1)` }}>
-                      <svg style={{ width: '20px', height: '20px', color: file.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                      </svg>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>{file.name}</div>
-                      <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>{file.size} - Ajouté le {file.date}</div>
-                    </div>
-                    <button style={{ background: 'var(--jofe-white)', color: 'var(--jofe-blue-medium)', border: '1px solid var(--jofe-gray)', padding: '8px 12px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}>
-                      Télécharger
-                    </button>
-                  </div>
-                ))}
-              </div>
-              
-              <div>
-                <h4 style={{ fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>Créations & Livrables</h4>
-                
-                {[
-                  { name: 'Logo_MOOV_Final.ai', size: '15.2 MB', date: '22 Nov 2024', status: 'final' },
-                  { name: 'Declinaisons_Logo.zip', size: '42.7 MB', date: '22 Nov 2024', status: 'final' },
-                  { name: 'Animation_Logo_WIP.mp4', size: '125.3 MB', date: 'En cours', status: 'wip' },
-                  { name: 'Photos_Produits_HD.zip', size: '89.4 MB', date: '20 Nov 2024', status: 'final' }
-                ].map((file, index) => (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid var(--jofe-gray)', borderRadius: '8px', marginBottom: '8px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: file.status === 'final' ? 'rgba(147, 201, 84, 0.1)' : 'rgba(55, 182, 233, 0.1)' }}>
-                      <svg style={{ width: '20px', height: '20px', color: file.status === 'final' ? 'var(--jofe-green)' : 'var(--jofe-blue-light)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={file.name.includes('.mp4') ? "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" : "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"}></path>
-                      </svg>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>{file.name}</div>
-                      <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>{file.size} - {file.date}</div>
-                    </div>
-                    <button style={{ background: file.status === 'wip' ? 'var(--jofe-orange)' : 'var(--jofe-white)', color: file.status === 'wip' ? 'var(--jofe-white)' : 'var(--jofe-blue-medium)', border: file.status === 'wip' ? 'none' : '1px solid var(--jofe-gray)', padding: '8px 12px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}>
-                      {file.status === 'wip' ? 'Aperçu' : 'Télécharger'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'collaboration':
-        return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-            <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>
-                Discussion Projet
-              </h3>
-              
-              <div style={{ marginBottom: '24px', maxHeight: '400px', overflowY: 'auto' }}>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.02)' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--jofe-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)', fontWeight: '600' }}>
-                    SA
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Serge ASSALÉ</span>
-                      <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>Il y a 2 heures</span>
-                    </div>
-                    <p style={{ color: 'var(--jofe-blue-deep)', fontSize: '14px' }}>
-                      Excellente progression sur le logo ! Paul, pourrais-tu préparer les déclinaisons pour les supports print ?
-                    </p>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.02)' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--jofe-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)', fontWeight: '600' }}>
-                    PO
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Paul Junior OUEDRAOGO</span>
-                      <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>Il y a 1 heure</span>
-                    </div>
-                    <p style={{ color: 'var(--jofe-blue-deep)', fontSize: '14px' }}>
-                      Parfait ! Je commence les déclinaisons cet après-midi. Le client va adorer les nouvelles couleurs.
-                    </p>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.02)' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--jofe-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)', fontWeight: '600' }}>
-                    BP
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Bientama PARÉ</span>
-                      <span style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>Il y a 30 minutes</span>
-                    </div>
-                    <p style={{ color: 'var(--jofe-blue-deep)', fontSize: '14px' }}>
-                      L'animation du logo avance bien ! Premier rendu dans 2 heures pour validation.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div style={{ borderTop: '1px solid var(--jofe-gray)', paddingTop: '16px' }}>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--jofe-blue-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)', fontWeight: '600' }}>
-                    SA
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <textarea 
-                      placeholder="Ajouter un commentaire..."
-                      style={{ width: '100%', padding: '12px', border: '1px solid var(--jofe-gray)', borderRadius: '8px', fontFamily: 'Open Sans', resize: 'vertical', minHeight: '80px' }}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                      <button style={{ background: 'var(--jofe-blue-light)', color: 'var(--jofe-white)', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer' }}>
-                        Publier
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ background: 'var(--jofe-white)', border: '1px solid var(--jofe-gray)', borderRadius: '12px', padding: '24px' }}>
-              <h3 style={{ fontFamily: 'Inter', fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: 'var(--jofe-blue-deep)' }}>
-                Activité Récente
-              </h3>
-              
-              <div>
-                {[
-                  { user: 'Paul Junior OUEDRAOGO', action: 'a téléchargé', item: 'Logo_MOOV_Final.ai', time: 'Il y a 1 heure', type: 'upload' },
-                  { user: 'Bientama PARÉ', action: 'a démarré', item: 'Animation logo', time: 'Il y a 2 heures', type: 'task' },
-                  { user: 'Fortune YANOGO', action: 'a terminé', item: 'Shooting produits', time: 'Il y a 1 jour', type: 'completed' },
-                  { user: 'Linda KABORÉ', action: 'a ajouté un commentaire sur', item: 'Recherche références', time: 'Il y a 2 jours', type: 'comment' }
-                ].map((activity, index) => (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.02)', marginBottom: '8px' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: activity.type === 'completed' ? 'var(--jofe-green)' : activity.type === 'upload' ? 'var(--jofe-blue-light)' : 'var(--jofe-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--jofe-white)' }}>
-                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={
-                          activity.type === 'completed' ? "M5 13l4 4L19 7" :
-                          activity.type === 'upload' ? "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" :
-                          activity.type === 'comment' ? "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" :
-                          "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        }></path>
-                      </svg>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '14px', color: 'var(--jofe-blue-deep)' }}>
-                        <span style={{ fontWeight: '500' }}>{activity.user}</span> {activity.action} <span style={{ fontWeight: '500' }}>{activity.item}</span>
-                      </p>
-                      <p style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)' }}>{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Sauvegarder les modifications du projet
+  const handleSaveProject = async () => {
+    if (!editForm.name.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le nom du projet est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const payload = {
+        name: editForm.name,
+        description: editForm.description || null,
+        clientId: editForm.clientId || null,
+        status: editForm.status,
+        priority: editForm.priority,
+        budget: editForm.budget || '0',
+        startDate: editForm.startDate || null,
+        endDate: editForm.endDate || null,
+        progress: Number(editForm.progress),
+      };
+
+      console.log("Envoi mise à jour projet:", payload);
+
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      console.log("Réponse mise à jour:", data);
+
+      if (data.success) {
+        toast({
+          title: "Projet mis à jour",
+          description: "Les modifications ont été enregistrées",
+        });
+        setIsEditModalOpen(false);
+        loadProjectData(); // Recharger les données
+      } else {
+        // Afficher les détails de l'erreur
+        let errorMsg = data.message || "Erreur lors de la mise à jour";
+        if (data.errors && Array.isArray(data.errors)) {
+          errorMsg = data.errors.map((e: any) => `${e.field}: ${e.message}`).join(", ");
+        }
+        console.error("Erreur validation projet:", data);
+        toast({
+          title: "Erreur",
+          description: errorMsg,
+          variant: "destructive",
+        });
+      }
+    } catch (err: any) {
+      console.error("Erreur mise à jour projet:", err);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le projet",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Copier le lien du projet
+  const handleCopyLink = () => {
+    const projectUrl = `${window.location.origin}/projects/${projectId}`;
+    navigator.clipboard.writeText(projectUrl).then(() => {
+      setLinkCopied(true);
+      toast({
+        title: "Lien copié",
+        description: "Le lien du projet a été copié dans le presse-papiers",
+      });
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
+
+  // Partager par email
+  const handleShareByEmail = () => {
+    const projectUrl = `${window.location.origin}/projects/${projectId}`;
+    const subject = encodeURIComponent(`Projet: ${project?.name}`);
+    const body = encodeURIComponent(`Bonjour,\n\nJe vous partage ce projet:\n\n${project?.name}\n${project?.description || ''}\n\nLien: ${projectUrl}\n\nCordialement`);
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+  };
+
+  // Terminer le projet
+  const handleCompleteProject = async () => {
+    if (!project) return;
+
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir marquer le projet "${project.name}" comme terminé?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          status: 'completed',
+          progress: 100,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Projet terminé",
+          description: `Le projet "${project.name}" a été marqué comme terminé`,
+        });
+        loadProjectData(); // Recharger les données
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors de la mise à jour du projet",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de terminer le projet",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Supprimer le projet (Admin uniquement)
+  const handleDeleteProject = async () => {
+    if (!project) return;
+
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?\n\nATTENTION: Cette action supprimera également toutes les tâches et fichiers associés. Cette action est irréversible.`);
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Projet supprimé",
+          description: `Le projet "${project.name}" a été supprimé`,
+        });
+        setLocation('/projects');
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors de la suppression du projet",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le projet",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Télécharger un fichier
+  const handleDownloadFile = async (fileId: string, fileName: string) => {
+    try {
+      const response = await fetch(`/api/projects/files/${fileId}/download`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Impossible de télécharger le fichier",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du téléchargement",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Formater la taille du fichier
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Ajouter un membre au projet
+  const handleAddMember = async () => {
+    if (!selectedMemberId) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un membre",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          memberId: selectedMemberId,
+          role: memberRole || 'Membre',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Membre ajouté",
+          description: "Le membre a été ajouté au projet",
+        });
+        setIsAddMemberModalOpen(false);
+        setSelectedMemberId('');
+        setMemberRole('');
+        loadProjectData(); // Recharger les données
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors de l'ajout du membre",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter le membre",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Retirer un membre du projet
+  const handleRemoveMember = async (memberId: string, memberName: string) => {
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir retirer ${memberName} du projet ?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/members/${memberId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Membre retiré",
+          description: `${memberName} a été retiré du projet`,
+        });
+        loadProjectData(); // Recharger les données
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors du retrait du membre",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de retirer le membre",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Obtenir les membres disponibles (non encore dans le projet)
+  const getAvailableMembers = () => {
+    const projectMemberIds = projectMembers.map(pm => pm.memberId);
+    return members.filter(m => !projectMemberIds.includes(m.id));
+  };
+
+  const formatCurrency = (amount: number | string) => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('fr-FR').format(num || 0) + ' FCFA';
+  };
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('fr-FR');
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+      case 'en_cours':
+        return 'bg-green-100 text-green-800';
+      case 'planning':
+        return 'bg-blue-100 text-blue-800';
+      case 'completed':
+      case 'termine':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'paused':
+      case 'en_pause':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active':
+      case 'en_cours':
+        return 'En cours';
+      case 'planning':
+        return 'Planification';
+      case 'completed':
+      case 'termine':
+        return 'Terminé';
+      case 'paused':
+      case 'en_pause':
+        return 'En pause';
+      default:
+        return status || 'Inconnu';
+    }
+  };
+
+  const getMemberName = (memberId: string | null) => {
+    if (!memberId) return 'Non assigné';
+    const member = members.find(m => m.id === memberId);
+    return member?.name || 'Inconnu';
+  };
+
+  const getMemberInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  // Calculer les statistiques du projet
+  const stats = {
+    totalTasks: tasks.length,
+    completedTasks: tasks.filter(t => t.status === 'termine' || t.status === 'completed').length,
+    inProgressTasks: tasks.filter(t => t.status === 'en_cours' || t.status === 'active').length,
+    pendingTasks: tasks.filter(t => t.status === 'en_attente').length,
+    totalTimeSpent: tasks.reduce((sum, t) => sum + (t.totalTimeSpent || 0), 0),
+    totalCost: tasks.reduce((sum, t) => sum + (t.totalCost || 0), 0),
+  };
+
+  // Calculer les jours restants
+  const getDaysRemaining = () => {
+    if (!project?.endDate) return null;
+    const end = new Date(project.endDate);
+    const now = new Date();
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  };
+
+  const daysRemaining = getDaysRemaining();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <TopNavBar />
+        <div className="lg:ml-72 flex items-center justify-center h-[80vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-[#37B6E9] mx-auto mb-4" />
+            <p className="text-gray-600">Chargement du projet...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <TopNavBar />
+        <div className="lg:ml-72 flex items-center justify-center h-[80vh]">
+          <div className="text-center">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">{error || "Projet non trouvé"}</p>
+            <Link href="/projects">
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour aux projets
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ fontFamily: 'Open Sans, sans-serif', background: 'var(--jofe-white)', color: 'var(--jofe-black)', lineHeight: '1.6', minHeight: '100vh' }}>
-      {/* Mobile Menu Button */}
-      <div style={{ display: isMobileMenuOpen ? 'block' : 'none', position: 'fixed', top: '16px', left: '16px', zIndex: 50 }} className="md:hidden">
-        <button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          style={{ padding: '8px', borderRadius: '8px', background: 'var(--jofe-blue-light)', color: 'white', border: 'none', cursor: 'pointer' }}
-        >
-          <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <TopNavBar />
 
-      {/* Sidebar */}
-      <div style={{ position: 'fixed', left: 0, top: 0, height: '100%', width: '256px', background: 'white', borderRight: '1px solid #E5E7EB', zIndex: 40 }} className="hidden md:block">
-        <div style={{ padding: '24px' }}>
-          {/* Logo JoFé+ */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-            <div style={{ position: 'relative', width: '40px', height: '40px' }}>
-              <div style={{ position: 'absolute', border: '3px solid var(--jofe-blue-deep)', borderRadius: '50%', width: '20px', height: '20px', top: 0, left: '10px', animation: 'rotate 8s linear infinite' }}></div>
-              <div style={{ position: 'absolute', border: '3px solid var(--jofe-blue-medium)', borderRadius: '50%', width: '20px', height: '20px', top: '15px', left: 0, animation: 'rotate 8s linear infinite' }}></div>
-              <div style={{ position: 'absolute', border: '3px solid var(--jofe-blue-light)', borderRadius: '50%', width: '20px', height: '20px', top: '15px', right: 0, animation: 'rotate 8s linear infinite' }}></div>
-            </div>
-            <div>
-              <h1 style={{ fontFamily: 'Inter', fontSize: '20px', color: 'var(--jofe-blue-deep)', margin: 0 }}>
-                jofé<span style={{ color: 'var(--jofe-blue-light)' }}>+</span>
-              </h1>
-              <p style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)', margin: 0 }}>Digital Excellence</p>
-            </div>
-          </div>
-          
-          {/* Navigation */}
-          <nav style={{ marginBottom: '24px' }}>
-            <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-blue-medium)', textDecoration: 'none', marginBottom: '8px' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"></path>
-              </svg>
-              Tableau de Bord
-            </Link>
-            
-            <Link href="/time-tracking" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-blue-medium)', textDecoration: 'none', marginBottom: '8px' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Chronométrage
-            </Link>
-            
-            <Link href="/projects" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-white)', background: 'var(--jofe-blue-light)', textDecoration: 'none', marginBottom: '8px' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-              </svg>
-              Projets
-            </Link>
-            
-            <Link href="/team" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-blue-medium)', textDecoration: 'none', marginBottom: '8px' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              Équipe
-            </Link>
-            
-            <Link href="/clients" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-blue-medium)', textDecoration: 'none', marginBottom: '8px' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
-              </svg>
-              Clients
-            </Link>
-            
-            <Link href="/analytics" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', color: 'var(--jofe-blue-medium)', textDecoration: 'none' }}>
-              <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-              </svg>
-              Analytics
-            </Link>
-          </nav>
-        </div>
-        
-        {/* User Info */}
-        <div style={{ position: 'absolute', bottom: '24px', left: '24px', right: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(55, 182, 233, 0.05)' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--jofe-blue-light)' }}>
-              <svg style={{ width: '20px', height: '20px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-              </svg>
-            </div>
-            <div>
-              <p style={{ fontWeight: '500', fontSize: '14px', color: 'var(--jofe-blue-deep)', margin: 0 }}>Serge ASSALÉ</p>
-              <p style={{ fontSize: '12px', color: 'var(--jofe-blue-medium)', margin: 0 }}>Directeur Création</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div className="lg:ml-72">
+        {/* Header du projet */}
+        <header className="bg-white border-b border-gray-200 px-6 py-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <Link href="/projects">
+                  <Button variant="ghost" size="sm">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Retour
+                  </Button>
+                </Link>
+              </div>
 
-      {/* Main Content */}
-      <div style={{ marginLeft: '256px' }} className="md:ml-64 ml-0">
-        {/* Project Header */}
-        <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                <h1 style={{ fontFamily: 'Inter', fontSize: '48px', fontWeight: '700', color: 'var(--jofe-blue-deep)', margin: 0 }}>
-                  {projectData.name}
-                </h1>
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', textTransform: 'uppercase', background: 'rgba(55, 182, 233, 0.1)', color: 'var(--jofe-blue-light)' }}>
-                  {projectData.status}
+              <div className="flex items-center gap-4 mb-2">
+                <h1 className="text-3xl font-bold text-[#162C54]">{project.name}</h1>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(project.status)}`}>
+                  {getStatusText(project.status)}
                 </span>
               </div>
-              <p style={{ fontSize: '18px', color: 'var(--jofe-blue-medium)', marginBottom: '16px' }}>{projectData.description}</p>
-              
-              {/* Progress Bar */}
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--jofe-blue-deep)' }}>Progression du projet</span>
-                  <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--jofe-blue-light)' }}>{projectData.progress}%</span>
+
+              <p className="text-gray-600 mb-4">{project.description || 'Aucune description'}</p>
+
+              {/* Barre de progression */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Progression du projet</span>
+                  <span className="text-sm font-bold text-[#37B6E9]">{project.progress || 0}%</span>
                 </div>
-                <div style={{ background: 'var(--jofe-gray)', borderRadius: '10px', height: '8px', overflow: 'hidden' }}>
-                  <div style={{ background: 'var(--jofe-blue-light)', height: '100%', borderRadius: '10px', width: `${projectData.progress}%`, transition: 'width 0.5s ease' }}></div>
+                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#37B6E9] to-[#3475BB] rounded-full transition-all duration-500"
+                    style={{ width: `${project.progress || 0}%` }}
+                  />
                 </div>
               </div>
-              
-              {/* KPIs Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--jofe-blue-deep)' }}>{formatCurrency(projectData.budget)}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Budget (FCFA)</div>
+
+              {/* KPIs */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-[#162C54]">{formatCurrency(project.budget)}</div>
+                  <div className="text-sm text-gray-600">Budget</div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--jofe-blue-deep)' }}>{projectData.daysLeft}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Jours restants</div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-[#162C54]">
+                    {daysRemaining !== null ? (daysRemaining >= 0 ? daysRemaining : 0) : '-'}
+                  </div>
+                  <div className="text-sm text-gray-600">Jours restants</div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--jofe-blue-deep)' }}>{projectData.activeMembers}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Membres actifs</div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-[#162C54]">{projectMembers.length}</div>
+                  <div className="text-sm text-gray-600">Membres</div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--jofe-green)' }}>{projectData.completedTasks}/{projectData.totalTasks}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--jofe-blue-medium)' }}>Tâches</div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">
+                    {stats.completedTasks}/{stats.totalTasks}
+                  </div>
+                  <div className="text-sm text-gray-600">Tâches</div>
                 </div>
               </div>
             </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <button style={{ background: 'var(--jofe-white)', color: 'var(--jofe-blue-medium)', border: '1px solid var(--jofe-gray)', padding: '10px 16px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button variant="outline" onClick={loadProjectData}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Rafraîchir
+              </Button>
+              <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
+                <Edit className="w-4 h-4 mr-2" />
                 Modifier
-              </button>
-              <button style={{ background: 'var(--jofe-blue-light)', color: 'var(--jofe-white)', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: '500', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                </svg>
+              </Button>
+              {project.status !== 'termine' && project.status !== 'completed' && (
+                <Button
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                  onClick={handleCompleteProject}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Terminer
+                </Button>
+              )}
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={handleDeleteProject}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Supprimer
+                </Button>
+              )}
+              <Button className="bg-[#37B6E9] hover:bg-[#3475BB]" onClick={() => setIsShareModalOpen(true)}>
+                <Share2 className="w-4 h-4 mr-2" />
                 Partager
-              </button>
+              </Button>
             </div>
           </div>
         </header>
 
-        {/* Tabs Navigation */}
-        <div style={{ background: 'white', borderBottom: '1px solid var(--jofe-gray)', padding: '0 24px' }}>
-          <div style={{ display: 'flex', overflowX: 'auto' }}>
+        {/* Onglets */}
+        <div className="bg-white border-b border-gray-200 px-6">
+          <div className="flex overflow-x-auto">
             {[
-              { id: 'overview', label: 'Vue d\'ensemble' },
-              { id: 'timeline', label: 'Timeline' },
+              { id: 'overview', label: "Vue d'ensemble" },
               { id: 'tasks', label: 'Tâches' },
+              { id: 'files', label: `Fichiers (${projectFiles.length})` },
               { id: 'budget', label: 'Budget' },
-              { id: 'files', label: 'Fichiers' },
-              { id: 'collaboration', label: 'Collaboration' }
+              { id: 'team', label: `Équipe (${projectMembers.length})` },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                style={{
-                  padding: '12px 24px',
-                  border: 'none',
-                  background: 'none',
-                  color: activeTab === tab.id ? 'var(--jofe-blue-light)' : 'var(--jofe-blue-medium)',
-                  cursor: 'pointer',
-                  borderBottom: activeTab === tab.id ? '2px solid var(--jofe-blue-light)' : '2px solid transparent',
-                  whiteSpace: 'nowrap',
-                  fontWeight: '500'
-                }}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'border-[#37B6E9] text-[#37B6E9]'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
               >
                 {tab.label}
               </button>
@@ -771,39 +788,688 @@ function ProjectDetail() {
           </div>
         </div>
 
-        {/* Tab Content */}
-        <main style={{ padding: '24px' }}>
-          <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
-            {renderTabContent()}
-          </div>
+        {/* Contenu des onglets */}
+        <main className="p-6">
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Informations du projet */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-[#162C54] mb-4">Informations</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Client</span>
+                    <span className="font-medium">{client?.name || 'Non défini'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Priorité</span>
+                    <span className="font-medium capitalize">{project.priority || 'Normale'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Date de début</span>
+                    <span className="font-medium">{formatDate(project.startDate)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Date de fin</span>
+                    <span className="font-medium">{formatDate(project.endDate)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Créé le</span>
+                    <span className="font-medium">{formatDate(project.createdAt)}</span>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Statistiques des tâches */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-[#162C54] mb-4">Statistiques</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">{stats.completedTasks}</div>
+                    <div className="text-sm text-gray-600">Terminées</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">{stats.inProgressTasks}</div>
+                    <div className="text-sm text-gray-600">En cours</div>
+                  </div>
+                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div className="text-3xl font-bold text-yellow-600">{stats.pendingTasks}</div>
+                    <div className="text-sm text-gray-600">En attente</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600">
+                      {Math.floor(stats.totalTimeSpent / 3600)}h
+                    </div>
+                    <div className="text-sm text-gray-600">Temps total</div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Tâches récentes */}
+              <Card className="p-6 lg:col-span-2">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-[#162C54]">Tâches récentes</h3>
+                  <Button variant="outline" size="sm" onClick={() => setActiveTab('tasks')}>
+                    Voir tout
+                  </Button>
+                </div>
+                {tasks.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Aucune tâche pour ce projet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {tasks.slice(0, 5).map(task => (
+                      <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            task.status === 'termine' ? 'bg-green-500' :
+                            task.status === 'en_cours' ? 'bg-blue-500' :
+                            'bg-yellow-500'
+                          }`} />
+                          <div>
+                            <p className="font-medium text-[#162C54]">{task.name}</p>
+                            <p className="text-sm text-gray-600">{getMemberName(task.assignedTo)}</p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          task.status === 'termine' ? 'bg-green-100 text-green-800' :
+                          task.status === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {task.status === 'termine' ? 'Terminée' :
+                           task.status === 'en_cours' ? 'En cours' : 'En attente'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'tasks' && (
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-[#162C54]">Toutes les tâches ({tasks.length})</h3>
+                <Link href={`/tasks?projectId=${projectId}&projectName=${encodeURIComponent(project?.name || '')}`}>
+                  <Button className="bg-[#37B6E9] hover:bg-[#3475BB]">
+                    + Nouvelle tâche
+                  </Button>
+                </Link>
+              </div>
+
+              {tasks.length === 0 ? (
+                <p className="text-gray-500 text-center py-12">Aucune tâche pour ce projet</p>
+              ) : (
+                <div className="space-y-4">
+                  {tasks.map(task => (
+                    <div key={task.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold text-[#162C54]">{task.name}</h4>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              task.priority === 'haute' || task.priority === 'critique' ? 'bg-red-100 text-red-800' :
+                              task.priority === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {task.priority || 'Normale'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">{task.description || 'Pas de description'}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              {getMemberName(task.assignedTo)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {Math.floor((task.totalTimeSpent || 0) / 3600)}h {Math.floor(((task.totalTimeSpent || 0) % 3600) / 60)}m
+                            </span>
+                            {task.deadline && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {formatDate(task.deadline)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            task.status === 'termine' ? 'bg-green-100 text-green-800' :
+                            task.status === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {task.status === 'termine' ? 'Terminée' :
+                             task.status === 'en_cours' ? 'En cours' : 'En attente'}
+                          </span>
+                          <span className="text-sm font-medium text-[#37B6E9]">
+                            {formatCurrency(task.totalCost || 0)}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Barre de progression */}
+                      <div className="mt-3">
+                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#37B6E9] rounded-full"
+                            style={{ width: `${task.progress || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
+
+          {activeTab === 'files' && (
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-[#162C54]">Fichiers du projet ({projectFiles.length})</h3>
+              </div>
+
+              {projectFiles.length === 0 ? (
+                <div className="text-center py-12">
+                  <File className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Aucun fichier attaché à ce projet</p>
+                  <p className="text-sm text-gray-400 mt-2">Les fichiers peuvent être ajoutés lors de la création du projet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {projectFiles.map(file => (
+                    <div key={file.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#162C54]">{file.originalName}</p>
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span>{formatFileSize(file.fileSize)}</span>
+                            <span>•</span>
+                            <span className="capitalize">{file.fileType}</span>
+                            <span>•</span>
+                            <span>{formatDate(file.createdAt)}</span>
+                          </div>
+                          {file.description && (
+                            <p className="text-sm text-gray-600 mt-1">{file.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadFile(file.id, file.originalName)}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Télécharger
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
+
+          {activeTab === 'budget' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-[#162C54] mb-4">Budget du projet</h3>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Budget total</div>
+                    <div className="text-2xl font-bold text-[#162C54]">{formatCurrency(project.budget)}</div>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Coût réalisé</div>
+                    <div className="text-2xl font-bold text-green-600">{formatCurrency(stats.totalCost)}</div>
+                  </div>
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-1">Budget restant</div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {formatCurrency(Math.max(0, (parseFloat(project.budget) || 0) - stats.totalCost))}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-[#162C54] mb-4">Répartition par tâche</h3>
+                {tasks.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Aucune donnée de coût</p>
+                ) : (
+                  <div className="space-y-3">
+                    {tasks.filter(t => t.totalCost > 0).map(task => (
+                      <div key={task.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-[#162C54]">{task.name}</p>
+                          <p className="text-sm text-gray-600">
+                            {Math.floor((task.totalTimeSpent || 0) / 3600)}h de travail
+                          </p>
+                        </div>
+                        <span className="font-semibold text-[#37B6E9]">{formatCurrency(task.totalCost)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'team' && (
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-[#162C54]">Équipe du projet ({projectMembers.length} membres)</h3>
+                {isAdmin && (
+                  <Button
+                    className="bg-[#37B6E9] hover:bg-[#3475BB]"
+                    onClick={() => setIsAddMemberModalOpen(true)}
+                    disabled={getAvailableMembers().length === 0}
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Ajouter un membre
+                  </Button>
+                )}
+              </div>
+
+              {projectMembers.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Aucun membre dans ce projet</p>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => setIsAddMemberModalOpen(true)}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Ajouter le premier membre
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projectMembers.map(pm => (
+                    <div key={pm.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-[#37B6E9] flex items-center justify-center text-white font-bold">
+                          {pm.member?.avatar || getMemberInitials(pm.member?.name || 'NN')}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-[#162C54]">{pm.member?.name || 'Membre inconnu'}</p>
+                          <p className="text-sm text-gray-600">{pm.projectRole || pm.member?.role}</p>
+                          <p className="text-xs text-[#37B6E9]">{formatCurrency(pm.member?.hourlyRate || '0')}/h</p>
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleRemoveMember(pm.memberId, pm.member?.name || 'ce membre')}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Retirer du projet"
+                        >
+                          <UserMinus className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
         </main>
       </div>
 
-      <style>{`
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        :root {
-          --jofe-blue-deep: #162C54;
-          --jofe-blue-night: #1A4278;
-          --jofe-blue-medium: #3475BB;
-          --jofe-blue-light: #37B6E9;
-          --jofe-black: #000000;
-          --jofe-gray: #EBECED;
-          --jofe-white: #FFFFFF;
-          --jofe-green: #93C954;
-          --jofe-orange: #F68C1F;
-        }
-      `}</style>
+      {/* Modal Modifier le projet */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-[#162C54]">Modifier le projet</h2>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Nom */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom du projet *
+                </label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder="Nom du projet"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  placeholder="Description du projet"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                />
+              </div>
+
+              {/* Client */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Client
+                </label>
+                <select
+                  value={editForm.clientId}
+                  onChange={(e) => setEditForm({ ...editForm, clientId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                >
+                  <option value="">Aucun client</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Statut et Priorité */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Statut
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                  >
+                    <option value="planning">Planification</option>
+                    <option value="active">En cours</option>
+                    <option value="paused">En pause</option>
+                    <option value="completed">Terminé</option>
+                    <option value="cancelled">Annulé</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Priorité
+                  </label>
+                  <select
+                    value={editForm.priority}
+                    onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                  >
+                    <option value="basse">Basse</option>
+                    <option value="moyenne">Moyenne</option>
+                    <option value="haute">Haute</option>
+                    <option value="urgente">Urgente</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Budget et Progression */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Budget (FCFA)
+                  </label>
+                  <Input
+                    type="number"
+                    value={editForm.budget}
+                    onChange={(e) => setEditForm({ ...editForm, budget: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Progression (%)
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editForm.progress}
+                    onChange={(e) => setEditForm({ ...editForm, progress: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date de début
+                  </label>
+                  <Input
+                    type="date"
+                    value={editForm.startDate}
+                    onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date de fin
+                  </label>
+                  <Input
+                    type="date"
+                    value={editForm.endDate}
+                    onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+              <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                Annuler
+              </Button>
+              <Button
+                className="bg-[#37B6E9] hover:bg-[#3475BB]"
+                onClick={handleSaveProject}
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Enregistrer
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Partager */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-[#162C54]">Partager le projet</h2>
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-gray-600">
+                Partagez le projet "{project.name}" avec vos collaborateurs.
+              </p>
+
+              {/* Lien du projet */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lien du projet
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    readOnly
+                    value={`${window.location.origin}/projects/${projectId}`}
+                    className="bg-gray-50"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={handleCopyLink}
+                    className={linkCopied ? 'bg-green-50 border-green-300 text-green-600' : ''}
+                  >
+                    {linkCopied ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Options de partage */}
+              <div className="space-y-3">
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <LinkIcon className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#162C54]">Copier le lien</p>
+                    <p className="text-sm text-gray-600">Partagez le lien directement</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={handleShareByEmail}
+                  className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#162C54]">Envoyer par email</p>
+                    <p className="text-sm text-gray-600">Ouvrir votre client email</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end p-6 border-t border-gray-200">
+              <Button variant="outline" onClick={() => setIsShareModalOpen(false)}>
+                Fermer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ajouter un membre */}
+      {isAddMemberModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-[#162C54]">Ajouter un membre</h2>
+              <button
+                onClick={() => {
+                  setIsAddMemberModalOpen(false);
+                  setSelectedMemberId('');
+                  setMemberRole('');
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {getAvailableMembers().length === 0 ? (
+                <p className="text-gray-500 text-center py-4">
+                  Tous les membres de l'équipe sont déjà dans ce projet.
+                </p>
+              ) : (
+                <>
+                  {/* Sélection du membre */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Membre *
+                    </label>
+                    <select
+                      value={selectedMemberId}
+                      onChange={(e) => setSelectedMemberId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                    >
+                      <option value="">Sélectionner un membre...</option>
+                      {getAvailableMembers().map(member => (
+                        <option key={member.id} value={member.id}>
+                          {member.name} - {member.role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Rôle dans le projet */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rôle dans le projet (optionnel)
+                    </label>
+                    <Input
+                      value={memberRole}
+                      onChange={(e) => setMemberRole(e.target.value)}
+                      placeholder="Ex: Chef de projet, Développeur, Designer..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Si non spécifié, le rôle par défaut sera "Membre"
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddMemberModalOpen(false);
+                  setSelectedMemberId('');
+                  setMemberRole('');
+                }}
+              >
+                Annuler
+              </Button>
+              {getAvailableMembers().length > 0 && (
+                <Button
+                  className="bg-[#37B6E9] hover:bg-[#3475BB]"
+                  onClick={handleAddMember}
+                  disabled={saving || !selectedMemberId}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Ajout...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Ajouter
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

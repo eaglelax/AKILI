@@ -1,0 +1,1331 @@
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jo'Fé Digital - Système de Gestion d'Équipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["Inter", "system-ui", "sans-serif"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(210 40% 98%);
+            --foreground: hsl(222.2 84% 4.9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(222.2 84% 4.9%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(222.2 84% 4.9%);
+            --primary: hsl(188 78% 41%);
+            --primary-foreground: hsl(210 40% 98%);
+            --secondary: hsl(25 95% 53%);
+            --secondary-foreground: hsl(222.2 84% 4.9%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(215.4 16.3% 46.9%);
+            --accent: hsl(210 40% 96%);
+            --accent-foreground: hsl(222.2 84% 4.9%);
+            --destructive: hsl(0 84.2% 60.2%);
+            --destructive-foreground: hsl(210 40% 98%);
+            --border: hsl(214.3 31.8% 91.4%);
+            --input: hsl(214.3 31.8% 91.4%);
+            --ring: hsl(188 78% 41%);
+            --radius: 0.5rem;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, hsl(188 78% 41%), hsl(25 95% 53%));
+        }
+
+        .timer-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: hsl(210 40% 96%);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: hsl(188 78% 41%);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: hsl(188 78% 35%);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="bg-background font-sans">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen gradient-bg flex items-center justify-center p-4">
+        <div class="bg-card rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <!-- @COMPONENT: LoginForm [user authentication with member selection] -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 gradient-bg rounded-xl mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl font-bold text-white">J+</span>
+                </div>
+                <h1 class="text-2xl font-bold text-foreground mb-2">Jo'Fé Digital</h1>
+                <p class="text-muted-foreground">Système de Gestion d'Équipe</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">Sélectionner votre nom</label>
+                    <select id="memberSelect" class="w-full p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                        <option value="">Choisissez votre nom...</option>
+                        <option value="serge_assale">Serge ASSALÉ (Admin)</option>
+                        <option value="enos_gouba">Enos GOUBA (Admin)</option>
+                        <option value="paul_ouedraogo">Paul Junior OUEDRAOGO</option>
+                        <option value="fortune_yanogo">Fortune YANOGO</option>
+                        <option value="bientama_pare">Bientama PARÉ</option>
+                        <option value="issa_cisse">Issa CISSE</option>
+                        <option value="florita_kabore">Florita KABORÉ</option>
+                        <option value="nebie_webou">Nebié WEBOU</option>
+                        <option value="djamilatou_guiguemde">Djamilatou GUIGUEMDE</option>
+                        <option value="jeanjacques_sampabao">Jean-Jacques SAMPABAO</option>
+                        <option value="abdoul_ouedraogo">Abdoul Latif OUEDRAOGO</option>
+                        <option value="linda_kabore">Linda KABORÉ</option>
+                        <option value="maryse_bombiri">Maryse BOMBIRI</option>
+                        <option value="faridatou_barry">Faridatou BARRY</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">Mot de passe</label>
+                    <input type="password" id="passwordInput" placeholder="Saisissez votre mot de passe" 
+                           class="w-full p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                    <p class="text-xs text-muted-foreground mt-1">Membres: jofe2024 | Admins: mot de passe différent</p>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-primary-foreground p-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                    Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoginForm -->
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="hidden min-h-screen bg-background">
+        <!-- Header -->
+        <header class="bg-card border-b border-border px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                        <span class="text-lg font-bold text-white">J+</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold text-foreground">Jo'Fé Digital</h1>
+                        <p class="text-sm text-muted-foreground">Gestion d'Équipe Marketing & Création</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-foreground" id="currentUser" data-bind="user.name">Serge ASSALÉ</p>
+                        <p class="text-xs text-muted-foreground">Connecté • <span id="currentTime">14:32</span></p>
+                    </div>
+                    <button id="logoutBtn" class="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-destructive/90 transition-colors">
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-card border-b border-border px-6">
+            <div class="flex space-x-1">
+                <button class="tab-btn active px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="tasks">
+                    <i data-feather="list" class="w-4 h-4 inline mr-2"></i>Gestion des Tâches
+                </button>
+                <button class="tab-btn px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="projects">
+                    <i data-feather="folder" class="w-4 h-4 inline mr-2"></i>Projets
+                </button>
+                <button class="tab-btn px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="team">
+                    <i data-feather="users" class="w-4 h-4 inline mr-2"></i>Équipe
+                </button>
+                <button class="tab-btn px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="clients">
+                    <i data-feather="briefcase" class="w-4 h-4 inline mr-2"></i>Clients
+                </button>
+                <button class="tab-btn px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="analytics">
+                    <i data-feather="bar-chart-2" class="w-4 h-4 inline mr-2"></i>Analytics
+                </button>
+                <button class="tab-btn px-4 py-3 text-sm font-medium rounded-t-lg transition-colors" data-tab="chat">
+                    <i data-feather="message-circle" class="w-4 h-4 inline mr-2"></i>Chat
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="p-6">
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <!-- @COMPONENT: TasksDashboard [main task management interface] -->
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-card rounded-xl p-6 border border-border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-muted-foreground">Tâches Actives</p>
+                                <p class="text-2xl font-bold text-foreground" data-bind="stats.activeTasks">24</p>
+                            </div>
+                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i data-feather="activity" class="w-6 h-6 text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card rounded-xl p-6 border border-border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-muted-foreground">En Cours</p>
+                                <p class="text-2xl font-bold text-foreground" data-bind="stats.inProgress">8</p>
+                            </div>
+                            <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center">
+                                <i data-feather="clock" class="w-6 h-6 text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card rounded-xl p-6 border border-border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-muted-foreground">Terminées Aujourd'hui</p>
+                                <p class="text-2xl font-bold text-foreground" data-bind="stats.completedToday">12</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-feather="check-circle" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card rounded-xl p-6 border border-border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-muted-foreground">Temps Total</p>
+                                <p class="text-2xl font-bold text-foreground" data-bind="stats.totalTime">47h 23m</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i data-feather="watch" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Creation Form -->
+                <div class="bg-card rounded-xl p-6 border border-border mb-8">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Créer une nouvelle tâche</h3>
+                    <form id="newTaskForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="text" placeholder="Nom de la tâche" class="p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                        
+                        <select class="p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                            <option value="">Assigné à...</option>
+                            <option value="serge_assale">Serge ASSALÉ</option>
+                            <option value="enos_gouba">Enos GOUBA</option>
+                            <option value="paul_ouedraogo">Paul Junior OUEDRAOGO</option>
+                            <option value="fortune_yanogo">Fortune YANOGO</option>
+                            <option value="bientama_pare">Bientama PARÉ</option>
+                        </select>
+                        
+                        <select class="p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                            <option value="">Client...</option>
+                            <option value="moov_africa">MOOV AFRICA</option>
+                            <option value="bank_of_africa">BANK OF AFRICA</option>
+                            <option value="vincent_associes">VINCENT & ASSOCIES</option>
+                            <option value="aneree">ANEREE</option>
+                        </select>
+                        
+                        <select class="p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                            <option value="moyenne">Priorité Moyenne</option>
+                            <option value="haute">Haute</option>
+                            <option value="urgente">Urgente</option>
+                            <option value="basse">Basse</option>
+                        </select>
+                        
+                        <input type="date" class="p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                        
+                        <button type="submit" class="bg-primary text-primary-foreground p-3 rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center justify-center">
+                            <i data-feather="plus" class="w-4 h-4 mr-2"></i>Créer Tâche
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-card rounded-xl p-4 border border-border mb-6">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex items-center space-x-2">
+                            <i data-feather="filter" class="w-4 h-4 text-muted-foreground"></i>
+                            <span class="text-sm font-medium text-foreground">Filtres:</span>
+                        </div>
+                        
+                        <select class="p-2 border border-input rounded-lg bg-background text-sm">
+                            <option>Tous les membres</option>
+                            <option>Mes tâches uniquement</option>
+                        </select>
+                        
+                        <select class="p-2 border border-input rounded-lg bg-background text-sm">
+                            <option>Tous les clients</option>
+                            <option>MOOV AFRICA</option>
+                            <option>BANK OF AFRICA</option>
+                        </select>
+                        
+                        <select class="p-2 border border-input rounded-lg bg-background text-sm">
+                            <option>Tous les statuts</option>
+                            <option>En cours</option>
+                            <option>Terminé</option>
+                            <option>En attente</option>
+                        </select>
+                        
+                        <input type="date" class="p-2 border border-input rounded-lg bg-background text-sm">
+                        <input type="date" class="p-2 border border-input rounded-lg bg-background text-sm">
+                    </div>
+                </div>
+
+                <!-- Tasks Table -->
+                <div class="bg-card rounded-xl border border-border overflow-hidden">
+                    <div class="p-4 border-b border-border">
+                        <h3 class="text-lg font-semibold text-foreground">Tableau de Suivi des Tâches</h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full">
+                            <thead class="bg-muted">
+                                <tr>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Tâche</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Assigné</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Client</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Priorité</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Échéance</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Statut</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Temps</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Coût</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Progression</th>
+                                    <th class="text-left p-4 text-sm font-medium text-foreground">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                <!-- @MAP: tasks.map(task => ( -->
+                                <tr class="hover:bg-muted/50">
+                                    <td class="p-4">
+                                        <div class="font-medium text-foreground" data-bind="task.name">Stratégie interne NEEMBA</div>
+                                        <div class="text-sm text-muted-foreground" data-bind="task.description">Développement stratégie marketing</div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-medium text-white">SA</div>
+                                            <span class="text-sm text-foreground" data-bind="task.assignee">Serge ASSALÉ</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground" data-bind="task.client">NEEMBA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" data-bind="task.priority">Haute</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground" data-bind="task.deadline">03/09/2025</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800" data-bind="task.status">En cours</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-foreground" data-bind="task.timeSpent">0.0h</span>
+                                            <button class="timer-pulse bg-red-500 text-white px-2 py-1 rounded text-xs" data-event="click:toggleTimer">⏸</button>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground" data-bind="task.cost">0 FR CFA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-1 bg-muted rounded-full h-2">
+                                                <div class="bg-primary h-2 rounded-full" style="width: 60%" data-bind="task.progress"></div>
+                                            </div>
+                                            <span class="text-xs text-muted-foreground" data-bind="task.progressPercent">60%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-1">
+                                            <button class="p-1 hover:bg-muted rounded" data-event="click:editTask">
+                                                <i data-feather="edit-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                            <button class="p-1 hover:bg-muted rounded" data-event="click:deleteTask">
+                                                <i data-feather="trash-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+
+                                <!-- Additional sample rows -->
+                                <tr class="hover:bg-muted/50">
+                                    <td class="p-4">
+                                        <div class="font-medium text-foreground">Campagne MOOV AFRICA</div>
+                                        <div class="text-sm text-muted-foreground">Création visuelle campagne publicitaire</div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-xs font-medium text-white">PO</div>
+                                            <span class="text-sm text-foreground">Paul OUEDRAOGO</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">MOOV AFRICA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Moyenne</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">15/09/2025</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Terminé</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-foreground">4.5h</span>
+                                            <button class="bg-gray-400 text-white px-2 py-1 rounded text-xs">⏹</button>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">22,500 FR CFA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-1 bg-muted rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                            </div>
+                                            <span class="text-xs text-muted-foreground">100%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-1">
+                                            <button class="p-1 hover:bg-muted rounded">
+                                                <i data-feather="edit-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                            <button class="p-1 hover:bg-muted rounded">
+                                                <i data-feather="trash-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-muted/50">
+                                    <td class="p-4">
+                                        <div class="font-medium text-foreground">Design UI Site BOA</div>
+                                        <div class="text-sm text-muted-foreground">Interface utilisateur site web</div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-medium text-white">AO</div>
+                                            <span class="text-sm text-foreground">Abdoul OUEDRAOGO</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">BANK OF AFRICA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Urgente</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">05/09/2025</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">En cours</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-foreground">2.3h</span>
+                                            <button class="timer-pulse bg-green-500 text-white px-2 py-1 rounded text-xs">▶</button>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-sm text-foreground">11,500 FR CFA</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-1 bg-muted rounded-full h-2">
+                                                <div class="bg-primary h-2 rounded-full" style="width: 30%"></div>
+                                            </div>
+                                            <span class="text-xs text-muted-foreground">30%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="flex items-center space-x-1">
+                                            <button class="p-1 hover:bg-muted rounded">
+                                                <i data-feather="edit-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                            <button class="p-1 hover:bg-muted rounded">
+                                                <i data-feather="trash-2" class="w-4 h-4 text-muted-foreground"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: TasksDashboard -->
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects" class="tab-content hidden">
+                <!-- @COMPONENT: ProjectsManagement [project overview with Gantt chart] -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-foreground">Gestion des Projets</h2>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i data-feather="plus" class="w-4 h-4 mr-2 inline"></i>Nouveau Projet
+                        </button>
+                    </div>
+
+                    <!-- Project Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="font-semibold text-foreground">Campagne MOOV AFRICA Q4</h3>
+                                    <p class="text-sm text-muted-foreground">Marketing digital et print</p>
+                                </div>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Actif</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Progression</span>
+                                    <span class="text-foreground">65%</span>
+                                </div>
+                                <div class="w-full bg-muted rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Budget</span>
+                                    <span class="text-foreground">2,500,000 FR CFA</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Échéance</span>
+                                    <span class="text-foreground">31/12/2025</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="font-semibold text-foreground">Site Web BOA</h3>
+                                    <p class="text-sm text-muted-foreground">Refonte complète interface</p>
+                                </div>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">En cours</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Progression</span>
+                                    <span class="text-foreground">25%</span>
+                                </div>
+                                <div class="w-full bg-muted rounded-full h-2">
+                                    <div class="bg-secondary h-2 rounded-full" style="width: 25%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Budget</span>
+                                    <span class="text-foreground">1,800,000 FR CFA</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Échéance</span>
+                                    <span class="text-foreground">15/10/2025</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="font-semibold text-foreground">Branding VINCENT & ASSOCIES</h3>
+                                    <p class="text-sm text-muted-foreground">Identité visuelle complète</p>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Planning</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Progression</span>
+                                    <span class="text-foreground">5%</span>
+                                </div>
+                                <div class="w-full bg-muted rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 5%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Budget</span>
+                                    <span class="text-foreground">950,000 FR CFA</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Échéance</span>
+                                    <span class="text-foreground">20/11/2025</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gantt Chart -->
+                    <div class="bg-card rounded-xl p-6 border border-border">
+                        <h3 class="text-lg font-semibold text-foreground mb-4">Diagramme de Gantt</h3>
+                        <div class="overflow-x-auto">
+                            <div class="min-w-[800px] h-64 bg-muted rounded-lg p-4">
+                                <!-- @FUNCTIONALITY: This should be an interactive Gantt chart showing project timelines -->
+                                <div class="text-center text-muted-foreground mt-20">
+                                    Diagramme de Gantt interactif
+                                    <br><span class="text-sm">Utilisera une bibliothèque comme DHTMLX Gantt ou Frappe Gantt</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ProjectsManagement -->
+            </div>
+
+            <!-- Team Tab -->
+            <div id="team" class="tab-content hidden">
+                <!-- @COMPONENT: TeamManagement [team member overview and management] -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-foreground">Gestion d'Équipe</h2>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i data-feather="user-plus" class="w-4 h-4 mr-2 inline"></i>Ajouter Membre
+                        </button>
+                    </div>
+
+                    <!-- Team Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="users" class="w-6 h-6 text-primary"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">14</p>
+                            <p class="text-sm text-muted-foreground">Membres Total</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="check-circle" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">11</p>
+                            <p class="text-sm text-muted-foreground">En Ligne</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="clock" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">3</p>
+                            <p class="text-sm text-muted-foreground">En Pause</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="trending-up" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">87%</p>
+                            <p class="text-sm text-muted-foreground">Productivité</p>
+                        </div>
+                    </div>
+
+                    <!-- Team Members Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- @MAP: teamMembers.map(member => ( -->
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white font-medium">SA</div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-foreground" data-bind="member.name">Serge ASSALÉ</h3>
+                                    <p class="text-sm text-muted-foreground" data-bind="member.role">Directeur Création et Marketing</p>
+                                    <div class="flex items-center space-x-2 mt-2">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span class="text-xs text-muted-foreground">En ligne</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Tâches actives</span>
+                                    <span class="text-foreground font-medium" data-bind="member.activeTasks">5</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Temps aujourd'hui</span>
+                                    <span class="text-foreground font-medium" data-bind="member.timeToday">6h 45m</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Performance</span>
+                                    <span class="text-foreground font-medium text-green-600" data-bind="member.performance">92%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-white font-medium">EG</div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-foreground">Enos GOUBA</h3>
+                                    <p class="text-sm text-muted-foreground">Coordinateur Production</p>
+                                    <div class="flex items-center space-x-2 mt-2">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span class="text-xs text-muted-foreground">En ligne</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Tâches actives</span>
+                                    <span class="text-foreground font-medium">3</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Temps aujourd'hui</span>
+                                    <span class="text-foreground font-medium">5h 20m</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Performance</span>
+                                    <span class="text-foreground font-medium text-green-600">88%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white font-medium">PO</div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-foreground">Paul Junior OUEDRAOGO</h3>
+                                    <p class="text-sm text-muted-foreground">Graphiste Photomonteur</p>
+                                    <div class="flex items-center space-x-2 mt-2">
+                                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                        <span class="text-xs text-muted-foreground">En pause</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Tâches actives</span>
+                                    <span class="text-foreground font-medium">2</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Temps aujourd'hui</span>
+                                    <span class="text-foreground font-medium">3h 15m</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Performance</span>
+                                    <span class="text-foreground font-medium text-yellow-600">76%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: TeamManagement -->
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="clients" class="tab-content hidden">
+                <!-- @COMPONENT: ClientsManagement [client overview and management] -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-foreground">Gestion Clients</h2>
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                            <i data-feather="plus" class="w-4 h-4 mr-2 inline"></i>Nouveau Client
+                        </button>
+                    </div>
+
+                    <!-- Client Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="briefcase" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">33</p>
+                            <p class="text-sm text-muted-foreground">Clients Total</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="activity" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">18</p>
+                            <p class="text-sm text-muted-foreground">Projets Actifs</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="dollar-sign" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">12.5M</p>
+                            <p class="text-sm text-muted-foreground">CA Mensuel (FR CFA)</p>
+                        </div>
+                        <div class="bg-card rounded-xl p-6 border border-border text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i data-feather="star" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-foreground">4.8</p>
+                            <p class="text-sm text-muted-foreground">Note Satisfaction</p>
+                        </div>
+                    </div>
+
+                    <!-- Top Clients -->
+                    <div class="bg-card rounded-xl border border-border overflow-hidden">
+                        <div class="p-6 border-b border-border">
+                            <h3 class="text-lg font-semibold text-foreground">Clients Principaux</h3>
+                        </div>
+                        <div class="divide-y divide-border">
+                            <!-- @MAP: topClients.map(client => ( -->
+                            <div class="p-6 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white font-medium">MA</div>
+                                    <div>
+                                        <h4 class="font-medium text-foreground" data-bind="client.name">MOOV AFRICA</h4>
+                                        <p class="text-sm text-muted-foreground" data-bind="client.type">Télécommunications</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground" data-bind="client.revenue">2,850,000 FR CFA</p>
+                                    <p class="text-sm text-muted-foreground">CA Mensuel</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground" data-bind="client.projects">8</p>
+                                    <p class="text-sm text-muted-foreground">Projets Actifs</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="flex items-center space-x-1">
+                                        <i data-feather="star" class="w-4 h-4 text-yellow-500"></i>
+                                        <span class="font-medium text-foreground" data-bind="client.rating">4.9</span>
+                                    </div>
+                                    <p class="text-sm text-muted-foreground">Satisfaction</p>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+
+                            <div class="p-6 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white font-medium">BOA</div>
+                                    <div>
+                                        <h4 class="font-medium text-foreground">BANK OF AFRICA</h4>
+                                        <p class="text-sm text-muted-foreground">Services Financiers</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground">1,920,000 FR CFA</p>
+                                    <p class="text-sm text-muted-foreground">CA Mensuel</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground">5</p>
+                                    <p class="text-sm text-muted-foreground">Projets Actifs</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="flex items-center space-x-1">
+                                        <i data-feather="star" class="w-4 h-4 text-yellow-500"></i>
+                                        <span class="font-medium text-foreground">4.7</span>
+                                    </div>
+                                    <p class="text-sm text-muted-foreground">Satisfaction</p>
+                                </div>
+                            </div>
+
+                            <div class="p-6 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center text-white font-medium">VA</div>
+                                    <div>
+                                        <h4 class="font-medium text-foreground">VINCENT & ASSOCIES</h4>
+                                        <p class="text-sm text-muted-foreground">Cabinet d'Avocats</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground">650,000 FR CFA</p>
+                                    <p class="text-sm text-muted-foreground">CA Mensuel</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-foreground">2</p>
+                                    <p class="text-sm text-muted-foreground">Projets Actifs</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="flex items-center space-x-1">
+                                        <i data-feather="star" class="w-4 h-4 text-yellow-500"></i>
+                                        <span class="font-medium text-foreground">4.8</span>
+                                    </div>
+                                    <p class="text-sm text-muted-foreground">Satisfaction</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ClientsManagement -->
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-content hidden">
+                <!-- @COMPONENT: AnalyticsDashboard [performance metrics and reports] -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold text-foreground">Analytics & Rapports</h2>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">ROI Moyen</p>
+                                    <p class="text-2xl font-bold text-foreground">285%</p>
+                                    <p class="text-sm text-green-600">+12% vs mois dernier</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-feather="trending-up" class="w-6 h-6 text-green-600"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Productivité</p>
+                                    <p class="text-2xl font-bold text-foreground">87%</p>
+                                    <p class="text-sm text-yellow-600">-3% vs mois dernier</p>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i data-feather="zap" class="w-6 h-6 text-yellow-600"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Coût/Heure Moyen</p>
+                                    <p class="text-2xl font-bold text-foreground">5,250</p>
+                                    <p class="text-sm text-muted-foreground">FR CFA</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-feather="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-muted-foreground">Projets Livrés</p>
+                                    <p class="text-2xl font-bold text-foreground">42</p>
+                                    <p class="text-sm text-green-600">+8 ce mois</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i data-feather="package" class="w-6 h-6 text-purple-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <h3 class="text-lg font-semibold text-foreground mb-4">Évolution du Chiffre d'Affaires</h3>
+                            <div class="h-64 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+                                <!-- @FUNCTIONALITY: This should be a line chart showing revenue over time -->
+                                Graphique de revenus mensuel
+                                <br><span class="text-sm">Utiliser Chart.js ou D3.js</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-card rounded-xl p-6 border border-border">
+                            <h3 class="text-lg font-semibold text-foreground mb-4">Répartition par Type de Projet</h3>
+                            <div class="h-64 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+                                <!-- @FUNCTIONALITY: This should be a pie chart showing project types distribution -->
+                                Graphique en secteurs
+                                <br><span class="text-sm">Branding, Web, Print, Digital</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Table -->
+                    <div class="bg-card rounded-xl border border-border overflow-hidden">
+                        <div class="p-6 border-b border-border">
+                            <h3 class="text-lg font-semibold text-foreground">Performance par Membre</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-muted">
+                                    <tr>
+                                        <th class="text-left p-4 text-sm font-medium text-foreground">Membre</th>
+                                        <th class="text-left p-4 text-sm font-medium text-foreground">Tâches Terminées</th>
+                                        <th class="text-left p-4 text-sm font-medium text-foreground">Temps Total</th>
+                                        <th class="text-left p-4 text-sm font-medium text-foreground">Revenus Générés</th>
+                                        <th class="text-left p-4 text-sm font-medium text-foreground">Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border">
+                                    <tr>
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-medium text-white">SA</div>
+                                                <span class="font-medium text-foreground">Serge ASSALÉ</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-foreground">28</td>
+                                        <td class="p-4 text-foreground">142h 30m</td>
+                                        <td class="p-4 text-foreground">2,850,000 FR CFA</td>
+                                        <td class="p-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">92%</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-xs font-medium text-white">PO</div>
+                                                <span class="font-medium text-foreground">Paul OUEDRAOGO</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-foreground">24</td>
+                                        <td class="p-4 text-foreground">118h 45m</td>
+                                        <td class="p-4 text-foreground">1,920,000 FR CFA</td>
+                                        <td class="p-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">88%</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: AnalyticsDashboard -->
+            </div>
+
+            <!-- Chat Tab -->
+            <div id="chat" class="tab-content hidden">
+                <!-- @COMPONENT: ChatSystem [team communication interface] -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold text-foreground">Chat d'Équipe</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <!-- Chat Channels -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-card rounded-xl border border-border p-4">
+                                <h3 class="font-semibold text-foreground mb-4">Canaux</h3>
+                                <div class="space-y-2">
+                                    <div class="p-3 bg-primary/10 rounded-lg cursor-pointer">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-primary">#</span>
+                                            <span class="text-sm font-medium text-foreground">général</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 hover:bg-muted rounded-lg cursor-pointer">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-muted-foreground">#</span>
+                                            <span class="text-sm text-foreground">moov-africa</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 hover:bg-muted rounded-lg cursor-pointer">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-muted-foreground">#</span>
+                                            <span class="text-sm text-foreground">bank-of-africa</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 hover:bg-muted rounded-lg cursor-pointer">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-muted-foreground">#</span>
+                                            <span class="text-sm text-foreground">créatifs</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="font-medium text-foreground mt-6 mb-3">Messages Directs</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-3 p-2 hover:bg-muted rounded-lg cursor-pointer">
+                                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-xs font-medium text-white">EG</div>
+                                        <span class="text-sm text-foreground">Enos GOUBA</span>
+                                        <div class="w-2 h-2 bg-green-500 rounded-full ml-auto"></div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 p-2 hover:bg-muted rounded-lg cursor-pointer">
+                                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-xs font-medium text-white">PO</div>
+                                        <span class="text-sm text-foreground">Paul OUEDRAOGO</span>
+                                        <div class="w-2 h-2 bg-yellow-500 rounded-full ml-auto"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="lg:col-span-3">
+                            <div class="bg-card rounded-xl border border-border h-96 flex flex-col">
+                                <div class="p-4 border-b border-border">
+                                    <h3 class="font-semibold text-foreground"># général</h3>
+                                    <p class="text-sm text-muted-foreground">Canal principal de l'équipe • 14 membres</p>
+                                </div>
+
+                                <div class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4">
+                                    <!-- @MAP: messages.map(message => ( -->
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-medium text-white">SA</div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="text-sm font-medium text-foreground" data-bind="message.author">Serge ASSALÉ</span>
+                                                <span class="text-xs text-muted-foreground" data-bind="message.time">14:32</span>
+                                            </div>
+                                            <p class="text-sm text-foreground" data-bind="message.content">Bonjour l'équipe ! Réunion briefing client MOOV AFRICA à 16h en salle de conf.</p>
+                                        </div>
+                                    </div>
+                                    <!-- @END_MAP )) -->
+
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-xs font-medium text-white">EG</div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="text-sm font-medium text-foreground">Enos GOUBA</span>
+                                                <span class="text-xs text-muted-foreground">14:35</span>
+                                            </div>
+                                            <p class="text-sm text-foreground">Parfait ! J'ai préparé le planning de production pour la semaine.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-xs font-medium text-white">PO</div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="text-sm font-medium text-foreground">Paul OUEDRAOGO</span>
+                                                <span class="text-xs text-muted-foreground">14:37</span>
+                                            </div>
+                                            <p class="text-sm text-foreground">Les créas pour BOA sont prêtes pour validation. Je les uploade sur le drive.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 border-t border-border">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" placeholder="Tapez votre message..." 
+                                               class="flex-1 p-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent">
+                                        <button class="bg-primary text-primary-foreground p-3 rounded-lg hover:bg-primary/90 transition-colors">
+                                            <i data-feather="send" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ChatSystem -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="fabButton" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-all duration-300 z-50">
+        <i data-feather="plus" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-2">
+            <i data-feather="check-circle" class="w-5 h-5"></i>
+            <span>Action effectuée avec succès</span>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+
+        // Global state
+        let currentUser = null;
+        let isLoggedIn = false;
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        setInterval(updateTime, 60000);
+        updateTime();
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const selectedMember = document.getElementById('memberSelect').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            if (!selectedMember) {
+                showNotification('Veuillez sélectionner votre nom', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showNotification('Veuillez saisir votre mot de passe', 'error');
+                return;
+            }
+            
+            // TODO: Implement actual authentication logic
+            // For demo purposes, accept any password
+            
+            currentUser = selectedMember;
+            isLoggedIn = true;
+            
+            // Update user display
+            const userName = document.getElementById('memberSelect').selectedOptions[0].textContent;
+            document.getElementById('currentUser').textContent = userName;
+            
+            // Show dashboard
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('fabButton').classList.remove('hidden');
+            
+            showNotification('Connexion réussie ! Bienvenue ' + userName.split(' ')[0]);
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            currentUser = null;
+            isLoggedIn = false;
+            
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('fabButton').classList.add('hidden');
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            
+            showNotification('Déconnexion réussie');
+        });
+
+        // Tab navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Update active tab button
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    if (content.id === tabId) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // Task form submission
+        document.getElementById('newTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Implement task creation logic
+            showNotification('Nouvelle tâche créée avec succès');
+            this.reset();
+        });
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('i');
+            const text = notification.querySelector('span');
+            
+            text.textContent = message;
+            
+            if (type === 'error') {
+                notification.className = notification.className.replace('bg-green-500', 'bg-red-500');
+                icon.setAttribute('data-feather', 'x-circle');
+            } else {
+                notification.className = notification.className.replace('bg-red-500', 'bg-green-500');
+                icon.setAttribute('data-feather', 'check-circle');
+            }
+            
+            feather.replace();
+            
+            notification.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // FAB functionality
+        document.getElementById('fabButton').addEventListener('click', function() {
+            // Switch to tasks tab and focus on new task form
+            document.querySelector('[data-tab="tasks"]').click();
+            document.querySelector('#newTaskForm input[type="text"]').focus();
+        });
+
+        // Simulated real-time updates
+        function simulateRealTimeUpdates() {
+            // TODO: Implement WebSocket connection for real-time updates
+            // This would sync with other connected users
+            
+            // For demo purposes, we can simulate some updates
+            console.log('Real-time sync active...');
+        }
+
+        // Initialize real-time functionality
+        simulateRealTimeUpdates();
+
+        // Add tab button styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .tab-btn {
+                color: hsl(215.4 16.3% 46.9%);
+                background: transparent;
+            }
+            .tab-btn:hover {
+                background: hsl(210 40% 96%);
+            }
+            .tab-btn.active {
+                background: hsl(188 78% 41%);
+                color: hsl(210 40% 98%);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

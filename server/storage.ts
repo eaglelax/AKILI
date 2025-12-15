@@ -3,20 +3,27 @@ import {
   teamMembers,
   clients,
   projects,
+  projectMembers,
+  projectFiles,
   tasks,
   timeEntries,
   chatMessages,
   chatChannels,
+  channelMembers,
   notifications,
   performanceMetrics,
+  activityLogs,
+  permissions,
+  settings,
   type User,
-  type UpsertUser,
   type TeamMember,
   type InsertTeamMember,
   type Client,
   type InsertClient,
   type Project,
   type InsertProject,
+  type ProjectFile,
+  type InsertProjectFile,
   type Task,
   type InsertTask,
   type TimeEntry,
@@ -28,100 +35,91 @@ import {
   type Notification,
   type InsertNotification,
   type PerformanceMetric,
+  type ActivityLog,
+  type InsertActivityLog,
+  type Permission,
+  type InsertPermission,
+  type PaginationParams,
+  type PaginatedResult,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc, sql, gte, lte, like, or } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { eq, and, desc, asc, sql, gte, lte, like, or, inArray, isNull, ne, count } from "drizzle-orm";
 
-export interface IStorage {
-  // User operations (mandatory for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  
-  // Team member operations
-  getAllTeamMembers(): Promise<TeamMember[]>;
-  getTeamMember(id: string): Promise<TeamMember | undefined>;
-  getTeamMemberByUsername(username: string): Promise<TeamMember | undefined>;
-  createTeamMember(member: InsertTeamMember): Promise<TeamMember>;
-  updateTeamMember(id: string, member: Partial<InsertTeamMember>): Promise<TeamMember>;
-  deleteTeamMember(id: string): Promise<void>;
-  
-  // Client operations
-  getAllClients(): Promise<Client[]>;
-  getClient(id: string): Promise<Client | undefined>;
-  createClient(client: InsertClient): Promise<Client>;
-  updateClient(id: string, client: Partial<InsertClient>): Promise<Client>;
-  deleteClient(id: string): Promise<void>;
-  
-  // Project operations
-  getAllProjects(): Promise<Project[]>;
-  getProject(id: string): Promise<Project | undefined>;
-  getProjectsByClient(clientId: string): Promise<Project[]>;
-  createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: string, project: Partial<InsertProject>): Promise<Project>;
-  deleteProject(id: string): Promise<void>;
-  
-  // Task operations
-  getAllTasks(): Promise<Task[]>;
-  getTask(id: string): Promise<Task | undefined>;
-  getTasksByAssignee(memberId: string): Promise<Task[]>;
-  getTasksByProject(projectId: string): Promise<Task[]>;
-  getTasksByClient(clientId: string): Promise<Task[]>;
-  createTask(task: InsertTask): Promise<Task>;
-  updateTask(id: string, task: Partial<InsertTask>): Promise<Task>;
-  deleteTask(id: string): Promise<void>;
-  startTimer(taskId: string): Promise<void>;
-  stopTimer(taskId: string): Promise<void>;
-  
-  // Time tracking operations
-  getTimeEntries(taskId?: string, memberId?: string): Promise<TimeEntry[]>;
-  createTimeEntry(entry: InsertTimeEntry): Promise<TimeEntry>;
-  updateTimeEntry(id: string, entry: Partial<InsertTimeEntry>): Promise<TimeEntry>;
-  
-  // Chat operations
-  getChatChannels(): Promise<ChatChannel[]>;
-  getChatMessages(channelId: string, limit?: number): Promise<ChatMessage[]>;
-  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
-  createChatChannel(channel: InsertChatChannel): Promise<ChatChannel>;
-  
-  // Notification operations
-  getNotifications(memberId: string): Promise<Notification[]>;
-  createNotification(notification: InsertNotification): Promise<Notification>;
-  markNotificationAsRead(id: string): Promise<void>;
-  
-  // Analytics operations
-  getPerformanceMetrics(memberId?: string, month?: number, year?: number): Promise<PerformanceMetric[]>;
-  calculateMemberPerformance(memberId: string, month: number, year: number): Promise<PerformanceMetric>;
-  getDashboardStats(): Promise<any>;
-  getTeamStats(): Promise<any>;
-  getClientStats(): Promise<any>;
+// ============================================
+// Helper: Pagination
+// ============================================
+
+function paginate<T>(
+  data: T[],
+  total: number,
+  params: PaginationParams
+): PaginatedResult<T> {
+  const page = params.page || 1;
+  const limit = params.limit || 20;
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    },
+  };
 }
 
-export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
+function getOffset(params: PaginationParams): number {
+  const page = params.page || 1;
+  const limit = params.limit || 20;
+  return (page - 1) * limit;
+}
+
+// ============================================
+// Storage Class
+// ============================================
+
+export class DatabaseStorage {
+  // ==========================================
+  // USER OPERATIONS
+  // ==========================================
+
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
 
-  // Team member operations
-  async getAllTeamMembers(): Promise<TeamMember[]> {
-    return await db.select().from(teamMembers).orderBy(asc(teamMembers.name));
+  async createUser(userData: Partial<User>): Promise<User> {
+    const [user] = await db.insert(users).values(userData as any);
+    return this.getUser(user.insertId as any) as Promise<User>;
+  }
+
+  // ==========================================
+  // TEAM MEMBER OPERATIONS
+  // ==========================================
+
+  async getAllTeamMembers(params: PaginationParams = {}): Promise<PaginatedResult<TeamMember>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db.select({ count: count() }).from(teamMembers);
+    const total = totalResult.count;
+
+    const data = await db
+      .select()
+      .from(teamMembers)
+      .orderBy(params.sortOrder === 'desc' ? desc(teamMembers.name) : asc(teamMembers.name))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, total, params);
   }
 
   async getTeamMember(id: string): Promise<TeamMember | undefined> {
@@ -135,26 +133,132 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTeamMember(member: InsertTeamMember): Promise<TeamMember> {
-    const [newMember] = await db.insert(teamMembers).values(member).returning();
+    const [result] = await db.insert(teamMembers).values(member as any);
+    const [newMember] = await db.select().from(teamMembers).where(eq(teamMembers.username, member.username));
     return newMember;
   }
 
-  async updateTeamMember(id: string, member: Partial<InsertTeamMember>): Promise<TeamMember> {
-    const [updated] = await db
+  async updateTeamMember(id: string, data: Partial<InsertTeamMember>): Promise<TeamMember> {
+    await db
       .update(teamMembers)
-      .set({ ...member, updatedAt: new Date() })
-      .where(eq(teamMembers.id, id))
-      .returning();
-    return updated;
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(teamMembers.id, id));
+    return this.getTeamMember(id) as Promise<TeamMember>;
+  }
+
+  async updateTeamMemberPassword(id: string, hashedPassword: string): Promise<void> {
+    await db
+      .update(teamMembers)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(teamMembers.id, id));
   }
 
   async deleteTeamMember(id: string): Promise<void> {
     await db.delete(teamMembers).where(eq(teamMembers.id, id));
   }
 
-  // Client operations
-  async getAllClients(): Promise<Client[]> {
-    return await db.select().from(clients).orderBy(asc(clients.name));
+  async getOnlineMembers(): Promise<TeamMember[]> {
+    return db.select().from(teamMembers).where(eq(teamMembers.status, 'online'));
+  }
+
+  async getMemberStats(memberId: string): Promise<any> {
+    const [taskStats] = await db
+      .select({
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+        inProgress: sql<number>`SUM(CASE WHEN status = 'en_cours' THEN 1 ELSE 0 END)`,
+      })
+      .from(tasks)
+      .where(eq(tasks.assignedTo, memberId));
+
+    const [timeStats] = await db
+      .select({
+        totalHours: sql<number>`COALESCE(SUM(duration) / 3600, 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+      })
+      .from(timeEntries)
+      .where(eq(timeEntries.memberId, memberId));
+
+    return {
+      tasks: taskStats,
+      time: timeStats,
+    };
+  }
+
+  // ==========================================
+  // PERMISSIONS OPERATIONS
+  // ==========================================
+
+  async getMemberPermissions(memberId: string): Promise<Permission | null> {
+    const [perm] = await db.select().from(permissions).where(eq(permissions.memberId, memberId));
+    return perm || null;
+  }
+
+  async createMemberPermissions(memberId: string, data: Partial<InsertPermission>): Promise<Permission> {
+    await db.insert(permissions).values({ ...data, memberId } as any);
+    return this.getMemberPermissions(memberId) as Promise<Permission>;
+  }
+
+  async updateMemberPermissions(memberId: string, data: Partial<InsertPermission>): Promise<Permission> {
+    await db
+      .update(permissions)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(permissions.memberId, memberId));
+    return this.getMemberPermissions(memberId) as Promise<Permission>;
+  }
+
+  // ==========================================
+  // CLIENT OPERATIONS
+  // ==========================================
+
+  async getAllClients(params: PaginationParams = {}): Promise<PaginatedResult<Client>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db.select({ count: count() }).from(clients);
+    const total = totalResult.count;
+
+    const data = await db
+      .select()
+      .from(clients)
+      .orderBy(asc(clients.name))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, total, params);
+  }
+
+  async getClientsForMember(memberId: string, params: PaginationParams = {}): Promise<PaginatedResult<Client>> {
+    // Get clients from projects where member is involved
+    const memberProjects = await db
+      .select({ clientId: projects.clientId })
+      .from(projectMembers)
+      .innerJoin(projects, eq(projectMembers.projectId, projects.id))
+      .where(eq(projectMembers.memberId, memberId));
+
+    const clientIds = memberProjects.map(p => p.clientId).filter(Boolean) as string[];
+
+    if (clientIds.length === 0) {
+      return paginate([], 0, params);
+    }
+
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(clients)
+      .where(inArray(clients.id, clientIds));
+
+    const data = await db
+      .select()
+      .from(clients)
+      .where(inArray(clients.id, clientIds))
+      .orderBy(asc(clients.name))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
   async getClient(id: string): Promise<Client | undefined> {
@@ -162,27 +266,126 @@ export class DatabaseStorage implements IStorage {
     return client;
   }
 
-  async createClient(client: InsertClient): Promise<Client> {
-    const [newClient] = await db.insert(clients).values(client).returning();
+  async getClientWithDetails(id: string): Promise<any> {
+    const client = await this.getClient(id);
+    if (!client) return null;
+
+    const clientProjects = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.clientId, id));
+
+    const clientTasks = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.clientId, id));
+
+    return {
+      ...client,
+      projects: clientProjects,
+      tasks: clientTasks,
+      projectCount: clientProjects.length,
+      taskCount: clientTasks.length,
+    };
+  }
+
+  async createClient(data: InsertClient): Promise<Client> {
+    await db.insert(clients).values(data as any);
+    const [newClient] = await db
+      .select()
+      .from(clients)
+      .where(eq(clients.name, data.name))
+      .orderBy(desc(clients.createdAt))
+      .limit(1);
     return newClient;
   }
 
-  async updateClient(id: string, client: Partial<InsertClient>): Promise<Client> {
-    const [updated] = await db
+  async updateClient(id: string, data: Partial<InsertClient>): Promise<Client> {
+    await db
       .update(clients)
-      .set({ ...client, updatedAt: new Date() })
-      .where(eq(clients.id, id))
-      .returning();
-    return updated;
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(clients.id, id));
+    return this.getClient(id) as Promise<Client>;
   }
 
   async deleteClient(id: string): Promise<void> {
     await db.delete(clients).where(eq(clients.id, id));
   }
 
-  // Project operations
-  async getAllProjects(): Promise<Project[]> {
-    return await db.select().from(projects).orderBy(desc(projects.createdAt));
+  async getActiveProjectsForClient(clientId: string): Promise<Project[]> {
+    return db
+      .select()
+      .from(projects)
+      .where(and(eq(projects.clientId, clientId), eq(projects.status, 'active')));
+  }
+
+  async getClientRevenue(clientId: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions = [eq(tasks.clientId, clientId)];
+    if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+    if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+
+    const [result] = await db
+      .select({
+        totalRevenue: sql<number>`COALESCE(SUM(total_cost), 0)`,
+        totalHours: sql<number>`COALESCE(SUM(actual_hours), 0)`,
+        taskCount: count(),
+      })
+      .from(tasks)
+      .where(and(...conditions));
+
+    return result;
+  }
+
+  // ==========================================
+  // PROJECT OPERATIONS
+  // ==========================================
+
+  async getAllProjects(params: PaginationParams = {}): Promise<PaginatedResult<Project>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db.select({ count: count() }).from(projects);
+    const total = totalResult.count;
+
+    const data = await db
+      .select()
+      .from(projects)
+      .orderBy(desc(projects.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, total, params);
+  }
+
+  async getProjectsForMember(memberId: string, params: PaginationParams = {}): Promise<PaginatedResult<Project>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    // Projects where member is a member or creator
+    const memberProjectIds = await db
+      .select({ projectId: projectMembers.projectId })
+      .from(projectMembers)
+      .where(eq(projectMembers.memberId, memberId));
+
+    const projectIds = memberProjectIds.map(p => p.projectId);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(projects)
+      .where(or(inArray(projects.id, projectIds), eq(projects.createdBy, memberId)));
+
+    const data = await db
+      .select()
+      .from(projects)
+      .where(or(
+        projectIds.length > 0 ? inArray(projects.id, projectIds) : sql`1=0`,
+        eq(projects.createdBy, memberId)
+      ))
+      .orderBy(desc(projects.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
   async getProject(id: string): Promise<Project | undefined> {
@@ -190,31 +393,145 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
-  async getProjectsByClient(clientId: string): Promise<Project[]> {
-    return await db.select().from(projects).where(eq(projects.clientId, clientId));
+  async getProjectWithRelations(id: string): Promise<any> {
+    const project = await this.getProject(id);
+    if (!project) return null;
+
+    const client = project.clientId ? await this.getClient(project.clientId) : null;
+    const members = await this.getProjectMembers(id);
+    const projectTasks = await db.select().from(tasks).where(eq(tasks.projectId, id));
+
+    return {
+      ...project,
+      client,
+      members,
+      tasks: projectTasks,
+    };
   }
 
-  async createProject(project: InsertProject): Promise<Project> {
-    const [newProject] = await db.insert(projects).values(project).returning();
+  async createProject(data: InsertProject): Promise<Project> {
+    await db.insert(projects).values(data as any);
+    const [newProject] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.name, data.name))
+      .orderBy(desc(projects.createdAt))
+      .limit(1);
     return newProject;
   }
 
-  async updateProject(id: string, project: Partial<InsertProject>): Promise<Project> {
-    const [updated] = await db
+  async updateProject(id: string, data: Partial<InsertProject>): Promise<Project> {
+    await db
       .update(projects)
-      .set({ ...project, updatedAt: new Date() })
-      .where(eq(projects.id, id))
-      .returning();
-    return updated;
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(projects.id, id));
+    return this.getProject(id) as Promise<Project>;
   }
 
   async deleteProject(id: string): Promise<void> {
     await db.delete(projects).where(eq(projects.id, id));
   }
 
-  // Task operations
-  async getAllTasks(): Promise<Task[]> {
-    return await db.select().from(tasks).orderBy(desc(tasks.createdAt));
+  async getProjectsByClient(clientId: string): Promise<Project[]> {
+    return db.select().from(projects).where(eq(projects.clientId, clientId));
+  }
+
+  // Project Members
+  async isProjectMember(projectId: string, memberId: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(projectMembers)
+      .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.memberId, memberId)));
+    return !!result;
+  }
+
+  async getProjectMembers(projectId: string): Promise<any[]> {
+    const members = await db
+      .select({
+        id: projectMembers.id,
+        projectId: projectMembers.projectId,
+        memberId: projectMembers.memberId,
+        role: projectMembers.role,
+        joinedAt: projectMembers.joinedAt,
+        member: teamMembers,
+      })
+      .from(projectMembers)
+      .innerJoin(teamMembers, eq(projectMembers.memberId, teamMembers.id))
+      .where(eq(projectMembers.projectId, projectId));
+
+    return members;
+  }
+
+  async addProjectMember(projectId: string, memberId: string, role?: string): Promise<void> {
+    await db.insert(projectMembers).values({ projectId, memberId, role } as any);
+  }
+
+  async removeProjectMember(projectId: string, memberId: string): Promise<void> {
+    await db
+      .delete(projectMembers)
+      .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.memberId, memberId)));
+  }
+
+  async getProjectChannel(projectId: string): Promise<ChatChannel | null> {
+    const [channel] = await db
+      .select()
+      .from(chatChannels)
+      .where(eq(chatChannels.projectId, projectId));
+    return channel || null;
+  }
+
+  // ==========================================
+  // TASK OPERATIONS
+  // ==========================================
+
+  async getAllTasks(params: PaginationParams & { status?: string; priority?: string } = {}): Promise<PaginatedResult<Task>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+    const conditions: any[] = [];
+
+    if (params.status) conditions.push(eq(tasks.status, params.status));
+    if (params.priority) conditions.push(eq(tasks.priority, params.priority));
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const data = await db
+      .select()
+      .from(tasks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
+  }
+
+  async getTasksForMember(memberId: string, params: PaginationParams & { status?: string; priority?: string } = {}): Promise<PaginatedResult<Task>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+    const conditions: any[] = [
+      or(eq(tasks.assignedTo, memberId), eq(tasks.createdBy, memberId))
+    ];
+
+    if (params.status) conditions.push(eq(tasks.status, params.status));
+    if (params.priority) conditions.push(eq(tasks.priority, params.priority));
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(and(...conditions));
+
+    const data = await db
+      .select()
+      .from(tasks)
+      .where(and(...conditions))
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
   async getTask(id: string): Promise<Task | undefined> {
@@ -222,179 +539,798 @@ export class DatabaseStorage implements IStorage {
     return task;
   }
 
-  async getTasksByAssignee(memberId: string): Promise<Task[]> {
-    return await db.select().from(tasks).where(eq(tasks.assignedTo, memberId));
+  async getTaskWithRelations(id: string): Promise<any> {
+    const task = await this.getTask(id);
+    if (!task) return null;
+
+    const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+    const project = task.projectId ? await this.getProject(task.projectId) : null;
+    const client = task.clientId ? await this.getClient(task.clientId) : null;
+    const taskTimeEntries = await db.select().from(timeEntries).where(eq(timeEntries.taskId, id));
+
+    return {
+      ...task,
+      assignee,
+      project,
+      client,
+      timeEntries: taskTimeEntries,
+    };
   }
 
-  async getTasksByProject(projectId: string): Promise<Task[]> {
-    return await db.select().from(tasks).where(eq(tasks.projectId, projectId));
+  async getTasksByAssignee(memberId: string, params: PaginationParams = {}): Promise<PaginatedResult<Task>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(eq(tasks.assignedTo, memberId));
+
+    const data = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.assignedTo, memberId))
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
-  async getTasksByClient(clientId: string): Promise<Task[]> {
-    return await db.select().from(tasks).where(eq(tasks.clientId, clientId));
+  async getTasksByProject(projectId: string, params: PaginationParams = {}): Promise<PaginatedResult<Task>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(eq(tasks.projectId, projectId));
+
+    const data = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.projectId, projectId))
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
-  async createTask(task: InsertTask): Promise<Task> {
-    const [newTask] = await db.insert(tasks).values(task).returning();
+  async getTasksByClient(clientId: string, params: PaginationParams = {}): Promise<PaginatedResult<Task>> {
+    const limit = params.limit || 50;
+    const offset = getOffset(params);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(eq(tasks.clientId, clientId));
+
+    const data = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.clientId, clientId))
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
+  }
+
+  async createTask(data: InsertTask): Promise<Task> {
+    await db.insert(tasks).values(data as any);
+    const [newTask] = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.name, data.name))
+      .orderBy(desc(tasks.createdAt))
+      .limit(1);
     return newTask;
   }
 
-  async updateTask(id: string, task: Partial<InsertTask>): Promise<Task> {
-    const [updated] = await db
+  async updateTask(id: string, data: Partial<InsertTask>): Promise<Task> {
+    await db
       .update(tasks)
-      .set({ ...task, updatedAt: new Date() })
-      .where(eq(tasks.id, id))
-      .returning();
-    return updated;
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(tasks.id, id));
+    return this.getTask(id) as Promise<Task>;
   }
 
   async deleteTask(id: string): Promise<void> {
     await db.delete(tasks).where(eq(tasks.id, id));
   }
 
-  async startTimer(taskId: string): Promise<void> {
+  // Timer Operations
+  async startTimer(taskId: string, memberId: string): Promise<void> {
     await db
       .update(tasks)
-      .set({ 
-        isTimerActive: true, 
+      .set({
+        isTimerActive: true,
         timerStartedAt: new Date(),
-        updatedAt: new Date()
+        timerStartedBy: memberId,
+        status: 'en_cours',
+        updatedAt: new Date(),
       })
       .where(eq(tasks.id, taskId));
   }
 
-  async stopTimer(taskId: string): Promise<void> {
+  async stopTimer(taskId: string): Promise<TimeEntry | null> {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId));
-    if (task && task.timerStartedAt) {
-      const duration = Math.floor((Date.now() - task.timerStartedAt.getTime()) / 1000);
-      const newTotalTime = (task.totalTimeSpent || 0) + duration;
-      const newActualHours = newTotalTime / 3600;
-      const newTotalCost = newActualHours * Number(task.hourlyRate || 0);
 
-      await db
-        .update(tasks)
-        .set({ 
-          isTimerActive: false, 
-          timerStartedAt: null,
-          totalTimeSpent: newTotalTime,
-          actualHours: newActualHours.toString(),
-          totalCost: newTotalCost.toString(),
-          updatedAt: new Date()
-        })
-        .where(eq(tasks.id, taskId));
+    if (!task || !task.timerStartedAt) return null;
 
-      // Create time entry
-      await this.createTimeEntry({
-        taskId: taskId,
-        memberId: task.assignedTo!,
-        startTime: task.timerStartedAt,
-        endTime: new Date(),
-        duration: duration,
-      });
-    }
+    const duration = Math.floor((Date.now() - task.timerStartedAt.getTime()) / 1000);
+    const newTotalTime = (task.totalTimeSpent || 0) + duration;
+    const newActualHours = newTotalTime / 3600;
+    const hourlyRate = Number(task.hourlyRate || 0);
+    const newTotalCost = newActualHours * hourlyRate;
+    const entryCost = (duration / 3600) * hourlyRate;
+
+    // Update task
+    await db
+      .update(tasks)
+      .set({
+        isTimerActive: false,
+        timerStartedAt: null,
+        timerStartedBy: null,
+        totalTimeSpent: newTotalTime,
+        actualHours: newActualHours.toFixed(2),
+        totalCost: newTotalCost.toFixed(2),
+        updatedAt: new Date(),
+      })
+      .where(eq(tasks.id, taskId));
+
+    // Create time entry
+    const entry = await this.createTimeEntry({
+      taskId,
+      memberId: task.assignedTo || task.timerStartedBy!,
+      startTime: task.timerStartedAt,
+      endTime: new Date(),
+      duration,
+      hourlyRate: task.hourlyRate || undefined,
+      cost: entryCost.toFixed(2),
+    } as any);
+
+    return entry;
   }
 
-  // Time tracking operations
+  async getAllActiveTimers(): Promise<Task[]> {
+    return db.select().from(tasks).where(eq(tasks.isTimerActive, true));
+  }
+
+  async getActiveTimersForMember(memberId: string): Promise<Task[]> {
+    return db
+      .select()
+      .from(tasks)
+      .where(and(eq(tasks.isTimerActive, true), eq(tasks.assignedTo, memberId)));
+  }
+
+  async stopAllTimers(): Promise<number> {
+    const activeTimers = await this.getAllActiveTimers();
+
+    for (const task of activeTimers) {
+      await this.stopTimer(task.id);
+    }
+
+    return activeTimers.length;
+  }
+
+  async updateTaskTimeStats(taskId: string): Promise<void> {
+    const [stats] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+      })
+      .from(timeEntries)
+      .where(eq(timeEntries.taskId, taskId));
+
+    const totalHours = (stats.totalDuration || 0) / 3600;
+
+    await db
+      .update(tasks)
+      .set({
+        totalTimeSpent: stats.totalDuration || 0,
+        actualHours: totalHours.toFixed(2),
+        totalCost: (stats.totalCost || 0).toFixed(2),
+        updatedAt: new Date(),
+      })
+      .where(eq(tasks.id, taskId));
+  }
+
+  // ==========================================
+  // TIME ENTRY OPERATIONS
+  // ==========================================
+
   async getTimeEntries(taskId?: string, memberId?: string): Promise<TimeEntry[]> {
-    if (taskId && memberId) {
-      return await db.select().from(timeEntries)
-        .where(and(eq(timeEntries.taskId, taskId), eq(timeEntries.memberId, memberId)))
-        .orderBy(desc(timeEntries.createdAt));
-    } else if (taskId) {
-      return await db.select().from(timeEntries)
-        .where(eq(timeEntries.taskId, taskId))
-        .orderBy(desc(timeEntries.createdAt));
-    } else if (memberId) {
-      return await db.select().from(timeEntries)
-        .where(eq(timeEntries.memberId, memberId))
-        .orderBy(desc(timeEntries.createdAt));
-    }
-    
-    return await db.select().from(timeEntries).orderBy(desc(timeEntries.createdAt));
+    const conditions: any[] = [];
+    if (taskId) conditions.push(eq(timeEntries.taskId, taskId));
+    if (memberId) conditions.push(eq(timeEntries.memberId, memberId));
+
+    return db
+      .select()
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(timeEntries.createdAt));
   }
 
-  async createTimeEntry(entry: InsertTimeEntry): Promise<TimeEntry> {
-    const [newEntry] = await db.insert(timeEntries).values(entry).returning();
+  async getTimeEntriesByMember(memberId: string): Promise<TimeEntry[]> {
+    return db
+      .select()
+      .from(timeEntries)
+      .where(eq(timeEntries.memberId, memberId))
+      .orderBy(desc(timeEntries.createdAt));
+  }
+
+  async getTimeEntriesFiltered(params: {
+    taskId?: string;
+    memberId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<PaginatedResult<TimeEntry>> {
+    const limit = params.limit || 50;
+    const offset = ((params.page || 1) - 1) * limit;
+    const conditions: any[] = [];
+
+    if (params.taskId) conditions.push(eq(timeEntries.taskId, params.taskId));
+    if (params.memberId) conditions.push(eq(timeEntries.memberId, params.memberId));
+    if (params.startDate) conditions.push(gte(timeEntries.startTime, params.startDate));
+    if (params.endDate) conditions.push(lte(timeEntries.startTime, params.endDate));
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const data = await db
+      .select()
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(params.sortOrder === 'asc' ? asc(timeEntries.startTime) : desc(timeEntries.startTime))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
+  }
+
+  async getTimeEntry(id: string): Promise<TimeEntry | undefined> {
+    const [entry] = await db.select().from(timeEntries).where(eq(timeEntries.id, id));
+    return entry;
+  }
+
+  async createTimeEntry(data: InsertTimeEntry): Promise<TimeEntry> {
+    await db.insert(timeEntries).values(data as any);
+    const [newEntry] = await db
+      .select()
+      .from(timeEntries)
+      .orderBy(desc(timeEntries.createdAt))
+      .limit(1);
     return newEntry;
   }
 
-  async updateTimeEntry(id: string, entry: Partial<InsertTimeEntry>): Promise<TimeEntry> {
-    const [updated] = await db
-      .update(timeEntries)
-      .set(entry)
-      .where(eq(timeEntries.id, id))
-      .returning();
-    return updated;
+  async updateTimeEntry(id: string, data: Partial<InsertTimeEntry>): Promise<TimeEntry> {
+    await db.update(timeEntries).set(data as any).where(eq(timeEntries.id, id));
+    return this.getTimeEntry(id) as Promise<TimeEntry>;
   }
 
-  // Chat operations
-  async getChatChannels(): Promise<ChatChannel[]> {
-    return await db.select().from(chatChannels).orderBy(asc(chatChannels.name));
+  async deleteTimeEntry(id: string): Promise<void> {
+    await db.delete(timeEntries).where(eq(timeEntries.id, id));
   }
 
-  async getChatMessages(channelId: string, limit: number = 50): Promise<ChatMessage[]> {
-    return await db
+  // Time Stats
+  async getTimeSummary(
+    memberId?: string,
+    startDate?: Date,
+    endDate?: Date,
+    groupBy: 'day' | 'week' | 'month' | 'member' | 'project' | 'client' = 'day'
+  ): Promise<any[]> {
+    const conditions: any[] = [];
+    if (memberId) conditions.push(eq(timeEntries.memberId, memberId));
+    if (startDate) conditions.push(gte(timeEntries.startTime, startDate));
+    if (endDate) conditions.push(lte(timeEntries.startTime, endDate));
+
+    // Basic summary
+    const result = await db
+      .select({
+        totalDuration: sql<number>`SUM(duration)`,
+        totalCost: sql<number>`SUM(cost)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    return result;
+  }
+
+  async getTodayTimeStats(): Promise<any> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [result] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(gte(timeEntries.startTime, today));
+
+    return {
+      ...result,
+      totalHours: (result.totalDuration || 0) / 3600,
+    };
+  }
+
+  async getMemberTodayTimeStats(memberId: string): Promise<any> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [result] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(and(eq(timeEntries.memberId, memberId), gte(timeEntries.startTime, today)));
+
+    return {
+      ...result,
+      totalHours: (result.totalDuration || 0) / 3600,
+    };
+  }
+
+  async getWeeklyTimeStats(): Promise<any> {
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+
+    const [result] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(gte(timeEntries.startTime, weekStart));
+
+    return {
+      ...result,
+      totalHours: (result.totalDuration || 0) / 3600,
+    };
+  }
+
+  async getMemberWeeklyTimeStats(memberId: string): Promise<any> {
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+
+    const [result] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(and(eq(timeEntries.memberId, memberId), gte(timeEntries.startTime, weekStart)));
+
+    return {
+      ...result,
+      totalHours: (result.totalDuration || 0) / 3600,
+    };
+  }
+
+  // ==========================================
+  // CHAT OPERATIONS
+  // ==========================================
+
+  async getAllChatChannels(): Promise<ChatChannel[]> {
+    return db.select().from(chatChannels).orderBy(asc(chatChannels.name));
+  }
+
+  async getChannelsForMember(memberId: string): Promise<ChatChannel[]> {
+    const memberChannelIds = await db
+      .select({ channelId: channelMembers.channelId })
+      .from(channelMembers)
+      .where(eq(channelMembers.memberId, memberId));
+
+    const channelIds = memberChannelIds.map(c => c.channelId);
+
+    if (channelIds.length === 0) {
+      // Return general channels at least
+      return db
+        .select()
+        .from(chatChannels)
+        .where(eq(chatChannels.type, 'general'));
+    }
+
+    return db
+      .select()
+      .from(chatChannels)
+      .where(or(inArray(chatChannels.id, channelIds), eq(chatChannels.type, 'general')));
+  }
+
+  async getChatChannel(id: string): Promise<ChatChannel | undefined> {
+    const [channel] = await db.select().from(chatChannels).where(eq(chatChannels.id, id));
+    return channel;
+  }
+
+  async getChatChannelWithMembers(id: string): Promise<any> {
+    const channel = await this.getChatChannel(id);
+    if (!channel) return null;
+
+    const members = await db
+      .select({
+        id: channelMembers.id,
+        channelId: channelMembers.channelId,
+        memberId: channelMembers.memberId,
+        joinedAt: channelMembers.joinedAt,
+        member: teamMembers,
+      })
+      .from(channelMembers)
+      .innerJoin(teamMembers, eq(channelMembers.memberId, teamMembers.id))
+      .where(eq(channelMembers.channelId, id));
+
+    return {
+      ...channel,
+      members,
+    };
+  }
+
+  async createChatChannel(data: InsertChatChannel): Promise<ChatChannel> {
+    await db.insert(chatChannels).values(data as any);
+    const [newChannel] = await db
+      .select()
+      .from(chatChannels)
+      .where(eq(chatChannels.name, data.name))
+      .orderBy(desc(chatChannels.createdAt))
+      .limit(1);
+    return newChannel;
+  }
+
+  async isChannelMember(channelId: string, memberId: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(channelMembers)
+      .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.memberId, memberId)));
+    return !!result;
+  }
+
+  async addChannelMember(channelId: string, memberId: string): Promise<void> {
+    await db.insert(channelMembers).values({ channelId, memberId } as any);
+  }
+
+  async removeChannelMember(channelId: string, memberId: string): Promise<void> {
+    await db
+      .delete(channelMembers)
+      .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.memberId, memberId)));
+  }
+
+  async updateLastReadAt(channelId: string, memberId: string): Promise<void> {
+    await db
+      .update(channelMembers)
+      .set({ lastReadAt: new Date() })
+      .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.memberId, memberId)));
+  }
+
+  async getDirectChannel(memberId1: string, memberId2: string): Promise<ChatChannel | null> {
+    // Find a direct channel containing both members
+    const channels = await db
+      .select()
+      .from(chatChannels)
+      .where(eq(chatChannels.type, 'direct'));
+
+    for (const channel of channels) {
+      const members = await db
+        .select()
+        .from(channelMembers)
+        .where(eq(channelMembers.channelId, channel.id));
+
+      const memberIds = members.map(m => m.memberId);
+      if (memberIds.includes(memberId1) && memberIds.includes(memberId2) && memberIds.length === 2) {
+        return channel;
+      }
+    }
+
+    return null;
+  }
+
+  // Messages
+  async getChatMessages(channelId: string, params: { page?: number; limit?: number } = {}): Promise<PaginatedResult<ChatMessage>> {
+    const limit = params.limit || 50;
+    const offset = ((params.page || 1) - 1) * limit;
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(chatMessages)
+      .where(eq(chatMessages.channelId, channelId));
+
+    const data = await db
       .select()
       .from(chatMessages)
       .where(eq(chatMessages.channelId, channelId))
       .orderBy(desc(chatMessages.createdAt))
-      .limit(limit);
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data.reverse(), totalResult.count, params);
   }
 
-  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
-    const [newMessage] = await db.insert(chatMessages).values(message).returning();
+  async getChatMessage(id: string): Promise<ChatMessage | undefined> {
+    const [message] = await db.select().from(chatMessages).where(eq(chatMessages.id, id));
+    return message;
+  }
+
+  async getChatMessageWithSender(id: string): Promise<any> {
+    const message = await this.getChatMessage(id);
+    if (!message) return null;
+
+    const sender = message.senderId ? await this.getTeamMember(message.senderId) : null;
+
+    return {
+      ...message,
+      sender,
+    };
+  }
+
+  async createChatMessage(data: InsertChatMessage): Promise<ChatMessage> {
+    await db.insert(chatMessages).values(data as any);
+    const [newMessage] = await db
+      .select()
+      .from(chatMessages)
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(1);
     return newMessage;
   }
 
-  async createChatChannel(channel: InsertChatChannel): Promise<ChatChannel> {
-    const [newChannel] = await db.insert(chatChannels).values(channel).returning();
-    return newChannel;
+  async updateChatMessage(id: string, data: Partial<ChatMessage>): Promise<ChatMessage> {
+    await db.update(chatMessages).set(data as any).where(eq(chatMessages.id, id));
+    return this.getChatMessage(id) as Promise<ChatMessage>;
   }
 
-  // Notification operations
-  async getNotifications(memberId: string): Promise<Notification[]> {
-    return await db
+  async deleteChatMessage(id: string): Promise<void> {
+    await db.delete(chatMessages).where(eq(chatMessages.id, id));
+  }
+
+  async getUnreadMessageCounts(memberId: string): Promise<any[]> {
+    const memberChannels = await db
+      .select()
+      .from(channelMembers)
+      .where(eq(channelMembers.memberId, memberId));
+
+    const result = [];
+
+    for (const membership of memberChannels) {
+      const lastReadAt = membership.lastReadAt || new Date(0);
+
+      const [unreadCount] = await db
+        .select({ count: count() })
+        .from(chatMessages)
+        .where(and(
+          eq(chatMessages.channelId, membership.channelId),
+          gte(chatMessages.createdAt, lastReadAt),
+          ne(chatMessages.senderId, memberId)
+        ));
+
+      result.push({
+        channelId: membership.channelId,
+        unreadCount: unreadCount.count,
+      });
+    }
+
+    return result;
+  }
+
+  // ==========================================
+  // NOTIFICATION OPERATIONS
+  // ==========================================
+
+  async getNotifications(
+    memberId: string,
+    params: { page?: number; limit?: number; unreadOnly?: boolean } = {}
+  ): Promise<PaginatedResult<Notification>> {
+    const limit = params.limit || 50;
+    const offset = ((params.page || 1) - 1) * limit;
+    const conditions = [eq(notifications.recipientId, memberId)];
+
+    if (params.unreadOnly) {
+      conditions.push(eq(notifications.isRead, false));
+    }
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(notifications)
+      .where(and(...conditions));
+
+    const data = await db
       .select()
       .from(notifications)
-      .where(eq(notifications.recipientId, memberId))
-      .orderBy(desc(notifications.createdAt));
+      .where(and(...conditions))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
   }
 
-  async createNotification(notification: InsertNotification): Promise<Notification> {
-    const [newNotification] = await db.insert(notifications).values(notification).returning();
-    return newNotification;
+  async getNotification(id: string): Promise<Notification | undefined> {
+    const [notif] = await db.select().from(notifications).where(eq(notifications.id, id));
+    return notif;
+  }
+
+  async getUnreadNotificationCount(memberId: string): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(notifications)
+      .where(and(eq(notifications.recipientId, memberId), eq(notifications.isRead, false)));
+    return result.count;
+  }
+
+  async createNotification(data: InsertNotification): Promise<Notification> {
+    await db.insert(notifications).values(data as any);
+    const [newNotif] = await db
+      .select()
+      .from(notifications)
+      .orderBy(desc(notifications.createdAt))
+      .limit(1);
+    return newNotif;
   }
 
   async markNotificationAsRead(id: string): Promise<void> {
+    await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+  }
+
+  async markAllNotificationsAsRead(memberId: string): Promise<void> {
     await db
       .update(notifications)
       .set({ isRead: true })
-      .where(eq(notifications.id, id));
+      .where(eq(notifications.recipientId, memberId));
   }
 
-  // Analytics operations
+  async deleteNotification(id: string): Promise<void> {
+    await db.delete(notifications).where(eq(notifications.id, id));
+  }
+
+  async deleteAllNotifications(memberId: string): Promise<void> {
+    await db.delete(notifications).where(eq(notifications.recipientId, memberId));
+  }
+
+  // ==========================================
+  // ANALYTICS OPERATIONS
+  // ==========================================
+
+  async getDashboardStats(): Promise<any> {
+    const [taskStats] = await db
+      .select({
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+        inProgress: sql<number>`SUM(CASE WHEN status = 'en_cours' THEN 1 ELSE 0 END)`,
+        pending: sql<number>`SUM(CASE WHEN status = 'en_attente' THEN 1 ELSE 0 END)`,
+      })
+      .from(tasks);
+
+    const [projectStats] = await db
+      .select({
+        total: count(),
+        active: sql<number>`SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END)`,
+        completed: sql<number>`SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)`,
+      })
+      .from(projects);
+
+    const [clientStats] = await db
+      .select({
+        total: count(),
+        active: sql<number>`SUM(CASE WHEN is_active = true THEN 1 ELSE 0 END)`,
+      })
+      .from(clients);
+
+    const [memberStats] = await db
+      .select({
+        total: count(),
+        online: sql<number>`SUM(CASE WHEN status = 'online' THEN 1 ELSE 0 END)`,
+      })
+      .from(teamMembers);
+
+    const [revenueStats] = await db
+      .select({
+        totalRevenue: sql<number>`COALESCE(SUM(total_cost), 0)`,
+        totalHours: sql<number>`COALESCE(SUM(actual_hours), 0)`,
+      })
+      .from(tasks);
+
+    return {
+      tasks: taskStats,
+      projects: projectStats,
+      clients: clientStats,
+      team: memberStats,
+      revenue: revenueStats,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  async getMemberDashboardStats(memberId: string): Promise<any> {
+    const [taskStats] = await db
+      .select({
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+        inProgress: sql<number>`SUM(CASE WHEN status = 'en_cours' THEN 1 ELSE 0 END)`,
+        pending: sql<number>`SUM(CASE WHEN status = 'en_attente' THEN 1 ELSE 0 END)`,
+      })
+      .from(tasks)
+      .where(eq(tasks.assignedTo, memberId));
+
+    const [timeStats] = await db
+      .select({
+        totalHours: sql<number>`COALESCE(SUM(duration) / 3600, 0)`,
+        totalRevenue: sql<number>`COALESCE(SUM(cost), 0)`,
+      })
+      .from(timeEntries)
+      .where(eq(timeEntries.memberId, memberId));
+
+    return {
+      tasks: taskStats,
+      time: timeStats,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  async getTeamStats(): Promise<any> {
+    const members = await db.select().from(teamMembers);
+
+    const memberStats = await Promise.all(
+      members.map(async (member) => {
+        const [stats] = await db
+          .select({
+            tasksCompleted: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+            totalHours: sql<number>`COALESCE(SUM(actual_hours), 0)`,
+          })
+          .from(tasks)
+          .where(eq(tasks.assignedTo, member.id));
+
+        return {
+          ...member,
+          stats,
+        };
+      })
+    );
+
+    return {
+      total: members.length,
+      online: members.filter(m => m.status === 'online').length,
+      members: memberStats,
+    };
+  }
+
+  async getClientStats(): Promise<any> {
+    const [stats] = await db
+      .select({
+        total: count(),
+        active: sql<number>`SUM(CASE WHEN is_active = true THEN 1 ELSE 0 END)`,
+        totalRevenue: sql<number>`COALESCE(SUM(total_revenue), 0)`,
+        avgSatisfaction: sql<number>`COALESCE(AVG(satisfaction), 0)`,
+      })
+      .from(clients);
+
+    return stats;
+  }
+
   async getPerformanceMetrics(memberId?: string, month?: number, year?: number): Promise<PerformanceMetric[]> {
-    const conditions = [];
+    const conditions: any[] = [];
     if (memberId) conditions.push(eq(performanceMetrics.memberId, memberId));
     if (month) conditions.push(eq(performanceMetrics.month, month));
     if (year) conditions.push(eq(performanceMetrics.year, year));
-    
-    if (conditions.length > 0) {
-      return await db
-        .select()
-        .from(performanceMetrics)
-        .where(and(...conditions))
-        .orderBy(desc(performanceMetrics.year), desc(performanceMetrics.month));
-    }
-    
-    return await db
+
+    return db
       .select()
       .from(performanceMetrics)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(performanceMetrics.year), desc(performanceMetrics.month));
   }
 
   async calculateMemberPerformance(memberId: string, month: number, year: number): Promise<PerformanceMetric> {
-    // Calculate performance metrics for a member for a specific month/year
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0);
 
@@ -412,198 +1348,395 @@ export class DatabaseStorage implements IStorage {
     const completedTasks = memberTasks.filter(t => t.status === 'termine');
     const totalHours = memberTasks.reduce((sum, task) => sum + Number(task.actualHours || 0), 0);
     const totalRevenue = memberTasks.reduce((sum, task) => sum + Number(task.totalCost || 0), 0);
-    
-    const performanceScore = completedTasks.length > 0 ? 
-      (completedTasks.length / memberTasks.length) * 100 : 0;
+    const performanceScore = memberTasks.length > 0 ? (completedTasks.length / memberTasks.length) * 100 : 0;
 
-    const [metric] = await db
-      .insert(performanceMetrics)
-      .values({
-        memberId,
-        month,
-        year,
-        tasksCompleted: completedTasks.length,
-        totalHours: totalHours.toString(),
-        revenue: totalRevenue.toString(),
-        performanceScore: performanceScore.toString(),
-        qualityScore: '85', // Default quality score
-      })
-      .onConflictDoUpdate({
-        target: [performanceMetrics.memberId, performanceMetrics.month, performanceMetrics.year],
-        set: {
-          tasksCompleted: completedTasks.length,
-          totalHours: totalHours.toString(),
-          revenue: totalRevenue.toString(),
-          performanceScore: performanceScore.toString(),
-        },
-      })
-      .returning();
+    // Check for on-time deliveries
+    const onTimeDeliveries = completedTasks.filter(t => {
+      if (!t.deadline || !t.completedAt) return true;
+      return new Date(t.completedAt) <= new Date(t.deadline);
+    }).length;
+    const onTimeDeliveryRate = completedTasks.length > 0 ? (onTimeDeliveries / completedTasks.length) * 100 : 0;
 
-    return metric;
-  }
-
-  async getDashboardStats(): Promise<any> {
-    const totalTasks = await db.select({ count: sql<number>`count(*)` }).from(tasks);
-    const activeTasks = await db.select({ count: sql<number>`count(*)` }).from(tasks).where(eq(tasks.status, 'en_cours'));
-    const completedToday = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(tasks)
+    // Insert or update
+    const existing = await db
+      .select()
+      .from(performanceMetrics)
       .where(
         and(
-          eq(tasks.status, 'termine'),
-          gte(tasks.updatedAt, new Date(new Date().setHours(0, 0, 0, 0)))
+          eq(performanceMetrics.memberId, memberId),
+          eq(performanceMetrics.month, month),
+          eq(performanceMetrics.year, year)
         )
       );
 
-    const totalTimeResult = await db
-      .select({ sum: sql<number>`coalesce(sum(${tasks.totalTimeSpent}), 0)` })
-      .from(tasks);
-
-    const totalProjects = await db.select({ count: sql<number>`count(*)` }).from(projects);
-    const activeProjects = await db.select({ count: sql<number>`count(*)` }).from(projects).where(eq(projects.status, 'active'));
-
-    // Calculs avec données de démonstration réalistes basées sur les 33 clients réels
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    
-    // Données dynamiques basées sur l'activité réelle de Jo'Fé Digital
-    const baseRevenue = 45_200_000; // Revenue de base annuel
-    const monthlyVariation = Math.sin((currentMonth / 12) * 2 * Math.PI) * 0.15 + 1; // Variation saisonnière
-    
-    const stats = {
-      // Statistiques de base (en temps réel)
-      totalTasks: Math.max(totalTasks[0]?.count || 0, 127), // Au minimum 127 tâches actives
-      activeTasks: Math.max(activeTasks[0]?.count || 0, 23), // 23 tâches en cours
-      completedToday: Math.max(completedToday[0]?.count || 0, 8), // 8 tâches complétées aujourd'hui
-      totalTime: Math.max(totalTimeResult[0]?.sum || 0, 1847 * 3600), // 1847h de travail total
-      
-      // Projets
-      totalProjects: Math.max(totalProjects[0]?.count || 0, 76), // 76 projets total
-      activeProjects: Math.max(activeProjects[0]?.count || 0, 23), // 23 projets actifs
-      completedProjects: 45, // Projets terminés
-      
-      // Revenue et financier (en FCFA)
-      totalRevenue: Math.floor(baseRevenue * monthlyVariation),
-      monthlyRevenue: Math.floor((baseRevenue / 12) * monthlyVariation),
-      weeklyRevenue: Math.floor((baseRevenue / 52) * monthlyVariation),
-      todayRevenue: Math.floor((baseRevenue / 365) * monthlyVariation),
-      
-      // Métriques d'équipe (14 membres)
-      totalTeamMembers: 14,
-      onlineMembers: Math.min(14, Math.floor(Math.random() * 6) + 4), // 4-9 membres en ligne
-      productivityScore: Math.floor(85 + Math.random() * 10), // 85-95% productivité
-      
-      // Clients (33 clients réels)
-      totalClients: 33,
-      activeClients: 28, // Clients actifs ce mois
-      newClientsThisMonth: Math.floor(Math.random() * 3) + 1, // 1-3 nouveaux clients/mois
-      
-      // Performance temps réel
-      averageTaskTime: 2.4, // heures moyennes par tâche
-      onTimeDelivery: 92, // 92% de livraisons à temps
-      clientSatisfaction: 96, // 96% satisfaction client
-      
-      // Métriques du jour
-      hoursWorkedToday: Math.floor(6 + Math.random() * 4), // 6-10h travaillées aujourd'hui
-      tasksStartedToday: Math.floor(3 + Math.random() * 5), // 3-8 tâches démarrées
-      
-      // Tendances (comparaison avec la période précédente)
-      taskGrowth: '+12%', // Croissance des tâches
-      revenueGrowth: '+8%', // Croissance du revenue
-      productivityGrowth: '+5%', // Amélioration productivité
-      
-      // Dernière mise à jour
-      lastUpdated: new Date().toISOString(),
-      timestamp: Date.now()
+    const metricData = {
+      memberId,
+      month,
+      year,
+      tasksCompleted: completedTasks.length,
+      tasksAssigned: memberTasks.length,
+      totalHours: totalHours.toFixed(2),
+      billableHours: totalHours.toFixed(2),
+      revenue: totalRevenue.toFixed(2),
+      performanceScore: performanceScore.toFixed(2),
+      qualityScore: '85.00',
+      onTimeDelivery: onTimeDeliveryRate.toFixed(2),
     };
 
-    return stats;
+    if (existing.length > 0) {
+      await db
+        .update(performanceMetrics)
+        .set({ ...metricData, updatedAt: new Date() })
+        .where(eq(performanceMetrics.id, existing[0].id));
+      return this.getPerformanceMetrics(memberId, month, year).then(m => m[0]);
+    } else {
+      await db.insert(performanceMetrics).values(metricData as any);
+      return this.getPerformanceMetrics(memberId, month, year).then(m => m[0]);
+    }
   }
 
-  async getTeamStats(): Promise<any> {
-    const totalMembers = await db.select({ count: sql<number>`count(*)` }).from(teamMembers);
-    const onlineMembers = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(teamMembers)
-      .where(eq(teamMembers.status, 'online'));
+  async getRevenueStats(startDate?: Date, endDate?: Date, groupBy: 'day' | 'week' | 'month' = 'month'): Promise<any> {
+    const conditions: any[] = [];
+    if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+    if (endDate) conditions.push(lte(tasks.createdAt, endDate));
 
-    // Données enrichies pour l'équipe Jo'Fé Digital (14 membres)
-    const currentHour = new Date().getHours();
-    const isWorkingHours = currentHour >= 8 && currentHour <= 18;
-    
-    // Simulation réaliste de présence basée sur les heures de travail
-    const baseOnlineMembers = isWorkingHours ? 
-      Math.floor(7 + Math.random() * 5) : // 7-12 pendant les heures de bureau
-      Math.floor(1 + Math.random() * 3);   // 1-4 en dehors des heures
+    const [result] = await db
+      .select({
+        totalRevenue: sql<number>`COALESCE(SUM(total_cost), 0)`,
+        totalHours: sql<number>`COALESCE(SUM(actual_hours), 0)`,
+        taskCount: count(),
+      })
+      .from(tasks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    return result;
+  }
+
+  async getTeamProductivity(startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [];
+    if (startDate) conditions.push(gte(timeEntries.startTime, startDate));
+    if (endDate) conditions.push(lte(timeEntries.startTime, endDate));
+
+    const [result] = await db
+      .select({
+        totalHours: sql<number>`COALESCE(SUM(duration) / 3600, 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    return result;
+  }
+
+  async getMemberProductivity(memberId: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [eq(timeEntries.memberId, memberId)];
+    if (startDate) conditions.push(gte(timeEntries.startTime, startDate));
+    if (endDate) conditions.push(lte(timeEntries.startTime, endDate));
+
+    const [result] = await db
+      .select({
+        totalHours: sql<number>`COALESCE(SUM(duration) / 3600, 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(and(...conditions));
+
+    return result;
+  }
+
+  async getTaskStats(startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [];
+    if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+    if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+
+    const [result] = await db
+      .select({
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+        inProgress: sql<number>`SUM(CASE WHEN status = 'en_cours' THEN 1 ELSE 0 END)`,
+        pending: sql<number>`SUM(CASE WHEN status = 'en_attente' THEN 1 ELSE 0 END)`,
+      })
+      .from(tasks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    return result;
+  }
+
+  async getMemberTaskStats(memberId: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [eq(tasks.assignedTo, memberId)];
+    if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+    if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+
+    const [result] = await db
+      .select({
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN status = 'termine' THEN 1 ELSE 0 END)`,
+        inProgress: sql<number>`SUM(CASE WHEN status = 'en_cours' THEN 1 ELSE 0 END)`,
+        pending: sql<number>`SUM(CASE WHEN status = 'en_attente' THEN 1 ELSE 0 END)`,
+      })
+      .from(tasks)
+      .where(and(...conditions));
+
+    return result;
+  }
+
+  async getTimeStats(memberId?: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [];
+    if (memberId) conditions.push(eq(timeEntries.memberId, memberId));
+    if (startDate) conditions.push(gte(timeEntries.startTime, startDate));
+    if (endDate) conditions.push(lte(timeEntries.startTime, endDate));
+
+    const [result] = await db
+      .select({
+        totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+        totalCost: sql<number>`COALESCE(SUM(cost), 0)`,
+        entryCount: count(),
+      })
+      .from(timeEntries)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return {
-      totalMembers: Math.max(totalMembers[0]?.count || 0, 14),
-      onlineMembers: Math.max(onlineMembers[0]?.count || 0, baseOnlineMembers),
-      
-      // Métriques avancées de l'équipe
-      activeToday: Math.floor(12 + Math.random() * 3), // 12-14 actifs aujourd'hui
-      workingNow: Math.floor(isWorkingHours ? 8 + Math.random() * 4 : 2 + Math.random() * 2),
-      
-      // Performance par département
-      departments: {
-        creation: {
-          members: 6,
-          online: Math.floor(2 + Math.random() * 3),
-          productivity: Math.floor(88 + Math.random() * 8)
-        },
-        commercial: {
-          members: 4,
-          online: Math.floor(1 + Math.random() * 3),
-          productivity: Math.floor(90 + Math.random() * 6)
-        },
-        administration: {
-          members: 2,
-          online: Math.floor(1 + Math.random() * 2),
-          productivity: Math.floor(85 + Math.random() * 10)
-        },
-        production: {
-          members: 2,
-          online: Math.floor(1 + Math.random() * 2),
-          productivity: Math.floor(92 + Math.random() * 5)
-        }
-      },
-      
-      // Top performers du jour
-      topPerformers: [
-        { name: "Paul Junior OUEDRAOGO", hoursWorked: Math.floor(6 + Math.random() * 3), tasksCompleted: Math.floor(2 + Math.random() * 4) },
-        { name: "Fortune YANOGO", hoursWorked: Math.floor(5 + Math.random() * 3), tasksCompleted: Math.floor(1 + Math.random() * 3) },
-        { name: "Linda KABORÉ", hoursWorked: Math.floor(5 + Math.random() * 3), tasksCompleted: Math.floor(1 + Math.random() * 3) }
-      ],
-      
-      // Métriques globales
-      averageHoursPerDay: 7.2,
-      teamProductivityScore: Math.floor(87 + Math.random() * 8),
-      collaborationIndex: Math.floor(90 + Math.random() * 8),
-      
-      // Dernière mise à jour
-      lastUpdated: new Date().toISOString(),
-      timestamp: Date.now()
+      ...result,
+      totalHours: (result.totalDuration || 0) / 3600,
     };
   }
 
-  async getClientStats(): Promise<any> {
-    const totalClients = await db.select({ count: sql<number>`count(*)` }).from(clients);
-    const activeProjects = await db
-      .select({ count: sql<number>`count(*)` })
+  async getProjectStats(): Promise<any> {
+    const [result] = await db
+      .select({
+        total: count(),
+        active: sql<number>`SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END)`,
+        completed: sql<number>`SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)`,
+        planning: sql<number>`SUM(CASE WHEN status = 'planning' THEN 1 ELSE 0 END)`,
+      })
+      .from(projects);
+
+    return result;
+  }
+
+  async getMemberProjectStats(memberId: string): Promise<any> {
+    const memberProjectIds = await db
+      .select({ projectId: projectMembers.projectId })
+      .from(projectMembers)
+      .where(eq(projectMembers.memberId, memberId));
+
+    const projectIds = memberProjectIds.map(p => p.projectId);
+
+    if (projectIds.length === 0) {
+      return { total: 0, active: 0, completed: 0 };
+    }
+
+    const [result] = await db
+      .select({
+        total: count(),
+        active: sql<number>`SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END)`,
+        completed: sql<number>`SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)`,
+      })
       .from(projects)
-      .where(eq(projects.status, 'active'));
+      .where(inArray(projects.id, projectIds));
 
-    const totalRevenueResult = await db
-      .select({ sum: sql<number>`coalesce(sum(${clients.totalRevenue}), 0)` })
-      .from(clients);
+    return result;
+  }
 
-    return {
-      totalClients: totalClients[0]?.count || 0,
-      activeProjects: activeProjects[0]?.count || 0,
-      totalRevenue: totalRevenueResult[0]?.sum || 0,
-    };
+  async getROIStats(clientId?: string, projectId?: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const conditions: any[] = [];
+    if (clientId) conditions.push(eq(tasks.clientId, clientId));
+    if (projectId) conditions.push(eq(tasks.projectId, projectId));
+    if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+    if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+
+    const [result] = await db
+      .select({
+        totalRevenue: sql<number>`COALESCE(SUM(total_cost), 0)`,
+        totalHours: sql<number>`COALESCE(SUM(actual_hours), 0)`,
+        taskCount: count(),
+      })
+      .from(tasks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    return result;
+  }
+
+  async exportData(type: string, startDate?: Date, endDate?: Date): Promise<any[]> {
+    const conditions: any[] = [];
+
+    switch (type) {
+      case 'tasks':
+        if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+        if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+        return db.select().from(tasks).where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      case 'time':
+        if (startDate) conditions.push(gte(timeEntries.startTime, startDate));
+        if (endDate) conditions.push(lte(timeEntries.startTime, endDate));
+        return db.select().from(timeEntries).where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      case 'revenue':
+        if (startDate) conditions.push(gte(tasks.createdAt, startDate));
+        if (endDate) conditions.push(lte(tasks.createdAt, endDate));
+        return db
+          .select({
+            taskId: tasks.id,
+            taskName: tasks.name,
+            clientId: tasks.clientId,
+            projectId: tasks.projectId,
+            totalCost: tasks.totalCost,
+            actualHours: tasks.actualHours,
+            createdAt: tasks.createdAt,
+          })
+          .from(tasks)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      case 'performance':
+        return db.select().from(performanceMetrics);
+
+      default:
+        return [];
+    }
+  }
+
+  async getUpcomingDeadlines(daysAhead: number): Promise<Task[]> {
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysAhead);
+
+    return db
+      .select()
+      .from(tasks)
+      .where(
+        and(
+          gte(tasks.deadline, now),
+          lte(tasks.deadline, futureDate),
+          ne(tasks.status, 'termine'),
+          ne(tasks.status, 'annule')
+        )
+      )
+      .orderBy(asc(tasks.deadline));
+  }
+
+  async getMemberUpcomingDeadlines(memberId: string, daysAhead: number): Promise<Task[]> {
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysAhead);
+
+    return db
+      .select()
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.assignedTo, memberId),
+          gte(tasks.deadline, now),
+          lte(tasks.deadline, futureDate),
+          ne(tasks.status, 'termine'),
+          ne(tasks.status, 'annule')
+        )
+      )
+      .orderBy(asc(tasks.deadline));
+  }
+
+  // ==========================================
+  // ACTIVITY LOG OPERATIONS
+  // ==========================================
+
+  async createActivityLog(data: InsertActivityLog): Promise<ActivityLog> {
+    await db.insert(activityLogs).values(data as any);
+    const [newLog] = await db
+      .select()
+      .from(activityLogs)
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(1);
+    return newLog;
+  }
+
+  async getActivityLogs(params: {
+    memberId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResult<ActivityLog>> {
+    const limit = params.limit || 50;
+    const offset = ((params.page || 1) - 1) * limit;
+    const conditions: any[] = [];
+
+    if (params.memberId) conditions.push(eq(activityLogs.userId, params.memberId));
+    if (params.startDate) conditions.push(gte(activityLogs.createdAt, params.startDate));
+    if (params.endDate) conditions.push(lte(activityLogs.createdAt, params.endDate));
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(activityLogs)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const data = await db
+      .select()
+      .from(activityLogs)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return paginate(data, totalResult.count, params);
+  }
+
+  // ==========================================
+  // PROJECT FILES OPERATIONS
+  // ==========================================
+
+  async createProjectFile(data: InsertProjectFile): Promise<ProjectFile> {
+    await db.insert(projectFiles).values(data as any);
+    const [newFile] = await db
+      .select()
+      .from(projectFiles)
+      .orderBy(desc(projectFiles.createdAt))
+      .limit(1);
+    return newFile;
+  }
+
+  async getProjectFile(id: string): Promise<ProjectFile | undefined> {
+    const [file] = await db.select().from(projectFiles).where(eq(projectFiles.id, id));
+    return file;
+  }
+
+  async getProjectFiles(projectId: string): Promise<ProjectFile[]> {
+    return db
+      .select()
+      .from(projectFiles)
+      .where(eq(projectFiles.projectId, projectId))
+      .orderBy(desc(projectFiles.createdAt));
+  }
+
+  async getProjectFilesByType(projectId: string, fileType: string): Promise<ProjectFile[]> {
+    return db
+      .select()
+      .from(projectFiles)
+      .where(
+        and(
+          eq(projectFiles.projectId, projectId),
+          eq(projectFiles.fileType, fileType)
+        )
+      )
+      .orderBy(desc(projectFiles.createdAt));
+  }
+
+  async updateProjectFile(id: string, data: Partial<InsertProjectFile>): Promise<ProjectFile | undefined> {
+    await db
+      .update(projectFiles)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(projectFiles.id, id));
+    return this.getProjectFile(id);
+  }
+
+  async deleteProjectFile(id: string): Promise<void> {
+    await db.delete(projectFiles).where(eq(projectFiles.id, id));
+  }
+
+  async deleteProjectFiles(projectId: string): Promise<void> {
+    await db.delete(projectFiles).where(eq(projectFiles.projectId, projectId));
   }
 }
 
+// Export singleton instance
 export const storage = new DatabaseStorage();

@@ -140,14 +140,25 @@ const PAGE_FILES: Record<string, string> = {
 function checkPageExists(path: string): boolean {
   // Pages existantes détectées automatiquement
   const existingPages = [
-    '/login', 
-    '/dashboard', 
-    '/team', 
-    '/tasks', 
-    '/task-detail', 
-    '/time-history', 
+    '/login',
+    '/dashboard',
+    '/team',
+    '/tasks',
+    '/task-detail',
+    '/time-history',
     '/permissions',
-    '/analytics'
+    '/analytics',
+    '/projects',
+    '/projects/create',
+    '/gantt',
+    '/project-templates',
+    '/workflow-approval',
+    '/dependency-management',
+    '/team-overview',
+    '/users-admin',
+    '/reports',
+    '/productivity-analysis',
+    '/roi-profitability'
   ];
   return existingPages.includes(path);
 }
@@ -244,6 +255,7 @@ const basePages = [
   { name: "Système de récompenses", path: "/rewards-system", icon: BarChart3, category: "Agent du Mois" },
   
   // ADMINISTRATION (Pages 68-74)
+  { name: "Gestion des utilisateurs", path: "/users-admin", icon: Users, category: "Administration" },
   { name: "Panneau d'administration", path: "/admin", icon: Settings, category: "Administration" },
   { name: "Gestion des membres", path: "/member-management", icon: Users, category: "Administration" },
   { name: "Configuration taux horaires", path: "/hourly-rates", icon: Settings, category: "Administration" },

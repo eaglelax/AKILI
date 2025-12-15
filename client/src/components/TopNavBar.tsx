@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import type { TeamMember } from "@shared/schema";
 import { 
@@ -96,33 +95,45 @@ export default function TopNavBar() {
     return () => clearInterval(timer);
   }, []);
 
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/auth/team-logout", {});
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.clear();
-      toast({
-        title: "Déconnexion réussie",
-        description: "À bientôt !",
-      });
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la déconnexion",
-        variant: "destructive",
-      });
-    },
-  });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
     setIsUserMenuOpen(false);
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (data.success || response.ok) {
+        queryClient.clear();
+        toast({
+          title: "Déconnexion réussie",
+          description: "À bientôt !",
+        });
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 500);
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors de la déconnexion",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Erreur déconnexion:", err);
+      // Même en cas d'erreur, on redirige vers login
+      queryClient.clear();
+      window.location.href = "/login";
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -197,12 +208,12 @@ export default function TopNavBar() {
                   
                   <button
                     onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                    className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    disabled={isLoggingOut}
+                    className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
                     data-testid="button-logout-menu"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>{logoutMutation.isPending ? "Déconnexion..." : "Déconnexion"}</span>
+                    <span>{isLoggingOut ? "Déconnexion..." : "Déconnexion"}</span>
                   </button>
                 </div>
               </div>
