@@ -38,10 +38,10 @@ router.get('/dashboard', requireAuth, async (req: AuthenticatedRequest, res) => 
 });
 
 // ============================================
-// GET /api/analytics/team - Stats équipe (Admin)
+// GET /api/analytics/team - Stats équipe
 // ============================================
 
-router.get('/team', requireAdmin, async (req: AuthenticatedRequest, res) => {
+router.get('/team', requireAuth, async (req: AuthenticatedRequest, res) => {
   try {
     const teamStats = await storage.getTeamStats();
 

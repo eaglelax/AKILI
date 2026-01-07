@@ -1,0 +1,1 @@
+ALTER TABLE `team_members` ADD `user_role` varchar(20) DEFAULT 'member' NOT NULL;

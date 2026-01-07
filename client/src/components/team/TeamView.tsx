@@ -180,13 +180,6 @@ export function TeamView() {
                 </div>
 
                 <div className="mt-4 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taux horaire</span>
-                    <span className="text-foreground font-medium" data-testid={`text-member-rate-${member.id}`}>
-                      {formatCurrency(member.hourlyRate || 0)}/h
-                    </span>
-                  </div>
-
                   {member.skills && member.skills.length > 0 && (
                     <div>
                       <p className="text-sm text-muted-foreground mb-2">Compétences</p>

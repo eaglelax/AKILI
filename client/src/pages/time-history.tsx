@@ -3,18 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import { 
+import {
   Clock,
-  DollarSign,
-  Users,
   FolderOpen,
-  User,
-  Calendar,
-  Building,
   Download,
   Eye,
   ArrowLeft,
-  TrendingUp
+  User,
+  Calendar,
+  Building
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,17 +49,13 @@ interface TimeRecord {
   totalTime: string;
   totalHours: number;
   taskCount: number;
-  totalCost: number;
-  hourlyRate: number;
   status: "active" | "paused" | "completed";
   avatar: string;
 }
 
 interface TimeStats {
   totalTime: string;
-  totalCost: number;
   activeProjects: number;
-  averageRate: number;
 }
 
 export default function TimeHistory() {
@@ -76,11 +69,6 @@ export default function TimeHistory() {
   const [periodFilter, setPeriodFilter] = useState("cette-semaine");
   const [projectFilter, setProjectFilter] = useState("");
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-  };
-
   // Fetch des données réelles
   const { data: teamAnalytics } = useQuery({
     queryKey: ['/api/analytics/team'],
@@ -93,9 +81,7 @@ export default function TimeHistory() {
   // Statistiques calculées depuis les données réelles
   const timeStats: TimeStats = {
     totalTime: (teamAnalytics as any)?.totalTime || "247h 32m",
-    totalCost: (teamAnalytics as any)?.totalCost || 1980000,
-    activeProjects: (teamAnalytics as any)?.activeProjects || 8,
-    averageRate: (teamAnalytics as any)?.averageRate || 8000
+    activeProjects: (teamAnalytics as any)?.activeProjects || 8
   };
 
   const timeRecords: TimeRecord[] = [
@@ -107,8 +93,6 @@ export default function TimeHistory() {
       totalTime: "42h 15m",
       totalHours: 42.25,
       taskCount: 8,
-      totalCost: 338000,
-      hourlyRate: 8000,
       status: "active",
       avatar: "var(--jofe-blue-light)"
     },
@@ -120,8 +104,6 @@ export default function TimeHistory() {
       totalTime: "38h 45m",
       totalHours: 38.75,
       taskCount: 6,
-      totalCost: 387500,
-      hourlyRate: 10000,
       status: "paused",
       avatar: "var(--jofe-orange)"
     },
@@ -133,8 +115,6 @@ export default function TimeHistory() {
       totalTime: "35h 20m",
       totalHours: 35.33,
       taskCount: 5,
-      totalCost: 318000,
-      hourlyRate: 9000,
       status: "completed",
       avatar: "var(--jofe-green)"
     },
@@ -146,8 +126,6 @@ export default function TimeHistory() {
       totalTime: "31h 10m",
       totalHours: 31.17,
       taskCount: 7,
-      totalCost: 295450,
-      hourlyRate: 9500,
       status: "active",
       avatar: "var(--jofe-blue-medium)"
     }
@@ -163,17 +141,7 @@ export default function TimeHistory() {
         borderColor: '#3475BB',
         backgroundColor: 'rgba(52, 117, 187, 0.1)',
         tension: 0.4,
-        fill: true,
-        yAxisID: 'y'
-      },
-      {
-        label: 'Coût (milliers FCFA)',
-        data: [68, 72, 91, 68, 89, 52, 31],
-        borderColor: '#93C954',
-        backgroundColor: 'rgba(147, 201, 84, 0.1)',
-        tension: 0.4,
-        fill: true,
-        yAxisID: 'y1'
+        fill: true
       }
     ]
   };
@@ -198,18 +166,6 @@ export default function TimeHistory() {
           display: true,
           text: 'Heures'
         }
-      },
-      y1: {
-        type: 'linear' as const,
-        display: true,
-        position: 'right' as const,
-        title: {
-          display: true,
-          text: 'Coût (milliers FCFA)'
-        },
-        grid: {
-          drawOnChartArea: false,
-        },
       }
     }
   };
@@ -238,14 +194,12 @@ export default function TimeHistory() {
 
   const handleExport = () => {
     // Préparer les données pour l'export CSV
-    const csvHeaders = ["Membre", "Rôle", "Temps Total", "Tâches", "Coût Total", "Taux Horaire", "Statut"];
+    const csvHeaders = ["Membre", "Rôle", "Temps Total", "Tâches", "Statut"];
     const csvData = filteredRecords.map(record => [
       record.memberName,
       record.role,
       record.totalTime,
       `${record.taskCount} tâches`,
-      formatCurrency(record.totalCost),
-      formatCurrency(record.hourlyRate) + "/h",
       getStatusText(record.status)
     ]);
 
@@ -393,35 +347,11 @@ export default function TimeHistory() {
             <Card className="p-6 border border-[var(--jofe-gray)] hover-lift fade-in">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[var(--jofe-blue-medium)]">Coût Total</p>
-                  <p className="text-2xl font-bold text-[var(--jofe-blue-deep)]">{formatCurrency(timeStats.totalCost)}</p>
-                </div>
-                <div className="w-12 h-12 bg-[var(--jofe-green)] bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-[var(--jofe-green)]" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 border border-[var(--jofe-gray)] hover-lift fade-in">
-              <div className="flex items-center justify-between">
-                <div>
                   <p className="text-sm font-medium text-[var(--jofe-blue-medium)]">Projets Actifs</p>
                   <p className="text-2xl font-bold text-[var(--jofe-blue-deep)]">{timeStats.activeProjects}</p>
                 </div>
                 <div className="w-12 h-12 bg-[var(--jofe-orange)] bg-opacity-20 rounded-lg flex items-center justify-center">
                   <FolderOpen className="w-6 h-6 text-[var(--jofe-orange)]" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 border border-[var(--jofe-gray)] hover-lift fade-in">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-[var(--jofe-blue-medium)]">Taux Moyen</p>
-                  <p className="text-2xl font-bold text-[var(--jofe-blue-deep)]">{formatCurrency(timeStats.averageRate)}/h</p>
-                </div>
-                <div className="w-12 h-12 bg-[var(--jofe-blue-medium)] bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-[var(--jofe-blue-medium)]" />
                 </div>
               </div>
             </Card>
@@ -467,9 +397,6 @@ export default function TimeHistory() {
                       Tâches
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-[var(--jofe-blue-deep)] uppercase tracking-wider">
-                      Coût
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--jofe-blue-deep)] uppercase tracking-wider">
                       Statut
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-[var(--jofe-blue-deep)] uppercase tracking-wider">
@@ -499,9 +426,6 @@ export default function TimeHistory() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--jofe-blue-medium)]">
                         {record.taskCount} tâches
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--jofe-green)]">
-                        {formatCurrency(record.totalCost)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(record.status)}`}>

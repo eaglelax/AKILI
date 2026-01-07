@@ -123,7 +123,7 @@ export default function Login() {
                 id="username"
                 type="text"
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#3475BB] focus:ring-0 transition-all duration-150"
-                placeholder="ex: serge.assale"
+                placeholder="ex: prenom.nom"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"

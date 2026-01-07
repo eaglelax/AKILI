@@ -158,15 +158,12 @@ router.post('/entries', requireAuth, validate(createTimeEntrySchema), async (req
       duration = Math.floor((end - start) / 1000);
     }
 
-    // Récupérer le taux horaire
-    const member = await storage.getTeamMember(req.body.memberId);
-    const hourlyRate = req.body.hourlyRate || member?.hourlyRate || task.hourlyRate;
-    const cost = (duration / 3600) * Number(hourlyRate || 0);
+    // Cost calculation removed (no longer using hourly rates)
+    const cost = 0; // Default cost to 0
 
     const entryData = {
       ...req.body,
       duration,
-      hourlyRate,
       cost: cost.toString(),
     };
 
@@ -237,8 +234,8 @@ router.put('/entries/:id', requireAuth, async (req: AuthenticatedRequest, res) =
     }
 
     if (updateData.duration !== undefined) {
-      const hourlyRate = updateData.hourlyRate || entry.hourlyRate;
-      updateData.cost = ((updateData.duration / 3600) * Number(hourlyRate || 0)).toString();
+      // Cost calculation removed (no longer using hourly rates)
+      updateData.cost = '0';
     }
 
     const updatedEntry = await storage.updateTimeEntry(id, updateData);

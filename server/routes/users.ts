@@ -102,6 +102,26 @@ router.post('/', requireAdmin, validate(createTeamMemberSchema), async (req: Aut
       });
     }
 
+    // Vérifier les permissions de création de rôle
+    const currentUserRole = req.session.userRole || 'member';
+    const requestedRole = req.body.userRole || 'member';
+
+    // Seul super_admin peut créer des super_admin
+    if (requestedRole === 'super_admin' && currentUserRole !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: "Seul un super administrateur peut créer un compte super administrateur"
+      });
+    }
+
+    // Seul super_admin peut créer des admin
+    if (requestedRole === 'admin' && currentUserRole !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: "Seul un super administrateur peut créer un compte administrateur"
+      });
+    }
+
     // Hasher le mot de passe avant de créer le membre
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -112,8 +132,8 @@ router.post('/', requireAdmin, validate(createTeamMemberSchema), async (req: Aut
       department: req.body.department || null,
       username: req.body.username,
       password: hashedPassword,
-      isAdmin: req.body.isAdmin || false,
-      hourlyRate: req.body.hourlyRate || '5000',
+      isAdmin: requestedRole === 'admin' || requestedRole === 'super_admin',
+      userRole: requestedRole,
       skills: Array.isArray(req.body.skills) ? req.body.skills : [],
       phone: req.body.phone || null,
       email: req.body.email || null,
@@ -178,6 +198,7 @@ router.post('/', requireAdmin, validate(createTeamMemberSchema), async (req: Aut
 router.put('/:id', requireAdmin, validate(updateTeamMemberSchema), async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.teamMember!.id;
 
     const existingMember = await storage.getTeamMember(id);
 
@@ -186,6 +207,55 @@ router.put('/:id', requireAdmin, validate(updateTeamMemberSchema), async (req: A
         success: false,
         message: "Membre non trouvé"
       });
+    }
+
+    // Vérifier les permissions de modification de rôle
+    const currentUserRole = req.teamMember!.userRole || 'member';
+    const requestedRole = req.body.userRole;
+
+    // RÈGLE 1: Un admin ne peut PAS modifier son propre compte
+    if (currentUserRole === 'admin' && id === currentUserId) {
+      return res.status(403).json({
+        success: false,
+        message: "Un administrateur ne peut pas modifier son propre compte. Contactez un super administrateur."
+      });
+    }
+
+    // RÈGLE 2: Un super_admin ne peut PAS modifier son propre rôle
+    if (currentUserRole === 'super_admin' && id === currentUserId && requestedRole && requestedRole !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: "Vous ne pouvez pas modifier votre propre rôle de super administrateur"
+      });
+    }
+
+    // RÈGLE 3: Un admin ne peut PAS modifier un autre admin ou super_admin
+    if (currentUserRole === 'admin' && (existingMember.userRole === 'admin' || existingMember.userRole === 'super_admin')) {
+      return res.status(403).json({
+        success: false,
+        message: "Un administrateur ne peut pas modifier un autre administrateur ou super administrateur"
+      });
+    }
+
+    if (requestedRole) {
+      // Seul super_admin peut attribuer le rôle super_admin
+      if (requestedRole === 'super_admin' && currentUserRole !== 'super_admin') {
+        return res.status(403).json({
+          success: false,
+          message: "Seul un super administrateur peut attribuer ce rôle"
+        });
+      }
+
+      // Seul super_admin peut attribuer le rôle admin
+      if (requestedRole === 'admin' && currentUserRole !== 'super_admin') {
+        return res.status(403).json({
+          success: false,
+          message: "Seul un super administrateur peut attribuer ce rôle"
+        });
+      }
+
+      // Mettre à jour isAdmin en fonction du rôle
+      req.body.isAdmin = requestedRole === 'admin' || requestedRole === 'super_admin';
     }
 
     // Si changement de username, vérifier l'unicité
@@ -234,6 +304,8 @@ router.put('/:id', requireAdmin, validate(updateTeamMemberSchema), async (req: A
 router.delete('/:id', requireAdmin, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.teamMember!.id;
+    const currentUserRole = req.teamMember!.userRole || 'member';
 
     const member = await storage.getTeamMember(id);
 
@@ -245,10 +317,18 @@ router.delete('/:id', requireAdmin, async (req: AuthenticatedRequest, res) => {
     }
 
     // Ne pas supprimer soi-même
-    if (id === req.teamMember!.id) {
+    if (id === currentUserId) {
       return res.status(400).json({
         success: false,
         message: "Vous ne pouvez pas vous supprimer vous-même"
+      });
+    }
+
+    // RÈGLE: Un admin ne peut PAS supprimer un autre admin ou super_admin
+    if (currentUserRole === 'admin' && (member.userRole === 'admin' || member.userRole === 'super_admin')) {
+      return res.status(403).json({
+        success: false,
+        message: "Un administrateur ne peut pas supprimer un autre administrateur ou super administrateur"
       });
     }
 

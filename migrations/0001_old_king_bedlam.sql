@@ -1,0 +1,1 @@
+ALTER TABLE `channel_members` MODIFY COLUMN `last_read_at` timestamp NULL;

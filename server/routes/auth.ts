@@ -54,10 +54,12 @@ router.post('/login', validate(loginSchema), async (req, res) => {
       role: member.role,
       department: member.department || undefined,
       isAdmin: member.isAdmin,
+      userRole: member.userRole || 'member',
       avatar: member.avatar || undefined,
     };
     req.session.userId = member.id;
     req.session.isAdmin = member.isAdmin;
+    req.session.userRole = member.userRole || 'member';
 
     // Log connexion réussie
     await storage.createActivityLog({
@@ -82,11 +84,13 @@ router.post('/login', validate(loginSchema), async (req, res) => {
           role: member.role,
           department: member.department,
           isAdmin: member.isAdmin,
+          userRole: member.userRole || 'member',
           avatar: member.avatar,
           email: member.email,
         },
         permissions,
         isAdmin: member.isAdmin,
+        userRole: member.userRole || 'member',
       }
     });
   } catch (error: any) {
@@ -174,15 +178,16 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res) => {
           role: member.role,
           department: member.department,
           isAdmin: member.isAdmin,
+          userRole: member.userRole || 'member',
           avatar: member.avatar,
           email: member.email,
           status: member.status,
-          hourlyRate: member.hourlyRate,
           skills: member.skills,
           phone: member.phone,
         },
         permissions,
         isAdmin: member.isAdmin,
+        userRole: member.userRole || 'member',
       }
     });
   } catch (error: any) {

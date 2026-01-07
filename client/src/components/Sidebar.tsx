@@ -1,75 +1,90 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  LayoutDashboard, 
-  Clock, 
-  FolderOpen, 
-  Users, 
-  Building, 
-  BarChart3, 
-  TrendingUp,
+import {
+  LayoutDashboard,
+  Clock,
+  FolderOpen,
+  Users,
+  Building,
+  BarChart3,
   MessageSquare,
-  Shield,
   Settings,
   User,
   Menu,
   X
 } from "lucide-react";
 
-const navigationItems = [
-  { 
-    href: "/dashboard", 
-    label: "Tableau de Bord", 
+// Définition des menus avec les rôles autorisés
+type NavItem = {
+  href: string;
+  label: string;
+  icon: any;
+  roles: 'all' | 'admin' | 'super_admin';
+};
+
+const allNavigationItems: NavItem[] = [
+  {
+    href: "/dashboard",
+    label: "Tableau de Bord",
     icon: LayoutDashboard,
-    active: true 
+    roles: 'all'
   },
-  { 
-    href: "/tasks", 
-    label: "Gestion des Tâches", 
-    icon: Clock 
+  {
+    href: "/tasks",
+    label: "Gestion des Tâches",
+    icon: Clock,
+    roles: 'all'
   },
-  { 
-    href: "/time-history", 
-    label: "Historique Temps", 
-    icon: BarChart3 
+  {
+    href: "/projects",
+    label: "Projets",
+    icon: FolderOpen,
+    roles: 'all'
   },
-  { 
-    href: "/projects", 
-    label: "Projets", 
-    icon: FolderOpen 
+  {
+    href: "/chat",
+    label: "Chat",
+    icon: MessageSquare,
+    roles: 'all'
   },
-  { 
-    href: "/team", 
-    label: "Équipe", 
-    icon: Users 
+  {
+    href: "/time-history",
+    label: "Historique Temps",
+    icon: BarChart3,
+    roles: 'all'
   },
-  { 
-    href: "/clients", 
-    label: "Clients", 
-    icon: Building 
+  {
+    href: "/team",
+    label: "Équipe",
+    icon: Users,
+    roles: 'admin'
   },
-  { 
-    href: "/analytics", 
-    label: "Analytics", 
-    icon: TrendingUp 
-  },
-  { 
-    href: "/chat", 
-    label: "Chat", 
-    icon: MessageSquare 
-  },
-  { 
-    href: "/permissions", 
-    label: "Permissions", 
-    icon: Shield 
+  {
+    href: "/clients",
+    label: "Clients",
+    icon: Building,
+    roles: 'admin'
   }
 ];
 
+// Fonction pour filtrer les menus selon le rôle
+const getNavigationItems = (userRole: 'super_admin' | 'admin' | 'member' | undefined) => {
+  return allNavigationItems.filter(item => {
+    if (item.roles === 'all') return true;
+    if (item.roles === 'admin' && (userRole === 'admin' || userRole === 'super_admin')) return true;
+    if (item.roles === 'super_admin' && userRole === 'super_admin') return true;
+    return false;
+  });
+};
+
 export default function Sidebar() {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Obtenir les menus filtrés selon le rôle de l'utilisateur
+  const navigationItems = getNavigationItems(userRole as 'super_admin' | 'admin' | 'member' | undefined);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

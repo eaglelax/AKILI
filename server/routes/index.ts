@@ -5,6 +5,7 @@ import tasksRoutes from './tasks';
 import projectsRoutes from './projects';
 import clientsRoutes from './clients';
 import messagesRoutes from './messages';
+import chatRoutes from './chat';
 import timersRoutes from './timers';
 import analyticsRoutes from './analytics';
 import notificationsRoutes from './notifications';
@@ -22,7 +23,7 @@ router.use('/tasks', tasksRoutes);
 router.use('/projects', projectsRoutes);
 router.use('/clients', clientsRoutes);
 router.use('/messages', messagesRoutes);
-router.use('/chat', messagesRoutes); // Alias pour compatibilité
+router.use('/chat', chatRoutes); // Chat lié aux projets
 router.use('/timers', timersRoutes);
 router.use('/time-entries', timersRoutes); // Alias
 router.use('/analytics', analyticsRoutes);

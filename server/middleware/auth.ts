@@ -21,6 +21,7 @@ declare module 'express-session' {
     teamMember?: TeamMember;
     userId?: string;
     isAdmin?: boolean;
+    userRole?: 'super_admin' | 'admin' | 'member';
   }
 }
 
@@ -81,7 +82,68 @@ export const requireAuth = async (
 };
 
 // ============================================
-// Middleware: Vérification du rôle Admin
+// Middleware: Vérification du rôle Super Admin
+// ============================================
+
+export const requireSuperAdmin = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.session.teamMember) {
+      res.status(401).json({
+        success: false,
+        message: "Non autorisé - Veuillez vous connecter"
+      });
+      return;
+    }
+
+    const member = await storage.getTeamMember(req.session.teamMember.id);
+
+    if (!member) {
+      res.status(401).json({
+        success: false,
+        message: "Session invalide"
+      });
+      return;
+    }
+
+    // Seul le super_admin peut accéder
+    if (member.userRole !== 'super_admin') {
+      res.status(403).json({
+        success: false,
+        message: "Accès refusé - Droits super administrateur requis"
+      });
+      return;
+    }
+
+    const permissions = await storage.getMemberPermissions(member.id);
+
+    req.teamMember = member;
+    req.permissions = permissions || undefined;
+    req.user = {
+      id: member.userId || member.id,
+      memberId: member.id,
+      name: member.name,
+      username: member.username,
+      role: 'admin',
+      isAdmin: true,
+      permissions: permissions || undefined,
+    };
+
+    next();
+  } catch (error) {
+    console.error('Super Admin middleware error:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur de vérification des droits"
+    });
+  }
+};
+
+// ============================================
+// Middleware: Vérification du rôle Admin (admin ou super_admin)
 // ============================================
 
 export const requireAdmin = async (
@@ -109,7 +171,8 @@ export const requireAdmin = async (
       return;
     }
 
-    if (!member.isAdmin) {
+    // Admin ou Super Admin peuvent accéder
+    if (member.userRole !== 'admin' && member.userRole !== 'super_admin') {
       res.status(403).json({
         success: false,
         message: "Accès refusé - Droits administrateur requis"
@@ -252,8 +315,8 @@ export const requirePermission = (permission: PermissionKey) => {
         return;
       }
 
-      // Les admins ont toutes les permissions
-      if (member.isAdmin) {
+      // Les admins et super_admins ont toutes les permissions
+      if (member.userRole === 'admin' || member.userRole === 'super_admin') {
         req.teamMember = member;
         req.user = {
           id: member.userId || member.id,
@@ -332,8 +395,8 @@ export const requireOwnerOrAdmin = (
         return;
       }
 
-      // Les admins peuvent tout modifier
-      if (member.isAdmin) {
+      // Les admins et super_admins peuvent tout modifier
+      if (member.userRole === 'admin' || member.userRole === 'super_admin') {
         req.teamMember = member;
         req.user = {
           id: member.userId || member.id,

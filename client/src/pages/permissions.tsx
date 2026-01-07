@@ -36,7 +36,6 @@ interface TeamMemberPermission {
   name: string;
   role: string;
   isAdmin: boolean;
-  hourlyRate: number;
   permissions: {
     manageAll: boolean;
     assignTimers: boolean;
@@ -65,11 +64,6 @@ export default function Permissions() {
   // States for filter and management
   const [selectedMember, setSelectedMember] = useState<string>("");
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-  };
-
   // Mock data - données réelles du template
   const permissionStats: PermissionStats = {
     totalAdmins: 2,
@@ -85,7 +79,6 @@ export default function Permissions() {
       name: "Directeur Création",
       role: "Directeur Création & Marketing",
       isAdmin: true,
-      hourlyRate: 15000,
       permissions: {
         manageAll: true,
         assignTimers: true,
@@ -100,7 +93,6 @@ export default function Permissions() {
       name: "Enos GOUBA",
       role: "Coordinateur Production",
       isAdmin: true,
-      hourlyRate: 12000,
       permissions: {
         manageAll: true,
         assignTimers: true,
@@ -117,7 +109,6 @@ export default function Permissions() {
       name: "Paul Junior OUEDRAOGO",
       role: "Graphiste Photomonteur",
       isAdmin: false,
-      hourlyRate: 8000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -132,7 +123,6 @@ export default function Permissions() {
       name: "Fortune YANOGO",
       role: "Photographe/Vidéaste",
       isAdmin: false,
-      hourlyRate: 10000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -147,7 +137,6 @@ export default function Permissions() {
       name: "Bientama PARÉ",
       role: "Motion Designer",
       isAdmin: false,
-      hourlyRate: 9000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -162,7 +151,6 @@ export default function Permissions() {
       name: "Issa CISSE",
       role: "Graphiste Junior",
       isAdmin: false,
-      hourlyRate: 6000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -177,7 +165,6 @@ export default function Permissions() {
       name: "Jean-Jacques SAMPABAO",
       role: "Directeur Artistique Junior",
       isAdmin: false,
-      hourlyRate: 8500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -192,7 +179,6 @@ export default function Permissions() {
       name: "Abdoul Latif OUEDRAOGO",
       role: "Designer UI/UX",
       isAdmin: false,
-      hourlyRate: 9500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -209,7 +195,6 @@ export default function Permissions() {
       name: "Florita KABORÉ",
       role: "Responsable Médias Sociaux",
       isAdmin: false,
-      hourlyRate: 7500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -224,7 +209,6 @@ export default function Permissions() {
       name: "Nebié WEBOU",
       role: "Chef de Pub/Concepteur Rédacteur",
       isAdmin: false,
-      hourlyRate: 8500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -239,7 +223,6 @@ export default function Permissions() {
       name: "Djamilatou GUIGUEMDE",
       role: "Chef de Pub Stagiaire",
       isAdmin: false,
-      hourlyRate: 5000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -254,7 +237,6 @@ export default function Permissions() {
       name: "Linda KABORÉ",
       role: "Conceptrice Rédactrice Lead",
       isAdmin: false,
-      hourlyRate: 9500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -269,7 +251,6 @@ export default function Permissions() {
       name: "Maryse BOMBIRI",
       role: "Community Manager",
       isAdmin: false,
-      hourlyRate: 6500,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -284,7 +265,6 @@ export default function Permissions() {
       name: "Faridatou BARRY",
       role: "Chef de Pub/CM",
       isAdmin: false,
-      hourlyRate: 7000,
       permissions: {
         manageAll: false,
         assignTimers: false,
@@ -326,10 +306,6 @@ export default function Permissions() {
   const handlePermissionChange = (memberId: string, permission: string, value: boolean) => {
     // Update local state and trigger save
     console.log(`Changing ${permission} for ${memberId} to ${value}`);
-  };
-
-  const handleRateChange = (memberId: string, newRate: number) => {
-    console.log(`Changing rate for ${memberId} to ${newRate}`);
   };
 
   const getStatusBadge = (isAdmin: boolean) => {
@@ -486,20 +462,6 @@ export default function Permissions() {
                         </div>
                         
                         <div className="flex items-center space-x-6">
-                          {/* Taux Horaire */}
-                          <div className="text-right">
-                            <p className="text-sm font-medium text-[var(--jofe-blue-deep)]">Taux Horaire</p>
-                            <Input
-                              type="number"
-                              value={member.hourlyRate}
-                              onChange={(e) => handleRateChange(member.id, parseInt(e.target.value))}
-                              className="w-24 text-sm jofe-input border-2 border-[var(--jofe-gray)] focus:border-[var(--jofe-blue-light)]"
-                              disabled={member.isAdmin}
-                              data-testid={`input-rate-${member.id}`}
-                            />
-                            <p className="text-xs text-[var(--jofe-blue-medium)]">FCFA/h</p>
-                          </div>
-                          
                           {/* Permissions */}
                           <div className="space-y-2">
                             <label className="flex items-center space-x-2">

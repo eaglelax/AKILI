@@ -50,7 +50,11 @@ interface Client {
 
 function Projects() {
   const { toast } = useToast();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+
+  // Vérifier le rôle de l'utilisateur
+  const userRole = (user as any)?.userRole || 'member';
+  const isAdminRole = userRole === 'admin' || userRole === 'super_admin';
 
   // État pour les données chargées depuis MySQL
   const [projects, setProjects] = useState<Project[]>([]);
@@ -409,12 +413,15 @@ function Projects() {
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <Link href="/projects/create">
-                <Button className="bg-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-deep)] text-white flex items-center space-x-2" data-testid="button-new-project">
-                  <Plus className="w-5 h-5" />
-                  <span>Nouveau Projet</span>
-                </Button>
-              </Link>
+              {/* Bouton Nouveau Projet visible uniquement pour les admins */}
+              {isAdmin && (
+                <Link href="/projects/create">
+                  <Button className="bg-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-blue-deep)] text-white flex items-center space-x-2" data-testid="button-new-project">
+                    <Plus className="w-5 h-5" />
+                    <span>Nouveau Projet</span>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </header>
@@ -451,17 +458,20 @@ function Projects() {
               </div>
             </Card>
 
-            <Card className="p-6 border border-[var(--jofe-gray)]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm">Budget Total</p>
-                  <p className="text-2xl font-bold text-[var(--jofe-blue-medium)]">
-                    {(stats.budget / 1000000).toFixed(1)}M FCFA
-                  </p>
+            {/* Budget Total - Visible uniquement pour admin et super_admin */}
+            {isAdminRole && (
+              <Card className="p-6 border border-[var(--jofe-gray)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Budget Total</p>
+                    <p className="text-2xl font-bold text-[var(--jofe-blue-medium)]">
+                      {(stats.budget / 1000000).toFixed(1)}M FCFA
+                    </p>
+                  </div>
+                  <DollarSign className="w-8 h-8 text-blue-500" />
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-500" />
-              </div>
-            </Card>
+              </Card>
+            )}
 
             <Card className="p-6 border border-[var(--jofe-gray)]">
               <div className="flex items-center justify-between">
@@ -572,13 +582,16 @@ function Projects() {
                 </div>
 
                 {/* Budget et Deadline */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Budget</p>
-                    <p className={`font-bold ${(project.status === 'completed' || project.status === 'termine') ? 'text-green-600' : 'text-[var(--jofe-blue-medium)]'}`}>
-                      {formatCurrency(parseFloat(String(project.budget)) || 0)}
-                    </p>
-                  </div>
+                <div className={`grid ${isAdminRole ? 'grid-cols-2' : 'grid-cols-1'} gap-4 mb-4`}>
+                  {/* Budget - Visible uniquement pour admin et super_admin */}
+                  {isAdminRole && (
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Budget</p>
+                      <p className={`font-bold ${(project.status === 'completed' || project.status === 'termine') ? 'text-green-600' : 'text-[var(--jofe-blue-medium)]'}`}>
+                        {formatCurrency(parseFloat(String(project.budget)) || 0)}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">
                       {(project.status === 'completed' || project.status === 'termine') ? 'Terminé le' : 'Deadline'}
@@ -602,7 +615,8 @@ function Projects() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {project.status !== 'termine' && project.status !== 'completed' && (
+                    {/* Boutons d'action visibles uniquement pour les admins */}
+                    {isAdmin && project.status !== 'termine' && project.status !== 'completed' && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -626,6 +640,7 @@ function Projects() {
                         Supprimer
                       </Button>
                     )}
+                    {/* Bouton Voir détails visible pour tous */}
                     <Link href={`/projects/${project.id}`}>
                       <Button variant="outline" size="sm" className="border-[var(--jofe-gray)] text-[var(--jofe-blue-medium)] hover:bg-[var(--jofe-gray)]" data-testid={`btn-details-${project.id}`}>
                         Voir détails

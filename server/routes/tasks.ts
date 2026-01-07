@@ -107,15 +107,23 @@ router.post('/', requireAuth, validate(createTaskSchema), async (req: Authentica
       createdBy: req.teamMember!.id,
     };
 
-    // Si pas de hourlyRate défini, utiliser celui du membre assigné
-    if (!taskData.hourlyRate && taskData.assignedTo) {
-      const assignee = await storage.getTeamMember(taskData.assignedTo);
-      if (assignee) {
-        taskData.hourlyRate = assignee.hourlyRate;
+    const task = await storage.createTask(taskData);
+
+    // Mise à jour automatique de l'avancement du projet après création d'une tâche
+    if (task.projectId) {
+      try {
+        const projectTasks = await storage.getTasksByProject(task.projectId, { limit: 1000 });
+
+        if (projectTasks.data.length > 0) {
+          const totalProgress = projectTasks.data.reduce((sum, t) => sum + (t.progress || 0), 0);
+          const averageProgress = Math.round(totalProgress / projectTasks.data.length);
+
+          await storage.updateProject(task.projectId, { progress: averageProgress });
+        }
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'avancement du projet après création:", error);
       }
     }
-
-    const task = await storage.createTask(taskData);
 
     // Créer une notification pour l'assigné
     if (taskData.assignedTo && taskData.assignedTo !== req.teamMember!.id) {
@@ -203,6 +211,31 @@ router.put('/:id', requireAuth, validate(updateTaskSchema), async (req: Authenti
 
     const updatedTask = await storage.updateTask(id, req.body);
 
+    // Mise à jour automatique de l'avancement du projet si la tâche est liée à un projet
+    if (updatedTask.projectId && ('progress' in req.body || 'status' in req.body)) {
+      try {
+        // Récupérer toutes les tâches du projet
+        const projectTasks = await storage.getTasksByProject(updatedTask.projectId, { limit: 1000 });
+
+        if (projectTasks.data.length > 0) {
+          // Calculer la moyenne de l'avancement de toutes les tâches
+          const totalProgress = projectTasks.data.reduce((sum, task) => {
+            return sum + (task.progress || 0);
+          }, 0);
+
+          const averageProgress = Math.round(totalProgress / projectTasks.data.length);
+
+          // Mettre à jour l'avancement du projet
+          await storage.updateProject(updatedTask.projectId, {
+            progress: averageProgress
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'avancement du projet:", error);
+        // Ne pas bloquer la mise à jour de la tâche si la mise à jour du projet échoue
+      }
+    }
+
     // Notification si réassignation
     if (req.body.assignedTo && req.body.assignedTo !== existingTask.assignedTo) {
       await storage.createNotification({
@@ -259,7 +292,30 @@ router.delete('/:id', requireAdmin, async (req: AuthenticatedRequest, res) => {
       });
     }
 
+    // Sauvegarder le projectId avant la suppression
+    const projectId = task.projectId;
+
     await storage.deleteTask(id);
+
+    // Mise à jour automatique de l'avancement du projet après suppression de la tâche
+    if (projectId) {
+      try {
+        const projectTasks = await storage.getTasksByProject(projectId, { limit: 1000 });
+
+        if (projectTasks.data.length > 0) {
+          // Calculer la moyenne de l'avancement des tâches restantes
+          const totalProgress = projectTasks.data.reduce((sum, t) => sum + (t.progress || 0), 0);
+          const averageProgress = Math.round(totalProgress / projectTasks.data.length);
+
+          await storage.updateProject(projectId, { progress: averageProgress });
+        } else {
+          // Si plus de tâches, remettre le projet à 0%
+          await storage.updateProject(projectId, { progress: 0 });
+        }
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'avancement du projet après suppression:", error);
+      }
+    }
 
     // Log l'action
     await storage.createActivityLog({

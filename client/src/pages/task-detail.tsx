@@ -328,13 +328,6 @@ export default function TaskDetail() {
                     <p className="text-xl font-bold text-[var(--jofe-blue-deep)] jofe-font">{taskData.totalTime}</p>
                   </div>
 
-                  {/* Coût Calculé */}
-                  <div className="cost-display text-center p-4 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-[var(--jofe-green)] mx-auto mb-2" />
-                    <p className="text-sm text-[var(--jofe-blue-medium)] mb-1">Coût Actuel</p>
-                    <p className="text-xl font-bold text-[var(--jofe-green)] jofe-font">{formatCurrency(taskData.currentCost)}</p>
-                    <p className="text-xs text-[var(--jofe-blue-medium)]">{formatCurrency(taskData.hourlyRate)}/h</p>
-                  </div>
                 </div>
 
                 {/* Historique des Sessions */}
@@ -354,7 +347,7 @@ export default function TaskDetail() {
                             {Math.floor(session.duration / 60)}h {Math.floor(session.duration % 60)}m
                           </p>
                           <p className={`text-sm ${session.status === 'active' ? 'text-[var(--jofe-orange)]' : 'text-[var(--jofe-green)]'}`}>
-                            {session.status === 'active' ? 'En cours...' : formatCurrency(session.cost)}
+                            {session.status === 'active' ? 'En cours...' : 'Terminé'}
                           </p>
                         </div>
                       </div>

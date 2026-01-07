@@ -448,7 +448,7 @@ export default function Tasks() {
       clientId: task.clientId || "",
       projectId: task.projectId || "",
       priority: task.priority,
-      deadline: task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : "",
+      deadline: task.deadline ? new Date(task.deadline).toISOString().slice(0, 10) : "",
       progress: task.progress || 0,
       status: task.status,
     });
@@ -714,7 +714,6 @@ export default function Tasks() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Échéance</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temps</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progression</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
@@ -790,13 +789,6 @@ export default function Tasks() {
                         <td className="px-4 py-4">
                           <div className="text-sm font-mono text-gray-900">
                             {formatTime(task.totalTimeSpent || 0)}
-                          </div>
-                        </td>
-
-                        {/* Coût */}
-                        <td className="px-4 py-4">
-                          <div className="text-sm text-gray-900">
-                            {((task.totalCost || 0) / 1000).toFixed(0)} K CFA
                           </div>
                         </td>
 
@@ -1004,21 +996,10 @@ export default function Tasks() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date limite</label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#37B6E9]"
                       value={newTask.deadline}
                       onChange={(e) => setNewTask({...newTask, deadline: e.target.value})}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Heures estimées</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#37B6E9]"
-                      placeholder="8"
-                      value={newTask.estimatedHours}
-                      onChange={(e) => setNewTask({...newTask, estimatedHours: e.target.value})}
                     />
                   </div>
                 </div>
@@ -1183,17 +1164,6 @@ export default function Tasks() {
                   </div>
                 </div>
 
-                {/* Coût */}
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 text-[#37B6E9] mb-1">
-                    <DollarSign className="w-4 h-4" />
-                    <span className="text-sm font-medium">Coût total</span>
-                  </div>
-                  <p className="text-2xl font-bold text-[#162C54]">
-                    {((selectedTask.totalCost || 0) / 1000).toFixed(0)} K CFA
-                  </p>
-                </div>
-
                 {/* Actions */}
                 <div className="flex justify-end space-x-4 pt-4 border-t">
                   <button
@@ -1338,7 +1308,7 @@ export default function Tasks() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date limite</label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#37B6E9]"
                       value={editTask.deadline}
                       onChange={(e) => setEditTask({...editTask, deadline: e.target.value})}

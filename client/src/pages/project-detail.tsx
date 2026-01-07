@@ -70,7 +70,6 @@ interface TeamMember {
   name: string;
   role: string;
   avatar: string;
-  hourlyRate: string;
 }
 
 interface ProjectMember {
@@ -102,6 +101,7 @@ function ProjectDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState('');
@@ -118,6 +118,15 @@ function ProjectDetail() {
     startDate: '',
     endDate: '',
     progress: 0,
+  });
+
+  // État du formulaire de nouvelle tâche
+  const [newTask, setNewTask] = useState({
+    name: '',
+    description: '',
+    assignedTo: '',
+    priority: 'moyenne',
+    deadline: '',
   });
 
   // État pour les fichiers du projet
@@ -543,6 +552,65 @@ function ProjectDetail() {
     }
   };
 
+  // Créer une nouvelle tâche liée au projet
+  const handleCreateTask = async () => {
+    if (!newTask.name || !newTask.assignedTo) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...newTask,
+          projectId: projectId, // Lier automatiquement au projet
+          clientId: project?.clientId || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Tâche créée",
+          description: "La tâche a été créée avec succès",
+        });
+        setIsNewTaskModalOpen(false);
+        setNewTask({
+          name: '',
+          description: '',
+          assignedTo: '',
+          priority: 'moyenne',
+          deadline: '',
+        });
+        loadProjectData(); // Recharger les données du projet
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.message || "Erreur lors de la création de la tâche",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la tâche",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Obtenir les membres disponibles (non encore dans le projet)
   const getAvailableMembers = () => {
     const projectMemberIds = projectMembers.map(pm => pm.memberId);
@@ -731,29 +799,32 @@ function ProjectDetail() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Rafraîchir
               </Button>
-              <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
-                <Edit className="w-4 h-4 mr-2" />
-                Modifier
-              </Button>
-              {project.status !== 'termine' && project.status !== 'completed' && (
-                <Button
-                  variant="outline"
-                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                  onClick={handleCompleteProject}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Terminer
-                </Button>
-              )}
+              {/* Boutons d'action visibles uniquement pour les admins */}
               {isAdmin && (
-                <Button
-                  variant="outline"
-                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={handleDeleteProject}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Supprimer
-                </Button>
+                <>
+                  <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Modifier
+                  </Button>
+                  {project.status !== 'termine' && project.status !== 'completed' && (
+                    <Button
+                      variant="outline"
+                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                      onClick={handleCompleteProject}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Terminer
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    onClick={handleDeleteProject}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer
+                  </Button>
+                </>
               )}
               <Button className="bg-[#37B6E9] hover:bg-[#3475BB]" onClick={() => setIsShareModalOpen(true)}>
                 <Share2 className="w-4 h-4 mr-2" />
@@ -889,11 +960,15 @@ function ProjectDetail() {
             <Card className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-[#162C54]">Toutes les tâches ({tasks.length})</h3>
-                <Link href={`/tasks?projectId=${projectId}&projectName=${encodeURIComponent(project?.name || '')}`}>
-                  <Button className="bg-[#37B6E9] hover:bg-[#3475BB]">
+                {/* Bouton Nouvelle tâche visible uniquement pour les admins */}
+                {isAdmin && (
+                  <Button
+                    className="bg-[#37B6E9] hover:bg-[#3475BB]"
+                    onClick={() => setIsNewTaskModalOpen(true)}
+                  >
                     + Nouvelle tâche
                   </Button>
-                </Link>
+                )}
               </div>
 
               {tasks.length === 0 ? (
@@ -1099,7 +1174,6 @@ function ProjectDetail() {
                         <div>
                           <p className="font-semibold text-[#162C54]">{pm.member?.name || 'Membre inconnu'}</p>
                           <p className="text-sm text-gray-600">{pm.projectRole || pm.member?.role}</p>
-                          <p className="text-xs text-[#37B6E9]">{formatCurrency(pm.member?.hourlyRate || '0')}/h</p>
                         </div>
                       </div>
                       {isAdmin && (
@@ -1466,6 +1540,144 @@ function ProjectDetail() {
                   )}
                 </Button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Nouvelle tâche */}
+      {isNewTaskModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-[#162C54]">Nouvelle tâche</h2>
+              <button
+                onClick={() => {
+                  setIsNewTaskModalOpen(false);
+                  setNewTask({
+                    name: '',
+                    description: '',
+                    assignedTo: '',
+                    priority: 'moyenne',
+                    deadline: '',
+                  });
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                Cette tâche sera automatiquement liée au projet <span className="font-semibold">{project?.name}</span>
+              </p>
+
+              {/* Nom de la tâche */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom de la tâche *
+                </label>
+                <Input
+                  value={newTask.name}
+                  onChange={(e) => setNewTask({ ...newTask, name: e.target.value })}
+                  placeholder="Ex: Créer les maquettes UI"
+                />
+              </div>
+
+              {/* Membre assigné */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Assigner à *
+                </label>
+                <select
+                  value={newTask.assignedTo}
+                  onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                >
+                  <option value="">Sélectionner un membre...</option>
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} - {member.role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Priorité et Date limite */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Priorité
+                  </label>
+                  <select
+                    value={newTask.priority}
+                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                  >
+                    <option value="basse">Basse</option>
+                    <option value="moyenne">Moyenne</option>
+                    <option value="haute">Haute</option>
+                    <option value="urgente">Urgente</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date limite
+                  </label>
+                  <Input
+                    type="date"
+                    value={newTask.deadline}
+                    onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  placeholder="Décrivez la tâche en détail..."
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37B6E9] focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsNewTaskModalOpen(false);
+                  setNewTask({
+                    name: '',
+                    description: '',
+                    assignedTo: '',
+                    priority: 'moyenne',
+                    deadline: '',
+                  });
+                }}
+              >
+                Annuler
+              </Button>
+              <Button
+                className="bg-[#37B6E9] hover:bg-[#3475BB]"
+                onClick={handleCreateTask}
+                disabled={saving || !newTask.name || !newTask.assignedTo}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Création...
+                  </>
+                ) : (
+                  'Créer la tâche'
+                )}
+              </Button>
             </div>
           </div>
         </div>

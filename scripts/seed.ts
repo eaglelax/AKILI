@@ -41,7 +41,22 @@ async function seedDatabase() {
     console.log('👥 Création des membres de l\'équipe...');
 
     const teamMembersData = [
-      // Administrateurs (2)
+      // Super Administrateur principal (compte générique)
+      {
+        id: uuidv4(),
+        name: "Administrateur Système",
+        role: "Super Administrateur",
+        department: "Direction",
+        username: "admin",
+        password: defaultPassword, // jofe2024
+        userRole: "super_admin", // Super Admin - peut créer admins et super_admins
+        isAdmin: true, // Pour compatibilité
+        skills: JSON.stringify(["Administration", "Gestion système"]),
+        email: "admin@jofedigital.com",
+        avatar: "AD",
+        status: "offline",
+      },
+      // Administrateur (1)
       {
         id: uuidv4(),
         name: "Serge ASSALÉ",
@@ -49,13 +64,14 @@ async function seedDatabase() {
         department: "Direction",
         username: "serge.assale",
         password: defaultPassword, // Sera changé à la première connexion
-        isAdmin: true,
-        hourlyRate: "15000",
+        userRole: "admin", // Admin - peut créer seulement des membres
+        isAdmin: true, // Pour compatibilité
         skills: JSON.stringify(["Stratégie", "Direction artistique", "Management"]),
         email: "serge@jofedigital.com",
         avatar: "SA",
         status: "offline",
       },
+      // Administrateur (1)
       {
         id: uuidv4(),
         name: "Enos GOUBA",
@@ -63,8 +79,8 @@ async function seedDatabase() {
         department: "Production",
         username: "enos.gouba",
         password: defaultPassword,
-        isAdmin: true,
-        hourlyRate: "12000",
+        userRole: "admin", // Admin - peut créer seulement des membres
+        isAdmin: true, // Pour compatibilité
         skills: JSON.stringify(["Coordination", "Planning", "Production"]),
         email: "enos@jofedigital.com",
         avatar: "EG",
@@ -79,8 +95,8 @@ async function seedDatabase() {
         department: "Création",
         username: "paul.ouedraogo",
         password: defaultPassword,
+        userRole: "member", // Membre standard
         isAdmin: false,
-        hourlyRate: "8000",
         skills: JSON.stringify(["Photoshop", "Photomontage", "Retouche"]),
         avatar: "PO",
         status: "offline",
@@ -92,8 +108,8 @@ async function seedDatabase() {
         department: "Création",
         username: "fortune.yanogo",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "10000",
         skills: JSON.stringify(["Photographie", "Vidéo", "Éclairage"]),
         avatar: "FY",
         status: "offline",
@@ -105,8 +121,8 @@ async function seedDatabase() {
         department: "Création",
         username: "bientama.pare",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "9000",
         skills: JSON.stringify(["After Effects", "Animation", "Motion"]),
         avatar: "BP",
         status: "offline",
@@ -118,8 +134,8 @@ async function seedDatabase() {
         department: "Création",
         username: "issa.cisse",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "6000",
         skills: JSON.stringify(["Design graphique", "Illustration"]),
         avatar: "IC",
         status: "offline",
@@ -131,8 +147,8 @@ async function seedDatabase() {
         department: "Création",
         username: "jean.sampabao",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "8500",
         skills: JSON.stringify(["Direction artistique", "Concept", "Brand Design"]),
         avatar: "JS",
         status: "offline",
@@ -144,8 +160,8 @@ async function seedDatabase() {
         department: "Création",
         username: "latif.ouedraogo",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "9500",
         skills: JSON.stringify(["UI/UX", "Figma", "Prototypage"]),
         avatar: "AO",
         status: "offline",
@@ -159,8 +175,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "florita.kabore",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "7500",
         skills: JSON.stringify(["Social Media", "Ads", "Analytics"]),
         avatar: "FK",
         status: "offline",
@@ -172,8 +188,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "nebie.webou",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "8500",
         skills: JSON.stringify(["Rédaction", "Concept", "Stratégie"]),
         avatar: "NW",
         status: "offline",
@@ -185,8 +201,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "djamilatou.guiguemde",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "5000",
         skills: JSON.stringify(["Conception pub", "Recherche", "Analyse"]),
         avatar: "DG",
         status: "offline",
@@ -198,8 +214,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "linda.kabore",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "9500",
         skills: JSON.stringify(["Rédaction", "Concept", "Stratégie"]),
         avatar: "LK",
         status: "offline",
@@ -211,8 +227,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "maryse.bombiri",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "6500",
         skills: JSON.stringify(["Community", "Content", "Engagement"]),
         avatar: "MB",
         status: "offline",
@@ -224,8 +240,8 @@ async function seedDatabase() {
         department: "Communication",
         username: "faridatou.barry",
         password: defaultPassword,
+        userRole: "member",
         isAdmin: false,
-        hourlyRate: "7000",
         skills: JSON.stringify(["Chef de Pub", "Community", "Stratégie"]),
         avatar: "FB",
         status: "offline",
@@ -338,7 +354,7 @@ async function seedDatabase() {
     console.log('🎉 Seed terminé avec succès!');
     console.log('');
     console.log('Données créées:');
-    console.log(`  - ${teamMembersData.length} membres d'équipe (2 admins, 12 employés)`);
+    console.log(`  - ${teamMembersData.length} membres d'équipe (1 super admin, 2 admins, 12 membres)`);
     console.log(`  - ${clientsData.length} clients`);
     console.log('  - 1 canal de chat général');
     console.log('  - 9 paramètres système');
@@ -346,9 +362,15 @@ async function seedDatabase() {
     console.log('📌 IDENTIFIANTS PAR DÉFAUT:');
     console.log('   Tous les utilisateurs ont le mot de passe: jofe2024');
     console.log('');
-    console.log('   Administrateurs:');
-    console.log('   - serge.assale / jofe2024');
-    console.log('   - enos.gouba / jofe2024');
+    console.log('   🔑 RÔLES:');
+    console.log('   ✨ Super Admin (peut créer admins et super_admins):');
+    console.log('      - admin / jofe2024 (compte système)');
+    console.log('');
+    console.log('   👔 Administrateurs (peuvent créer seulement des membres):');
+    console.log('      - serge.assale / jofe2024');
+    console.log('      - enos.gouba / jofe2024');
+    console.log('');
+    console.log('   👤 Membres (12 employés)');
     console.log('');
     console.log('⚠️  Il est recommandé de changer les mots de passe après la première connexion!');
     console.log('');

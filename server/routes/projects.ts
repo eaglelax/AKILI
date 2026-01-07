@@ -16,17 +16,26 @@ router.use(express.json({ limit: '50mb' }));
 router.get('/', requireAuth, validateQuery(paginationSchema), async (req: AuthenticatedRequest, res) => {
   try {
     const { page, limit, sortBy, sortOrder } = req.query as any;
-    const isAdmin = req.teamMember!.isAdmin;
     const currentUserId = req.teamMember!.id;
+    const userRole = req.teamMember!.userRole || 'member';
 
     let projects;
 
-    if (isAdmin) {
-      // Admin voit tous les projets
+    // Admin et Super Admin voient tous les projets
+    if (userRole === 'admin' || userRole === 'super_admin') {
       projects = await storage.getAllProjects({ page, limit, sortBy, sortOrder });
     } else {
-      // Employee voit uniquement les projets où il est membre
+      // Membres standards voient seulement les projets auxquels ils sont assignés
       projects = await storage.getProjectsForMember(currentUserId, { page, limit, sortBy, sortOrder });
+    }
+
+    // Masquer les informations budgétaires pour les membres standards
+    if (userRole === 'member') {
+      projects.data = projects.data.map((project: any) => ({
+        ...project,
+        budget: undefined,
+        actualCost: undefined,
+      }));
     }
 
     res.json({
@@ -50,7 +59,7 @@ router.get('/', requireAuth, validateQuery(paginationSchema), async (req: Authen
 router.get('/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
-    const isAdmin = req.teamMember!.isAdmin;
+    const userRole = req.teamMember!.userRole || 'member';
     const currentUserId = req.teamMember!.id;
 
     const project = await storage.getProject(id);
@@ -62,21 +71,30 @@ router.get('/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
       });
     }
 
-    // Vérifier les permissions
-    if (!isAdmin) {
-      const isMember = await storage.isProjectMember(id, currentUserId);
-      const isCreator = project.createdBy === currentUserId;
+    // Vérifier si le membre standard a accès à ce projet
+    if (userRole === 'member') {
+      const projectMembers = await storage.getProjectMembers(id);
+      const isMemberOfProject = projectMembers.some((pm: any) => pm.memberId === currentUserId);
 
-      if (!isMember && !isCreator) {
+      if (!isMemberOfProject) {
         return res.status(403).json({
           success: false,
-          message: "Accès non autorisé à ce projet"
+          message: "Vous n'avez pas accès à ce projet"
         });
       }
     }
 
     // Charger les relations
-    const projectWithRelations = await storage.getProjectWithRelations(id);
+    let projectWithRelations = await storage.getProjectWithRelations(id);
+
+    // Masquer les informations budgétaires pour les membres standards
+    if (userRole === 'member') {
+      projectWithRelations = {
+        ...projectWithRelations,
+        budget: undefined,
+        actualCost: undefined,
+      };
+    }
 
     res.json({
       success: true,

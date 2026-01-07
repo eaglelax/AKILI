@@ -21,16 +21,16 @@ interface TeamMember {
   name: string;
   role: string;
   email: string;
-  hourlyRate: number;
   status: string;
   isAdmin: boolean;
+  userRole: 'super_admin' | 'admin' | 'member';
   skills: string[];
   avatar: string;
   department?: string;
 }
 
 export default function Team() {
-  const { user } = useAuth();
+  const { user, userRole, isSuperAdmin, canCreateAdmin, canCreateMember } = useAuth();
   const { toast } = useToast();
 
   // État pour les données chargées depuis MySQL
@@ -51,8 +51,7 @@ export default function Team() {
     name: "",
     role: "",
     email: "",
-    hourlyRate: "5000",
-    isAdmin: false,
+    userRole: "member" as "super_admin" | "admin" | "member",
     skills: "",
     department: "",
     username: "",
@@ -92,7 +91,7 @@ export default function Team() {
         // Transformer les données pour correspondre à l'interface
         const members = (data.data || []).map((m: any) => ({
           ...m,
-          hourlyRate: parseInt(m.hourlyRate) || 0,
+          userRole: m.userRole || (m.isAdmin ? 'admin' : 'member'),
           skills: Array.isArray(m.skills) ? m.skills :
                   typeof m.skills === 'string' ? JSON.parse(m.skills || '[]') : [],
         }));
@@ -154,8 +153,7 @@ export default function Team() {
       name: member.name,
       role: member.role,
       email: member.email || "",
-      hourlyRate: String(member.hourlyRate || 5000),
-      isAdmin: member.isAdmin,
+      userRole: member.userRole || 'member',
       skills: Array.isArray(member.skills) ? member.skills.join(", ") : "",
       department: member.department || "",
       username: "",
@@ -174,8 +172,7 @@ export default function Team() {
       name: "",
       role: "",
       email: "",
-      hourlyRate: "5000",
-      isAdmin: false,
+      userRole: "member",
       skills: "",
       department: "",
       username: "",
@@ -201,8 +198,8 @@ export default function Team() {
         name: formData.name,
         role: formData.role,
         email: formData.email || null,
-        hourlyRate: formData.hourlyRate,
-        isAdmin: formData.isAdmin,
+        userRole: formData.userRole,
+        isAdmin: formData.userRole === 'admin' || formData.userRole === 'super_admin',
         skills: formData.skills.split(",").map(s => s.trim()).filter(Boolean),
         department: formData.department || null,
         username: formData.username,
@@ -248,8 +245,8 @@ export default function Team() {
         name: formData.name,
         role: formData.role,
         email: formData.email || null,
-        hourlyRate: formData.hourlyRate,
-        isAdmin: formData.isAdmin,
+        userRole: formData.userRole,
+        isAdmin: formData.userRole === 'admin' || formData.userRole === 'super_admin',
         skills: formData.skills.split(",").map(s => s.trim()).filter(Boolean),
         department: formData.department || null,
       });
@@ -457,23 +454,20 @@ export default function Team() {
                   </div>
                   <span
                     className={`px-2 py-1 rounded-xl text-xs font-medium flex-shrink-0 ${
-                      member.isAdmin
+                      member.userRole === 'super_admin'
+                        ? "bg-purple-600 text-[var(--jofe-white)]"
+                        : member.userRole === 'admin'
                         ? "bg-[var(--jofe-blue-deep)] text-[var(--jofe-white)]"
                         : "bg-[var(--jofe-green)] text-[var(--jofe-white)]"
                     }`}
                   >
-                    {member.isAdmin ? "ADMIN" : "MEMBRE"}
+                    {member.userRole === 'super_admin' ? "SUPER ADMIN" :
+                     member.userRole === 'admin' ? "ADMIN" : "MEMBRE"}
                   </span>
                 </div>
 
                 <div className="mb-4">
                   <div className="flex items-center text-xs md:text-sm text-gray-600 mb-2">
-                    <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                    </svg>
-                    <span className="truncate">{(member.hourlyRate || 0).toLocaleString()} FCFA/h</span>
-                  </div>
-                  <div className="flex items-center text-xs md:text-sm text-gray-600">
                     <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -600,27 +594,15 @@ export default function Team() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
-                    placeholder="prenom.nom@jofedigital.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarif horaire (FCFA)</label>
-                  <input
-                    type="number"
-                    value={formData.hourlyRate}
-                    onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
-                    placeholder="8000"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                  placeholder="prenom.nom@jofedigital.com"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -642,12 +624,13 @@ export default function Team() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type d'accès</label>
                   <select
-                    value={formData.isAdmin ? "admin" : "member"}
-                    onChange={(e) => setFormData({...formData, isAdmin: e.target.value === "admin"})}
+                    value={formData.userRole}
+                    onChange={(e) => setFormData({...formData, userRole: e.target.value as "super_admin" | "admin" | "member"})}
                     className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]"
                   >
                     <option value="member">Membre standard</option>
-                    <option value="admin">Administrateur</option>
+                    {canCreateAdmin && <option value="admin">Administrateur</option>}
+                    {isSuperAdmin && <option value="super_admin">Super Administrateur</option>}
                   </select>
                 </div>
               </div>
@@ -725,25 +708,14 @@ export default function Team() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarif horaire (FCFA)</label>
-                  <input
-                    type="number"
-                    value={formData.hourlyRate}
-                    onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                    className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email professionnel</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)] focus:ring-3 focus:ring-[var(--jofe-blue-light)]/10"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -765,13 +737,18 @@ export default function Team() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type d'accès</label>
                   <select
-                    value={formData.isAdmin ? "admin" : "member"}
-                    onChange={(e) => setFormData({...formData, isAdmin: e.target.value === "admin"})}
+                    value={formData.userRole}
+                    onChange={(e) => setFormData({...formData, userRole: e.target.value as "super_admin" | "admin" | "member"})}
                     className="w-full border border-[var(--jofe-gray)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--jofe-blue-light)]"
+                    disabled={!isSuperAdmin && formData.userRole === 'super_admin'}
                   >
                     <option value="member">Membre standard</option>
-                    <option value="admin">Administrateur</option>
+                    {canCreateAdmin && <option value="admin">Administrateur</option>}
+                    {isSuperAdmin && <option value="super_admin">Super Administrateur</option>}
                   </select>
+                  {!isSuperAdmin && formData.userRole === 'super_admin' && (
+                    <p className="text-xs text-gray-500 mt-1">Seul un Super Admin peut modifier ce rôle</p>
+                  )}
                 </div>
               </div>
 

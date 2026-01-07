@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import type { TeamMember } from "@shared/schema";
 import { 
   LayoutDashboard, 
   Clock, 
@@ -23,68 +22,87 @@ import {
   LogOut
 } from "lucide-react";
 
-const navigationItems = [
-  { 
-    href: "/dashboard", 
-    label: "Dashboard", 
-    icon: LayoutDashboard
+// Définition des menus avec les rôles autorisés
+// roles: 'all' = tous, 'admin' = admin + super_admin, 'super_admin' = super_admin seulement
+type NavItem = {
+  href: string;
+  label: string;
+  icon: any;
+  roles: 'all' | 'admin' | 'super_admin';
+};
+
+const allNavigationItems: NavItem[] = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: 'all' // Visible par tous
   },
-  { 
-    href: "/tasks", 
-    label: "Tâches", 
-    icon: Clock 
+  {
+    href: "/tasks",
+    label: "Tâches",
+    icon: Clock,
+    roles: 'all' // Visible par tous
   },
-  { 
-    href: "/time-history", 
-    label: "Temps", 
-    icon: BarChart3 
+  {
+    href: "/projects",
+    label: "Projets",
+    icon: FolderOpen,
+    roles: 'all' // Visible par tous
   },
-  { 
-    href: "/analytics", 
-    label: "Analytics", 
-    icon: TrendingUp 
+  {
+    href: "/chat",
+    label: "Chat",
+    icon: MessageSquare,
+    roles: 'all' // Visible par tous
   },
-  { 
-    href: "/projects", 
-    label: "Projets", 
-    icon: FolderOpen 
+  {
+    href: "/team",
+    label: "Équipe",
+    icon: Users,
+    roles: 'admin' // Visible par admin et super_admin
   },
-  { 
-    href: "/team", 
-    label: "Équipe", 
-    icon: Users 
+  {
+    href: "/clients",
+    label: "Clients",
+    icon: Building,
+    roles: 'admin' // Visible par admin et super_admin
   },
-  { 
-    href: "/clients", 
-    label: "Clients", 
-    icon: Building 
+  {
+    href: "/analytics",
+    label: "Analytics",
+    icon: TrendingUp,
+    roles: 'super_admin' // Visible seulement par super_admin
   },
-  { 
-    href: "/chat", 
-    label: "Chat", 
-    icon: MessageSquare 
-  },
-  { 
-    href: "/permissions", 
-    label: "Permissions", 
-    icon: Shield 
+  {
+    href: "/permissions",
+    label: "Permissions",
+    icon: Shield,
+    roles: 'super_admin' // Visible seulement par super_admin
   }
 ];
 
+// Fonction pour filtrer les menus selon le rôle
+const getNavigationItems = (userRole: 'super_admin' | 'admin' | 'member' | undefined) => {
+  return allNavigationItems.filter(item => {
+    if (item.roles === 'all') return true;
+    if (item.roles === 'admin' && (userRole === 'admin' || userRole === 'super_admin')) return true;
+    if (item.roles === 'super_admin' && userRole === 'super_admin') return true;
+    return false;
+  });
+};
+
 export default function TopNavBar() {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+
+  // Obtenir les menus filtrés selon le rôle de l'utilisateur
+  const navigationItems = getNavigationItems(userRole as 'super_admin' | 'admin' | 'member' | undefined);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Get current team member
-  const { data: teamMember } = useQuery<TeamMember>({
-    queryKey: ["/api/team-members/current"],
-    retry: false,
-  });
 
   // Update time every minute
   useEffect(() => {
@@ -165,7 +183,7 @@ export default function TopNavBar() {
               </div>
               <div className="flex-1 text-left">
                 <p className="text-sm font-semibold text-[#162C54]">
-                  {(user as any)?.name || teamMember?.name || 'Utilisateur'}
+                  {user?.name || 'Utilisateur'}
                 </p>
                 <p className="text-xs text-[#3475BB] font-medium">
                   {formatTime(currentTime)}
@@ -178,7 +196,10 @@ export default function TopNavBar() {
 
             {/* User Dropdown */}
             {isUserMenuOpen && (
-              <div className="absolute left-0 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+              <div
+                className="absolute left-0 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-[#3475BB] flex items-center justify-center">
@@ -186,17 +207,17 @@ export default function TopNavBar() {
                     </div>
                     <div>
                       <p className="font-medium text-[#162C54]">
-                        {(user as any)?.name || teamMember?.name || 'Utilisateur'}
+                        {user?.name || 'Utilisateur'}
                       </p>
                       <p className="text-sm text-[#3475BB]">
-                        {(user as any)?.role || 'Membre équipe'}
+                        {user?.role || 'Membre équipe'}
                       </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="py-2">
-                  <Link 
+                  <Link
                     href="/settings"
                     onClick={() => setIsUserMenuOpen(false)}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -205,7 +226,7 @@ export default function TopNavBar() {
                     <Settings className="w-4 h-4" />
                     <span>Paramètres</span>
                   </Link>
-                  
+
                   <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
@@ -313,13 +334,6 @@ export default function TopNavBar() {
         />
       )}
 
-      {/* User Menu Overlay */}
-      {isUserMenuOpen && (
-        <div 
-          className="fixed inset-0 z-40"
-          onClick={() => setIsUserMenuOpen(false)}
-        />
-      )}
     </>
   );
 }

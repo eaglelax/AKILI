@@ -2,23 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
 import TopNavBar from "@/components/TopNavBar";
-import { 
-  FolderOpen, 
-  DollarSign, 
-  Users, 
-  Heart,
+import {
+  FolderOpen,
+  DollarSign,
   Bell,
-  Settings,
-  Play,
-  Pause,
-  CheckCircle
+  Settings
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  
+
   // Initialize WebSocket connection
   useWebSocket();
 
@@ -38,6 +32,16 @@ export default function Dashboard() {
   const { data: projects } = useQuery({
     queryKey: ["/api/projects"],
   });
+
+  // Vérifier le rôle de l'utilisateur
+  const userRole = (user as any)?.userRole || 'member';
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+
+  // Calculate total revenue from all project budgets (only for admins)
+  const totalRevenue = isAdmin ? ((projects as any)?.data?.reduce((sum: number, project: any) => {
+    const budget = parseFloat(project.budget || 0);
+    return sum + budget;
+  }, 0) || 0) : 0;
 
   // Format numbers for display
   const formatNumber = (num: string | number) => {
@@ -82,174 +86,140 @@ export default function Dashboard() {
         {/* Content */}
         <main className="p-4 md:p-6 space-y-6 md:space-y-8">
           {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 fade-in">
+          <div className={`grid grid-cols-1 ${isAdmin ? 'md:grid-cols-2' : ''} gap-6 fade-in`}>
             {/* Projets Actifs */}
             <div className="kpi-card">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <div className="p-2 md:p-3 rounded-lg bg-secondary/10 flex-shrink-0">
-                  <FolderOpen className="w-4 h-4 md:w-6 md:h-6 text-secondary" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-secondary/10 flex-shrink-0">
+                  <FolderOpen className="w-6 h-6 text-secondary" />
                 </div>
-                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">
-                  {(dashboardStats as any)?.totalProjects ? '+12%' : 'New'}
-                </span>
               </div>
               <div>
-                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">
-                  {formatNumber((dashboardStats as any)?.totalProjects || (projects as any)?.length || 0)}
+                <p className="text-3xl font-bold jofe-font text-primary">
+                  {formatNumber((dashboardStats as any)?.data?.totalProjects || (projects as any)?.data?.filter((p: any) => p.status !== 'completed').length || 0)}
                 </p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Projets Actifs</p>
+                <p className="text-sm text-muted-foreground mt-2">Projets Actifs</p>
               </div>
             </div>
-            
-            {/* CA Mensuel */}
-            <div className="kpi-card">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <div className="p-2 md:p-3 rounded-lg bg-green-500/10 flex-shrink-0">
-                  <DollarSign className="w-4 h-4 md:w-6 md:h-6 text-green-500" />
+
+            {/* Chiffre d'Affaires Total - Visible uniquement pour admin et super_admin */}
+            {isAdmin && (
+              <div className="kpi-card">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-lg bg-green-500/10 flex-shrink-0">
+                    <DollarSign className="w-6 h-6 text-green-500" />
+                  </div>
                 </div>
-                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+8%</span>
-              </div>
-              <div>
-                <p className="text-sm md:text-2xl font-bold jofe-font text-primary truncate">
-                  {formatNumber((dashboardStats as any)?.totalRevenue || 12450000)}
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">CA Mensuel</p>
-              </div>
-            </div>
-            
-            {/* Productivité Équipe */}
-            <div className="kpi-card">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <div className="p-2 md:p-3 rounded-lg bg-orange-500/10 flex-shrink-0">
-                  <Users className="w-4 h-4 md:w-6 md:h-6 text-orange-500" />
+                <div>
+                  <p className="text-3xl font-bold jofe-font text-primary">
+                    {formatCurrency(totalRevenue)}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">Chiffre d'Affaires Total (FCFA)</p>
                 </div>
-                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+5%</span>
               </div>
-              <div>
-                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">
-                  {(teamStats as any)?.productivity || '87'}%
-                </p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Productivité</p>
-              </div>
-            </div>
-            
-            {/* Satisfaction Client */}
-            <div className="kpi-card">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
-                <div className="p-2 md:p-3 rounded-lg bg-primary/10 flex-shrink-0">
-                  <Heart className="w-4 h-4 md:w-6 md:h-6 text-primary" />
-                </div>
-                <span className="text-xs px-1 md:px-2 py-1 rounded-full bg-green-500 text-white hidden sm:inline">+2%</span>
-              </div>
-              <div>
-                <p className="text-lg md:text-2xl font-bold jofe-font text-primary truncate">4.8/5</p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Satisfaction</p>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Tâches Actives et Performance */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 fade-in">
-            {/* Tâches Actives */}
+            {/* Tâches Récentes */}
             <Card className="p-4 md:p-6">
               <div className="flex items-center justify-between mb-4 md:mb-6 flex-wrap gap-2">
-                <h3 className="jofe-font text-base md:text-lg text-primary">Tâches Actives</h3>
-                <Button className="bg-secondary hover:bg-secondary/90 text-sm px-3 py-2">
-                  <span className="hidden sm:inline">Nouvelle Tâche</span>
-                  <span className="sm:hidden">Nouvelle</span>
-                </Button>
+                <h3 className="jofe-font text-base md:text-lg text-primary">Tâches Récentes</h3>
+                <a href="/tasks" className="text-sm text-secondary hover:underline">Voir tout</a>
               </div>
-              
-              <div className="space-y-4 max-h-80 overflow-y-auto">
-                {tasks && (tasks as any).length > 0 ? (
-                  (tasks as any).slice(0, 3).map((task: any) => (
-                    <div key={task.id} className="task-item">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-primary">{task.title}</h4>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          task.priority === 'urgente' ? 'bg-red-500 text-white' :
-                          task.priority === 'haute' ? 'bg-orange-500 text-white' :
-                          'bg-blue-500 text-white'
-                        }`}>
-                          {task.priority || 'Normal'}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3">
-                        {task.assignedToName || 'Non assigné'} - {task.category || 'Tâche générale'}
-                      </p>
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <div className="timer-active">
-                          <span className="text-xs md:text-sm font-mono text-secondary">
-                            {task.timeSpent || '00:00:00'}
-                          </span>
+
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {(tasks as any)?.data && (tasks as any).data.length > 0 ? (
+                  (tasks as any).data.slice(0, 5).map((task: any) => (
+                    <div key={task.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-primary truncate">{task.name || task.title}</h4>
+                          <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500 mt-1">
+                            {task.clientName && (
+                              <>
+                                <span className="font-semibold text-orange-600">{task.clientName}</span>
+                                <span>•</span>
+                              </>
+                            )}
+                            {task.projectName && (
+                              <>
+                                <span className="text-secondary">{task.projectName}</span>
+                                <span>•</span>
+                              </>
+                            )}
+                            <span className="font-medium">{task.assignedToName || 'Non assigné'}</span>
+                          </div>
                         </div>
-                        <div className="flex gap-1 md:gap-2">
-                          <Button size="sm" variant="outline" className="bg-orange-500 text-white border-orange-500 px-2">
-                            <Pause className="w-3 h-3 md:mr-1" />
-                            <span className="hidden md:inline">Pause</span>
-                          </Button>
-                          <Button size="sm" className="bg-green-500 hover:bg-green-600 px-2">
-                            <CheckCircle className="w-3 h-3 md:mr-1" />
-                            <span className="hidden md:inline">Terminé</span>
-                          </Button>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            task.priority === 'urgente' ? 'bg-red-500 text-white' :
+                            task.priority === 'haute' ? 'bg-orange-500 text-white' :
+                            task.priority === 'moyenne' ? 'bg-yellow-500 text-white' :
+                            'bg-blue-500 text-white'
+                          }`}>
+                            {task.priority || 'Normal'}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            task.status === 'termine' ? 'bg-green-100 text-green-700' :
+                            task.status === 'en_cours' ? 'bg-blue-100 text-blue-700' :
+                            task.status === 'en_attente' ? 'bg-gray-100 text-gray-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {task.status === 'termine' ? 'Terminé' :
+                             task.status === 'en_cours' ? 'En cours' :
+                             task.status === 'en_attente' ? 'En attente' :
+                             task.status === 'en_pause' ? 'En pause' : task.status}
+                          </span>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <p>Aucune tâche active</p>
-                    <Button className="mt-4 bg-secondary hover:bg-secondary/90">
-                      Créer votre première tâche
-                    </Button>
+                    <p>Aucune tâche pour le moment</p>
                   </div>
                 )}
               </div>
             </Card>
-            
-            {/* Performance Équipe */}
+
+            {/* Équipe */}
             <Card className="p-6">
-              <h3 className="jofe-font text-lg mb-6 text-primary">Performance Équipe</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="jofe-font text-lg text-primary">Équipe</h3>
+                <a href="/team" className="text-sm text-secondary hover:underline">Voir tout</a>
+              </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-primary">Total Membres</p>
-                    <p className="text-2xl font-bold text-secondary">{(teamStats as any)?.totalMembers || 14}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <p className="text-3xl font-bold text-secondary">{(teamStats as any)?.data?.total || 0}</p>
+                    <p className="text-sm text-gray-600 mt-1">Total Membres</p>
                   </div>
-                  <div>
-                    <p className="font-medium text-primary">En Ligne</p>
-                    <p className="text-2xl font-bold text-green-500">{(teamStats as any)?.onlineMembers || 1}</p>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <p className="text-3xl font-bold text-green-500">{(teamStats as any)?.data?.online || 0}</p>
+                    <p className="text-sm text-gray-600 mt-1">En Ligne</p>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 border rounded-lg">
+                    <p className="text-2xl font-bold text-green-500">
+                      {(tasks as any)?.data?.filter((t: any) => t.status === 'completed').length || 0}
+                    </p>
                     <p className="text-sm text-gray-600">Tâches Terminées</p>
-                    <p className="text-xl font-bold text-green-500">{(dashboardStats as any)?.completedTasks || 0}</p>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <p className="text-sm text-gray-600">Tâches Actives</p>
-                    <p className="text-xl font-bold text-orange-500">{(dashboardStats as any)?.activeTasks || 0}</p>
+                    <p className="text-2xl font-bold text-orange-500">
+                      {(tasks as any)?.data?.filter((t: any) => t.status === 'in_progress').length || 0}
+                    </p>
+                    <p className="text-sm text-gray-600">Tâches En Cours</p>
                   </div>
                 </div>
               </div>
             </Card>
           </div>
 
-          {/* Revenue Chart Placeholder */}
-          <Card className="p-6 fade-in">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="jofe-font text-lg text-primary">Évolution CA (FCFA)</h3>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">7j</Button>
-                <Button variant="outline" size="sm">30j</Button>
-                <Button size="sm" className="bg-secondary">3M</Button>
-              </div>
-            </div>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">Graphique CA - Intégration Chart.js à venir</p>
-            </div>
-          </Card>
         </main>
       </div>
     </div>

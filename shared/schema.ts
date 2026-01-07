@@ -81,12 +81,12 @@ export const teamMembers = mysqlTable("team_members", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   userId: varchar("user_id", { length: 36 }).references(() => users.id, { onDelete: 'cascade' }),
   name: varchar("name", { length: 255 }).notNull(),
-  role: varchar("role", { length: 100 }).notNull(), // Job title
+  role: varchar("role", { length: 100 }).notNull(), // Job title (Directeur, Designer, etc.)
   department: varchar("department", { length: 100 }), // Département (création, commercial, etc.)
   username: varchar("username", { length: 50 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(), // Mot de passe hashé (bcrypt)
-  isAdmin: boolean("is_admin").default(false).notNull(),
-  hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }).default('5000').notNull(),
+  userRole: varchar("user_role", { length: 20 }).default('member').notNull(), // super_admin, admin, member
+  isAdmin: boolean("is_admin").default(false).notNull(), // Deprecated: use userRole instead
   skills: json("skills").$type<string[]>().default([]),
   status: varchar("status", { length: 20 }).default('offline').notNull(), // online, offline, busy, away
   avatar: varchar("avatar", { length: 10 }),
@@ -255,7 +255,7 @@ export const channelMembers = mysqlTable("channel_members", {
   memberId: varchar("member_id", { length: 36 }).references(() => teamMembers.id, { onDelete: 'cascade' }).notNull(),
   role: varchar("role", { length: 20 }).default('member'), // admin, member
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
-  lastReadAt: timestamp("last_read_at").default(sql`NULL`),
+  lastReadAt: timestamp("last_read_at"),
 }, (table) => [
   index("idx_channel_members_channel").on(table.channelId),
   index("idx_channel_members_member").on(table.memberId),
@@ -531,7 +531,6 @@ export const insertTeamMemberSchema = createInsertSchema(teamMembers, {
   name: z.string().min(2, "Nom requis (min 2 caractères)"),
   role: z.string().min(2, "Rôle requis"),
   username: z.string().min(3, "Username requis (min 3 caractères)"),
-  hourlyRate: z.string().optional(),
   skills: z.array(z.string()).optional(),
 }).omit({ id: true, createdAt: true, updatedAt: true });
 

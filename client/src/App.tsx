@@ -28,7 +28,8 @@ import DependencyManagement from "@/pages/dependency-management";
 import TeamOverview from "@/pages/team-overview";
 import UsersAdmin from "@/pages/users-admin";
 import Settings from "@/pages/settings";
-import AdminFloatingMenu from "@/components/AdminFloatingMenu";
+import Clients from "@/pages/clients";
+import Chat from "@/pages/chat";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -71,6 +72,8 @@ function Router() {
       <Route path="/team-overview" component={TeamOverview} />
       <Route path="/users-admin" component={UsersAdmin} />
       <Route path="/settings" component={Settings} />
+      <Route path="/clients" component={Clients} />
+      <Route path="/chat" component={Chat} />
 
       {/* Route 404 */}
       <Route component={NotFound} />
@@ -84,7 +87,6 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
-        <AdminFloatingMenu />
       </TooltipProvider>
     </QueryClientProvider>
   );

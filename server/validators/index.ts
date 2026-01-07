@@ -45,6 +45,7 @@ export const createTeamMemberSchema = z.object({
   username: z.string().min(3, "Username requis (min 3 caractères)"),
   password: z.string().min(6, "Mot de passe requis (min 6 caractères)"),
   isAdmin: z.boolean().default(false),
+  userRole: z.enum(['super_admin', 'admin', 'member']).default('member'),
   hourlyRate: z.string().optional().default('5000'),
   skills: z.union([z.array(z.string()), z.string()]).optional().transform((val) => {
     if (typeof val === 'string') {

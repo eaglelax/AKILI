@@ -505,7 +505,21 @@ export class DatabaseStorage {
       .limit(limit)
       .offset(offset);
 
-    return paginate(data, totalResult.count, params);
+    // Enrichir les tâches avec les noms
+    const enrichedData = await Promise.all(data.map(async (task) => {
+      const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+      const project = task.projectId ? await this.getProject(task.projectId) : null;
+      const client = task.clientId ? await this.getClient(task.clientId) : null;
+
+      return {
+        ...task,
+        assignedToName: assignee?.name || null,
+        projectName: project?.name || null,
+        clientName: client?.name || null,
+      };
+    }));
+
+    return paginate(enrichedData, totalResult.count, params);
   }
 
   async getTasksForMember(memberId: string, params: PaginationParams & { status?: string; priority?: string } = {}): Promise<PaginatedResult<Task>> {
@@ -531,7 +545,21 @@ export class DatabaseStorage {
       .limit(limit)
       .offset(offset);
 
-    return paginate(data, totalResult.count, params);
+    // Enrichir les tâches avec les noms
+    const enrichedData = await Promise.all(data.map(async (task) => {
+      const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+      const project = task.projectId ? await this.getProject(task.projectId) : null;
+      const client = task.clientId ? await this.getClient(task.clientId) : null;
+
+      return {
+        ...task,
+        assignedToName: assignee?.name || null,
+        projectName: project?.name || null,
+        clientName: client?.name || null,
+      };
+    }));
+
+    return paginate(enrichedData, totalResult.count, params);
   }
 
   async getTask(id: string): Promise<Task | undefined> {
@@ -574,7 +602,21 @@ export class DatabaseStorage {
       .limit(limit)
       .offset(offset);
 
-    return paginate(data, totalResult.count, params);
+    // Enrichir les tâches avec les noms
+    const enrichedData = await Promise.all(data.map(async (task) => {
+      const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+      const project = task.projectId ? await this.getProject(task.projectId) : null;
+      const client = task.clientId ? await this.getClient(task.clientId) : null;
+
+      return {
+        ...task,
+        assignedToName: assignee?.name || null,
+        projectName: project?.name || null,
+        clientName: client?.name || null,
+      };
+    }));
+
+    return paginate(enrichedData, totalResult.count, params);
   }
 
   async getTasksByProject(projectId: string, params: PaginationParams = {}): Promise<PaginatedResult<Task>> {
@@ -594,7 +636,21 @@ export class DatabaseStorage {
       .limit(limit)
       .offset(offset);
 
-    return paginate(data, totalResult.count, params);
+    // Enrichir les tâches avec les noms
+    const enrichedData = await Promise.all(data.map(async (task) => {
+      const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+      const project = task.projectId ? await this.getProject(task.projectId) : null;
+      const client = task.clientId ? await this.getClient(task.clientId) : null;
+
+      return {
+        ...task,
+        assignedToName: assignee?.name || null,
+        projectName: project?.name || null,
+        clientName: client?.name || null,
+      };
+    }));
+
+    return paginate(enrichedData, totalResult.count, params);
   }
 
   async getTasksByClient(clientId: string, params: PaginationParams = {}): Promise<PaginatedResult<Task>> {
@@ -614,7 +670,21 @@ export class DatabaseStorage {
       .limit(limit)
       .offset(offset);
 
-    return paginate(data, totalResult.count, params);
+    // Enrichir les tâches avec les noms
+    const enrichedData = await Promise.all(data.map(async (task) => {
+      const assignee = task.assignedTo ? await this.getTeamMember(task.assignedTo) : null;
+      const project = task.projectId ? await this.getProject(task.projectId) : null;
+      const client = task.clientId ? await this.getClient(task.clientId) : null;
+
+      return {
+        ...task,
+        assignedToName: assignee?.name || null,
+        projectName: project?.name || null,
+        clientName: client?.name || null,
+      };
+    }));
+
+    return paginate(enrichedData, totalResult.count, params);
   }
 
   async createTask(data: InsertTask): Promise<Task> {
@@ -1735,6 +1805,121 @@ export class DatabaseStorage {
 
   async deleteProjectFiles(projectId: string): Promise<void> {
     await db.delete(projectFiles).where(eq(projectFiles.projectId, projectId));
+  }
+
+  // ============================================
+  // CHAT CHANNELS OPERATIONS
+  // ============================================
+
+  async getAllChatChannels(): Promise<ChatChannel[]> {
+    return await db
+      .select()
+      .from(chatChannels)
+      .orderBy(desc(chatChannels.createdAt));
+  }
+
+  async getChatChannelsForMember(memberId: string): Promise<ChatChannel[]> {
+    // Récupérer tous les projets auxquels le membre est assigné
+    const memberProjects = await db
+      .select({ projectId: projectMembers.projectId })
+      .from(projectMembers)
+      .where(eq(projectMembers.memberId, memberId));
+
+    const projectIds = memberProjects.map(mp => mp.projectId);
+
+    if (projectIds.length === 0) {
+      // Si le membre n'est assigné à aucun projet, retourner seulement les canaux généraux
+      return await db
+        .select()
+        .from(chatChannels)
+        .where(eq(chatChannels.type, 'general'))
+        .orderBy(desc(chatChannels.createdAt));
+    }
+
+    // Retourner les canaux liés aux projets du membre + canaux généraux
+    return await db
+      .select()
+      .from(chatChannels)
+      .where(
+        or(
+          inArray(chatChannels.projectId, projectIds),
+          eq(chatChannels.type, 'general')
+        )
+      )
+      .orderBy(desc(chatChannels.createdAt));
+  }
+
+  async getChatChannel(id: string): Promise<ChatChannel | undefined> {
+    const [channel] = await db
+      .select()
+      .from(chatChannels)
+      .where(eq(chatChannels.id, id));
+    return channel;
+  }
+
+  async createChatChannel(data: InsertChatChannel): Promise<ChatChannel> {
+    await db.insert(chatChannels).values(data as any);
+    const [newChannel] = await db
+      .select()
+      .from(chatChannels)
+      .where(eq(chatChannels.name, data.name))
+      .orderBy(desc(chatChannels.createdAt))
+      .limit(1);
+    return newChannel;
+  }
+
+  async isChannelMember(channelId: string, memberId: string): Promise<boolean> {
+    const [member] = await db
+      .select()
+      .from(channelMembers)
+      .where(
+        and(
+          eq(channelMembers.channelId, channelId),
+          eq(channelMembers.memberId, memberId)
+        )
+      );
+    return !!member;
+  }
+
+  async addChannelMember(channelId: string, memberId: string, role: string = 'member'): Promise<void> {
+    // Vérifier si le membre existe déjà
+    const exists = await this.isChannelMember(channelId, memberId);
+    if (!exists) {
+      await db.insert(channelMembers).values({
+        channelId,
+        memberId,
+        role,
+      } as any);
+    }
+  }
+
+  // ============================================
+  // CHAT MESSAGES OPERATIONS
+  // ============================================
+
+  async getChatMessages(channelId: string, limit: number = 100): Promise<ChatMessage[]> {
+    return await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.channelId, channelId))
+      .orderBy(asc(chatMessages.createdAt))
+      .limit(limit);
+  }
+
+  async createChatMessage(data: InsertChatMessage): Promise<ChatMessage> {
+    await db.insert(chatMessages).values(data as any);
+    const [newMessage] = await db
+      .select()
+      .from(chatMessages)
+      .where(
+        and(
+          eq(chatMessages.channelId, data.channelId),
+          eq(chatMessages.senderId, data.senderId)
+        )
+      )
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(1);
+    return newMessage;
   }
 }
 

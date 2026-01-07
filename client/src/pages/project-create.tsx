@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/queryClient';
 import TopNavBar from '@/components/TopNavBar';
 
@@ -378,9 +379,83 @@ export default function ProjectCreate() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const { isConnected } = useWebSocket();
+  const { isAdmin, isLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [currentStep, setCurrentStep] = useState(1);
+  const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingClients, setLoadingClients] = useState(true);
+  const [teamMembers, setTeamMembers] = useState<Array<{
+    id: string;
+    name: string;
+    role: string;
+  }>>([]);
+  const [loadingTeamMembers, setLoadingTeamMembers] = useState(true);
+
+  // Rediriger les membres non-admin vers la liste des projets
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour créer un projet",
+        variant: "destructive",
+      });
+      setLocation('/projects');
+    }
+  }, [isAdmin, isLoading, setLocation, toast]);
+
+  // Charger les clients depuis l'API
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        const response = await fetch('/api/clients', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          setClients(data.data || []);
+        }
+      } catch (error) {
+        console.error('Erreur chargement clients:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger la liste des clients",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingClients(false);
+      }
+    };
+
+    loadClients();
+  }, [toast]);
+
+  // Charger les membres de l'équipe depuis l'API
+  useEffect(() => {
+    const loadTeamMembers = async () => {
+      try {
+        const response = await fetch('/api/users', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          setTeamMembers(data.data || []);
+        }
+      } catch (error) {
+        console.error('Erreur chargement membres:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger la liste des membres",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingTeamMembers(false);
+      }
+    };
+
+    loadTeamMembers();
+  }, [toast]);
+
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>([]);
@@ -447,32 +522,29 @@ export default function ProjectCreate() {
   };
 
   // Équipe réelle Jo'Fé Digital
-  const teamMembers = {
-    'serge-assale': { name: 'Serge ASSALÉ', role: 'Directeur Création', rate: 15000, initials: 'SA', color: '#162C54' },
-    'enos-gouba': { name: 'Enos GOUBA', role: 'Directeur Artistique', rate: 12000, initials: 'EG', color: '#3475BB' },
-    'paul-ouedraogo': { name: 'Paul OUÉDRAOGO', role: 'Designer Senior', rate: 10000, initials: 'PO', color: '#37B6E9' },
-    'armel-bationo': { name: 'Armel BATIONO', role: 'Motion Designer', rate: 9500, initials: 'AB', color: '#93C954' },
-    'faridatou-barry': { name: 'Faridatou BARRY', role: 'Chef de Pub/CM', rate: 7500, initials: 'FB', color: '#EF4444' },
-    'maryse-bombiri': { name: 'Maryse BOMBIRI', role: 'Community Manager', rate: 7000, initials: 'MB', color: '#F59E0B' },
-    'linda-kabore': { name: 'Linda KABORÉ', role: 'Conceptrice Rédactrice Lead', rate: 9500, initials: 'LK', color: '#8B5CF6' },
-    'abdoul-sawadogo': { name: 'Abdoul SAWADOGO', role: 'Monteur Vidéo', rate: 8000, initials: 'AS', color: '#F68C1F' },
-    'jean-sampabao': { name: 'Jean-Jacques SAMPABAO', role: 'Directeur Artistique Junior', rate: 7000, initials: 'JS', color: '#F68C1F' },
-    'latif-ouedraogo': { name: 'Abdoul Latif OUEDRAOGO', role: 'Designer UI/UX', rate: 8500, initials: 'LO', color: '#3475BB' },
-    'boureima-ouedraogo': { name: 'Boureima OUÉDRAOGO', role: 'Photographe', rate: 8500, initials: 'BO', color: '#10B981' },
-    'fatou-sankara': { name: 'Fatou SANKARA', role: 'Community Manager', rate: 6500, initials: 'FS', color: '#EC4899' },
-    'ibrahim-traore': { name: 'Ibrahim TRAORÉ', role: 'Développeur Web', rate: 9500, initials: 'IT', color: '#6366F1' },
-    'aissata-nacoulma': { name: 'Aissata NACOULMA', role: 'Assistante Administration', rate: 4500, initials: 'AN', color: '#64748B' }
+  // Les membres et clients sont maintenant chargés depuis l'API (voir useEffect ci-dessus)
+
+  // Fonction pour obtenir les initiales d'un nom
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return parts[0][0] + parts[parts.length - 1][0];
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
-  // Clients Jo'Fé Digital
-  const clients = [
-    'MOOV AFRICA', 'BANK OF AFRICA', 'SUNU BURKINA', 'ROXGOLD', 'VINCENT & ASSOCIES', 
-    'PNUD BF', 'ANSSI', 'BABALI EAU', 'DAFANI', 'BABALI BOISSONS', 'LAAFI NANDA',
-    'AFRICA PERFORMANCE GROUPE', 'BAR-RESTAU LE TRAPEZE', 'UAB ASSURANCES', 'CNPB',
-    'FIDELIS FINANCE BURKINA', 'SUNU ASSURANCES IARD MALI', 'SONAR GROUPE', 'ORYX BURKINA',
-    'BADF', 'FOREVER', 'FROID SOLUTIONS', 'KSC GROUP', 'MORISOL', 'SPH', 'LORETTA',
-    'NELSON SOLAR', 'AGENCE ZACA', 'ANEREE', 'JO\'FÉ DIGITAL', 'J\'PAY', 'JOFFRES', 'LOUDA'
-  ];
+  // Fonction pour générer une couleur basée sur le nom
+  const getColorFromName = (name: string) => {
+    const colors = [
+      '#162C54', '#3475BB', '#37B6E9', '#93C954', '#EF4444',
+      '#F59E0B', '#8B5CF6', '#F68C1F', '#10B981', '#EC4899', '#6366F1', '#64748B'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
 
   const projectTypes = [
     'Campagne 360°', 'Identité Visuelle', 'Digital & Réseaux Sociaux', 'Production Vidéo',
@@ -602,16 +674,6 @@ export default function ProjectCreate() {
     }
   };
 
-  const calculateBudget = () => {
-    const teamCost = selectedTeamMembers.reduce((total, memberId) => {
-      const member = teamMembers[memberId as keyof typeof teamMembers];
-      return total + (member?.rate || 0);
-    }, 0) * projectData.estimatedHours;
-    const margin = projectData.totalBudget - teamCost;
-    const marginRate = projectData.totalBudget > 0 ? (margin / projectData.totalBudget) * 100 : 0;
-    
-    return { teamCost, margin, marginRate };
-  };
 
   const handleTemplateSelect = (templateId: string) => {
     const template = templates[templateId as keyof typeof templates];
@@ -623,11 +685,12 @@ export default function ProjectCreate() {
         totalBudget: template.budget,
         estimatedHours: template.hours
       }));
-      setSelectedTeamMembers(template.team);
+      // Note: Les templates ne peuvent plus pré-sélectionner des membres car les IDs sont dynamiques
+      // setSelectedTeamMembers(template.team);
       setShowTemplatesModal(false);
       toast({
         title: 'Template appliqué',
-        description: `"${template.name}" a été configuré avec succès`,
+        description: `"${template.name}" a été configuré. Sélectionnez manuellement les membres de l'équipe.`,
       });
     }
   };
@@ -692,7 +755,7 @@ export default function ProjectCreate() {
       const response = await apiRequest('POST', '/api/projects', {
         name: projectData.name,
         description: projectData.description,
-        clientId: null, // Le client sera mappé côté serveur si nécessaire
+        clientId: projectData.client, // Utiliser l'ID du client sélectionné
         status: 'planning',
         priority: priorityMap[projectData.priority] || 'moyenne',
         budget: String(projectData.totalBudget),
@@ -703,12 +766,28 @@ export default function ProjectCreate() {
       const data = await response.json();
 
       if (data.success) {
+        const projectId = data.data?.id;
+
+        // Ajouter les membres d'équipe sélectionnés au projet
+        if (selectedTeamMembers.length > 0 && projectId) {
+          for (const memberId of selectedTeamMembers) {
+            try {
+              await apiRequest('POST', `/api/projects/${projectId}/members`, {
+                memberId: memberId,
+                role: 'Membre équipe', // Rôle par défaut
+              });
+            } catch (err) {
+              console.error('Erreur ajout membre:', err);
+            }
+          }
+        }
+
         // Associer les fichiers uploadés au projet créé
-        if (uploadedFiles.length > 0 && data.data?.id) {
+        if (uploadedFiles.length > 0 && projectId) {
           for (const file of uploadedFiles) {
             try {
               await apiRequest('PUT', `/api/projects/files/${file.id}`, {
-                projectId: data.data.id,
+                projectId: projectId,
               });
             } catch (err) {
               console.error('Erreur association fichier:', err);
@@ -718,7 +797,7 @@ export default function ProjectCreate() {
 
         toast({
           title: 'Projet créé avec succès!',
-          description: `"${projectData.name}" a été enregistré dans la base de données`,
+          description: `"${projectData.name}" a été créé avec ${selectedTeamMembers.length} membre(s) assigné(s)`,
         });
         setLocation('/projects');
       } else {
@@ -747,7 +826,6 @@ export default function ProjectCreate() {
     { id: 4, title: 'Validation', subtitle: 'Finalisation projet' }
   ];
 
-  const { teamCost, margin, marginRate } = calculateBudget();
 
   return (
     <div className="min-h-screen bg-white">
@@ -840,15 +918,18 @@ export default function ProjectCreate() {
                   
                   <div className="form-group">
                     <label className="form-label">Client *</label>
-                    <select 
+                    <select
                       className="form-select"
                       value={projectData.client}
                       onChange={(e) => setProjectData({...projectData, client: e.target.value})}
+                      disabled={loadingClients}
                       data-testid="select-client"
                     >
-                      <option value="">Sélectionnez un client</option>
+                      <option value="">
+                        {loadingClients ? 'Chargement des clients...' : 'Sélectionnez un client'}
+                      </option>
                       {clients.map(client => (
-                        <option key={client} value={client}>{client}</option>
+                        <option key={client.id} value={client.id}>{client.name}</option>
                       ))}
                     </select>
                   </div>
@@ -922,39 +1003,45 @@ export default function ProjectCreate() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
                   <h4 className="font-semibold mb-4" style={{ color: 'var(--jofe-blue-medium)' }}>
-                    Équipe Disponible ({Object.keys(teamMembers).length} membres)
+                    Équipe Disponible ({teamMembers.length} membres)
                   </h4>
-                  <div className="max-h-96 overflow-y-auto space-y-3">
-                    {Object.entries(teamMembers).map(([id, member]) => (
-                      <div 
-                        key={id}
-                        className={`team-member ${selectedTeamMembers.includes(id) ? 'selected' : ''}`}
-                        onClick={() => handleTeamMemberToggle(id)}
-                        data-testid={`member-${id}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div 
-                              className="w-10 h-10 rounded-full flex items-center justify-center"
-                              style={{ background: member.color }}
-                            >
-                              <span className="text-white font-semibold text-sm">{member.initials}</span>
+                  {loadingTeamMembers ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
+                      <p className="text-gray-500 mt-2">Chargement des membres...</p>
+                    </div>
+                  ) : (
+                    <div className="max-h-96 overflow-y-auto space-y-3">
+                      {teamMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          className={`team-member ${selectedTeamMembers.includes(member.id) ? 'selected' : ''}`}
+                          onClick={() => handleTeamMemberToggle(member.id)}
+                          data-testid={`member-${member.id}`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center"
+                                style={{ background: getColorFromName(member.name) }}
+                              >
+                                <span className="text-white font-semibold text-sm">{getInitials(member.name)}</span>
+                              </div>
+                              <div>
+                                <p className="font-medium">{member.name}</p>
+                                <p className="text-sm text-gray-600">{member.role}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium">{member.name}</p>
-                              <p className="text-sm text-gray-600">{member.role}</p>
+                            <div className="text-right">
+                              {selectedTeamMembers.includes(member.id) && (
+                                <p className="text-xs" style={{ color: 'var(--jofe-green)' }}>✓ Assigné</p>
+                              )}
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold">{formatCurrency(member.rate)}/h</p>
-                            {selectedTeamMembers.includes(id) && (
-                              <p className="text-xs" style={{ color: 'var(--jofe-green)' }}>✓ Assigné</p>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -967,49 +1054,32 @@ export default function ProjectCreate() {
                     ) : (
                       <div className="space-y-3">
                         {selectedTeamMembers.map(memberId => {
-                          const member = teamMembers[memberId as keyof typeof teamMembers];
+                          const member = teamMembers.find(m => m.id === memberId);
+                          if (!member) return null;
                           return (
                             <div key={memberId} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div 
+                                <div
                                   className="w-8 h-8 rounded-full flex items-center justify-center"
-                                  style={{ background: member.color }}
+                                  style={{ background: getColorFromName(member.name) }}
                                 >
-                                  <span className="text-white font-semibold text-xs">{member.initials}</span>
+                                  <span className="text-white font-semibold text-xs">{getInitials(member.name)}</span>
                                 </div>
                                 <span className="text-sm">{member.name}</span>
                               </div>
-                              <span className="text-xs text-gray-500">{formatCurrency(member.rate)}/h</span>
-                            </div>
+                              </div>
                           );
                         })}
                       </div>
                     )}
                   </div>
-                  
+
                   {selectedTeamMembers.length > 0 && (
                     <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-                      <h5 className="font-medium mb-3">Estimation des coûts équipe</h5>
+                      <h5 className="font-medium mb-3">Équipe du projet</h5>
                       <div className="space-y-2">
                         <p className="text-sm text-gray-600">
-                          Coût horaire total: <span className="font-semibold">
-                            {formatCurrency(selectedTeamMembers.reduce((total, id) => {
-                              const member = teamMembers[id as keyof typeof teamMembers];
-                              return total + (member?.rate || 0);
-                            }, 0))}/h
-                          </span>
-                        </p>
-                        <p className="text-sm text-gray-600">
                           Membres assignés: <span className="font-semibold">{selectedTeamMembers.length}</span>
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Coût moyen/h: <span className="font-semibold">
-                            {formatCurrency(selectedTeamMembers.length > 0 ? 
-                              selectedTeamMembers.reduce((total, id) => {
-                                const member = teamMembers[id as keyof typeof teamMembers];
-                                return total + (member?.rate || 0);
-                              }, 0) / selectedTeamMembers.length : 0)}/h
-                          </span>
                         </p>
                       </div>
                     </div>
@@ -1050,31 +1120,6 @@ export default function ProjectCreate() {
                       onChange={(e) => setProjectData({...projectData, estimatedHours: parseInt(e.target.value) || 0})}
                       data-testid="input-hours"
                     />
-                  </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h5 className="font-medium mb-3">Calcul Prévisionnel</h5>
-                    <div className="space-y-2">
-                      <div className="budget-item">
-                        <span>Coût équipe estimé:</span>
-                        <span>{formatCurrency(teamCost)}</span>
-                      </div>
-                      <div className="budget-item">
-                        <span>Marge bénéficiaire:</span>
-                        <span style={{ color: margin >= 0 ? 'var(--jofe-green)' : '#EF4444' }}>
-                          {formatCurrency(margin)}
-                        </span>
-                      </div>
-                      <div className="budget-item">
-                        <span>Taux de marge:</span>
-                        <span style={{ color: marginRate >= 20 ? 'var(--jofe-green)' : marginRate >= 10 ? 'var(--jofe-orange)' : '#EF4444' }}>
-                          {marginRate.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="budget-total">
-                      Total projet: <span>{formatCurrency(projectData.totalBudget)}</span>
-                    </div>
                   </div>
                 </div>
                 
@@ -1304,12 +1349,6 @@ export default function ProjectCreate() {
                       <div className="flex justify-between">
                         <span>Durée:</span>
                         <span className="font-medium">{projectData.estimatedHours}h</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Marge:</span>
-                        <span className="font-medium" style={{ color: marginRate >= 20 ? 'var(--jofe-green)' : marginRate >= 10 ? 'var(--jofe-orange)' : '#EF4444' }}>
-                          {marginRate.toFixed(1)}%
-                        </span>
                       </div>
                     </div>
                   </div>

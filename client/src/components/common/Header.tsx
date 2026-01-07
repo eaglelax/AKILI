@@ -1,20 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
-import type { TeamMember } from "@shared/schema";
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Get current team member
-  const { data: teamMember } = useQuery<TeamMember>({
-    queryKey: ["/api/team-members/current"],
-    retry: false,
-  });
 
   // Update time every minute
   useEffect(() => {
@@ -72,7 +67,7 @@ export function Header() {
         <div className="flex items-center space-x-4">
           <div className="text-right">
             <p className="text-sm font-medium text-foreground" data-testid="text-current-user">
-              {teamMember?.name || "Chargement..."}
+              {user?.name || "Chargement..."}
             </p>
             <p className="text-xs text-muted-foreground">
               Connecté • <span data-testid="text-current-time">{formatTime(currentTime)}</span>
